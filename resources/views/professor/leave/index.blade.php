@@ -1,13 +1,13 @@
-@extends('layouts.professor')
+@extends('layouts.professor_admin')
 
 @section('content')
-<h1 class="text-purple mb-4">My Leave Requests</h1>
+<h1 class="mb-4">My Leave Requests</h1>
 
-<a href="{{ route('professor.leave.create') }}" class="btn btn-purple mb-3">
+<a href="{{ route('professor.leave.create') }}" class="btn btn-primary mb-3">
     <i class="bi bi-plus-circle"></i> New Leave Request
-    </a>
+</a>
 
-<div class="card shadow">
+<div class="card">
     <div class="card-body">
         <table class="table table-striped align-middle">
             <thead>
@@ -34,7 +34,7 @@
             </tbody>
         </table>
     </div>
- </div>
+</div>
 @endsection
 
 

@@ -1,9 +1,9 @@
-@extends('layouts.professor')
+@extends('layouts.professor_admin')
 
 @section('content')
-<h1 class="text-purple mb-4">Apply for Leave</h1>
+<h1 class="mb-4">Apply for Leave</h1>
 
-<div class="card shadow">
+<div class="card">
     <div class="card-body">
         <form method="POST" action="{{ route('professor.leave.store') }}">
             @csrf
@@ -31,7 +31,7 @@
             </div>
             <div class="d-flex gap-2">
                 <a href="{{ route('professor.leave.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-purple">Submit Request</button>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
             </div>
         </form>
     </div>

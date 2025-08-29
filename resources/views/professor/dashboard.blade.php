@@ -1,11 +1,11 @@
-@extends('layouts.professor')
+@extends('layouts.professor_admin')
 
 @section('content')
-<h1 class="text-purple mb-4">Professor Dashboard</h1>
+<h1 class="mb-4">Professor Dashboard</h1>
 
 <div class="row">
     <div class="col-md-4">
-        <div class="card bg-purple text-white">
+        <div class="card bg-primary text-white">
             <div class="card-body text-center">
                 <h5>Welcome,</h5>
                 <h3>{{ $professor->name }}</h3>
@@ -46,10 +46,10 @@
         <div class="card">
             <div class="card-body">
                 <h5>Quick Actions</h5>
-                <a href="{{ route('professor.profile.edit') }}" class="btn btn-purple me-2 mb-2">
+                <a href="{{ route('professor.profile.edit') }}" class="btn btn-primary me-2 mb-2">
                     <i class="bi bi-person-circle"></i> Edit My Profile
                 </a>
-                <a href="#" class="btn btn-outline-purple mb-2">
+                <a href="#" class="btn btn-outline-primary mb-2">
                     <i class="bi bi-key"></i> Change Password
                 </a>
                 
