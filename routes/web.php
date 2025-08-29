@@ -36,8 +36,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Evaluation System
     Route::resource('evaluation', EvaluationController::class)->names('admin.evaluation');
     
-     // Faculty Directory
-     Route::get('directory', [\App\Http\Controllers\Admin\FacultyDirectoryController::class, 'index'])->name('admin.directory.index');
+    // Faculty Directory
+    Route::get('directory', [\App\Http\Controllers\Admin\FacultyDirectoryController::class, 'index'])->name('admin.directory.index');
+    Route::patch('faculty/{faculty}/restore', [FacultyController::class, 'restore'])->name('admin.faculty.restore');
+    Route::delete('faculty/{faculty}/force-delete', [FacultyController::class, 'forceDelete'])->name('admin.faculty.force-delete');
  });
 
 // Professor Routes (faculty guard)
