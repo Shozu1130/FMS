@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS III</title>
+    <title>Attendance Monitoring - Bestlink College Of the Philippines</title>
     <link rel="icon" href="{{ asset('images/logo300.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons for the toggle icon -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
        body, html {
@@ -20,7 +18,7 @@
         }
         .main-container {
             display: flex;
-            flex-direction: column; /* Mobile first: stack vertically */
+            flex-direction: column;
             height: 100%;
             width: 100%;
         }
@@ -31,17 +29,17 @@
             align-items: center;
             background-color: #ffffff;
             padding: 2rem;
-            order: 1; /* Form on top on mobile */
+            order: 1;
         }
         .login-form-wrapper {
             width: 100%;
             max-width: 380px;
         }
         .branding-container {
-            display: none; /* Hidden on mobile */
+            display: none;
         }
         .btn-custom-login {
-            background-color: #5044e4;
+            background-color: #28a745;
             border: none;
             color: white;
             padding: 0.75rem;
@@ -52,7 +50,7 @@
             font-weight: 700;
         }
         .btn-custom-login:hover {
-            background-color: #3f38b7;
+            background-color: #218838;
         }
         .form-control {
             border-radius: 0.5rem;
@@ -63,8 +61,8 @@
             font-size: 0.95rem;
         }
         .form-control:focus {
-            border-color: #5044e4;
-            box-shadow: 0 0 0 0.25rem rgba(98, 89, 202, 0.25);
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
         }
         .invalid-feedback {
             font-size: .875em;
@@ -81,13 +79,12 @@
         .fw-bold {
              font-weight: 700 !important;
         }
-        /* Styles for the password toggle icon */
         .password-wrapper {
             position: relative;
             width: 100%;
         }
         .password-wrapper .form-control {
-            padding-right: 2.5rem; /* Make space for the icon */
+            padding-right: 2.5rem;
         }
         #togglePassword {
             position: absolute;
@@ -102,18 +99,26 @@
             border: none;
             padding: 0;
         }
+        .attendance-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
 
-        /* Media query for desktops */
         @media (min-width: 992px) {
             .main-container {
-                flex-direction: row; /* Side-by-side on desktop */
+                flex-direction: row;
             }
             .login-form-container {
                 width: 50%;
                 justify-content: flex-end;
-                /* Reduced padding to make them closer */
                 padding-right: 4rem;
-                order: 1; /* Form on the left */
+                order: 1;
             }
             .branding-container {
                 width: 50%;
@@ -127,8 +132,7 @@
                 background-image: url("{{ asset('images/branding.png') }}");
                 background-size: cover;
                 background-position: center;
-                order: 2; /* Branding on the right */
-                 /* Reduced padding to make them closer */
+                order: 2;
                 padding-left: 4rem;
             }
             .branding-container h1 {
@@ -149,10 +153,13 @@
             <div class="login-form-wrapper">
                 <div class="text-center mb-4">
                     <img src="{{ asset('images/logo300.jpg') }}" alt="Logo" style="width: 200px;">
-                    <h1 class="mt-3 fw-bold">Sign in</h1>
+                    <div class="attendance-badge">
+                        <i class="bi bi-clock"></i> Attendance Monitoring
+                    </div>
+                    <h1 class="mt-3 fw-bold">Professor Login</h1>
+                    <p class="text-muted">Log in to record your attendance</p>
                 </div>
 
-                <!-- Display session error messages -->
                 @if(session('error'))
                     <div class="alert alert-danger mb-4">
                         @if(is_array(session('error')))
@@ -173,7 +180,12 @@
                     </div>
                 @endif
 
-                <!-- Display any other session messages that might be arrays -->
+                @if(session('success'))
+                    <div class="alert alert-success mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 @php
                     $sessionKeys = array_keys(session()->all());
                     $messageKeys = array_filter($sessionKeys, function($key) {
@@ -197,7 +209,7 @@
                     @endif
                 @endforeach
 
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('attendance.login') }}">
                     @csrf
                     <div class="mb-4">
                         <label for="email" class="form-label">Username <span class="text-danger">*</span></label>
@@ -220,21 +232,21 @@
                             </div>
                         @enderror
                     </div>
-                   <button type="submit" class="btn btn-custom-login w-100 py-2"> <!-- Wider button with padding -->
-            Sign in
-        </button>
+                    <button type="submit" class="btn btn-custom-login w-100 py-2">
+                        <i class="bi bi-clock"></i> Login to Attendance
+                    </button>
                 </form>
 
                 <div class="text-center mt-4">
-                    <a href="{{ route('attendance.login') }}" class="btn btn-outline-success btn-sm">
-                        <i class="bi bi-clock"></i> Faculty Attendance Login
+                    <a href="{{ route('login') }}" class="text-muted">
+                        <i class="bi bi-arrow-left"></i> Back to Main Login
                     </a>
                 </div>
             </div>
         </div>
         <div class="branding-container">
-            <h1>School Management<br>System III</h1>
-            <p>Faculty Management System</p>
+            <h1>Faculty Attendance<br>Monitoring</h1>
+            <p>Track your daily attendance with photo verification</p>
         </div>
     </div>
 
@@ -243,10 +255,8 @@
         const password = document.querySelector('#password');
 
         togglePassword.addEventListener('click', function (e) {
-            // toggle the type attribute
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
-            // toggle the eye slash icon
             this.classList.toggle('bi-eye');
         });
     </script>

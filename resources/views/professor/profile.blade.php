@@ -9,9 +9,19 @@
     </div>
 @endif
 
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
 <div class="row">
     <div class="col-md-8">
-        <div class="card">
+        <!-- Profile Information Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Profile Information</h5>
+            </div>
             <div class="card-body">
                 <form method="POST" action="{{ route('professor.profile.update') }}" enctype="multipart/form-data">
                     @csrf
@@ -65,6 +75,38 @@
 
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle"></i> Update Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Change Password</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ route('professor.profile.change-password') }}">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="new_password" class="form-control" required minlength="8">
+                        <small class="form-text text-muted">Password must be at least 8 characters long.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" name="new_password_confirmation" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-key"></i> Change Password
                     </button>
                 </form>
             </div>

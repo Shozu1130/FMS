@@ -16,6 +16,7 @@
                         <th>Total Evaluations</th>
                         <th>Recent Evaluations</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,6 +60,11 @@
                                 {{ ucfirst($faculty->status) }}
                             </span>
                         </td>
+                        <td>
+                            <a href="{{ route('admin.evaluation.create_for_faculty', $faculty->id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-star-fill"></i> Evaluate
+                            </a>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -67,3 +73,4 @@
     </div>
 </div>
 @endsection
+

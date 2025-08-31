@@ -19,9 +19,69 @@ class SalaryGradeController extends Controller
             ->orderBy('faculty_salary_grade.effective_date', 'desc')
             ->get();
 
-        Log::info('Fetched Salary Grades:', $salaryGrades->toArray());
+        // Get current salary grade for attendance calculations
+        $currentSalaryGrade = $professor->getCurrentSalaryGrade();
 
-        return view('professor.salary_grades.index', compact('salaryGrades', 'professor'));
+        // Initialize attendance data
+        $currentMonthAttendance = null;
+        $currentMonthSalaryCalculation = null;
+        $totalHoursCurrentMonth = 0;
+
+        if ($currentSalaryGrade) {
+            // Get current month attendance summary
+            $currentMonthAttendance = $currentSalaryGrade->getCurrentMonthAttendanceSummary($professor->id);
+
+            // Get current month salary calculation with attendance adjustments
+            $currentMonthSalaryCalculation = $currentSalaryGrade->getCurrentMonthAdjustedSalary($professor->id);
+
+            // Get total hours for current month
+            $totalHoursCurrentMonth = $currentSalaryGrade->getCurrentMonthTotalHours($professor->id);
+        }
+
+        Log::info('Fetched Salary Grades:', $salaryGrades->toArray());
+        Log::info('Current Month Attendance:', $currentMonthAttendance ?? []);
+        Log::info('Current Month Salary Calculation:', $currentMonthSalaryCalculation ?? []);
+
+        return view('professor.salary_grades.index', compact(
+            'salaryGrades',
+            'professor',
+            'currentSalaryGrade',
+            'currentMonthAttendance',
+            'currentMonthSalaryCalculation',
+            'totalHoursCurrentMonth'
+        ));
+    }
+
+    /**
+     * Generate and download payslip PDF for the current salary period.
+     */
+    public function downloadPayslip()
+    {
+        $professor = Auth::guard('faculty')->user();
+        $currentSalaryGrade = $professor->getCurrentSalaryGrade();
+
+        if (!$currentSalaryGrade) {
+            return redirect()->route('professor.salary_grades.index')->with('error', 'No current salary grade found.');
+        }
+
+        // Generate payslip data
+        $attendanceSummary = $currentSalaryGrade->getCurrentMonthAttendanceSummary($professor->id);
+        $salaryCalculation = $currentSalaryGrade->getCurrentMonthAdjustedSalary($professor->id);
+
+        // Use a PDF generation library like Dompdf (barryvdh/laravel-dompdf)
+        $pdf = \PDF::loadView('professor.salary_grades.payslip', [
+            'professor' => $professor,
+            'salaryGrade' => $currentSalaryGrade,
+            'attendanceSummary' => $attendanceSummary,
+            'salaryCalculation' => $salaryCalculation,
+        ]);
+
+        // Store the PDF for faster access (optional)
+        $pdfPath = storage_path('app/payslips/' . $professor->id . '-' . now()->format('Y-m') . '.pdf');
+        $pdf->save($pdfPath);
+
+        // Return the PDF as a download response
+        return $pdf->download('payslip-' . now()->format('Y-m') . '.pdf');
     }
 
     /**

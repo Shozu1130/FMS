@@ -6,6 +6,7 @@ use App\Models\Faculty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class ProfessorProfileController extends Controller
 {
@@ -40,5 +41,27 @@ class ProfessorProfileController extends Controller
 
         return redirect()->route('professor.profile.edit')
                          ->with('success', 'Profile updated successfully!');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $professor = Auth::guard('faculty')->user();
+
+        $validated = $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        // Verify current password
+        if (!\Illuminate\Support\Facades\Hash::check($validated['current_password'], $professor->password)) {
+            return redirect()->back()->with('error', 'Current password is incorrect.');
+        }
+
+        // Update password
+        $professor->password = \Illuminate\Support\Facades\Hash::make($validated['new_password']);
+        $professor->save();
+
+        return redirect()->route('professor.profile.edit')
+                         ->with('success', 'Password changed successfully!');
     }
 }

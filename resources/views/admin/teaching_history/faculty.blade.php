@@ -70,6 +70,9 @@
                         <td class="text-end">
                             <a href="{{ route('admin.teaching_history.show', $history->id) }}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
                             <a href="{{ route('admin.teaching_history.edit', $history->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ route('admin.evaluation.create_for_faculty', $faculty->id) }}" class="btn btn-sm btn-purple" title="Evaluate">
+                                <i class="bi bi-star-fill"></i>
+                            </a>
                             <form action="{{ route('admin.teaching_history.destroy', $history->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this teaching history?');">
                                 @csrf
                                 @method('DELETE')

@@ -23,7 +23,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Status</th>
-                            <th>Deleted At</th>
+                            <th>Resigned At</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -35,7 +35,7 @@
                             <td>{{ $prof->email }}</td>
                             <td>
                                 <span class="badge bg-secondary">
-                                    Deleted
+                                    resigned
                                 </span>
                             </td>
                             <td>{{ $prof->deleted_at->format('M d, Y h:i A') }}</td>

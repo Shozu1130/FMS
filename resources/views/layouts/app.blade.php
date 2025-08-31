@@ -264,6 +264,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}" href="{{ route('admin.attendance.index') }}">
+                    <i class="bi bi-clock"></i> Attendance Monitoring
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.leave.*') ? 'active' : '' }}" href="{{ route('admin.leave.index') }}">
                     <i class="bi bi-calendar-event"></i> Leave Requests
                 </a>

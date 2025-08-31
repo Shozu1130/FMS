@@ -50,8 +50,9 @@ class Faculty extends Authenticatable
     {
         $currentYear = date('Y');
         
-        // Get the highest existing ID for the current year
+        // Get the highest existing ID for the current year, excluding soft-deleted records
         $lastProfessor = self::where('professor_id', 'like', 'PROF-' . $currentYear . '-%')
+                            ->whereNull('deleted_at') // Exclude soft-deleted records
                             ->orderBy('professor_id', 'desc')
                             ->first();
 
@@ -130,7 +131,14 @@ class Faculty extends Authenticatable
     {
         Log::info('Current Salary Grade requested.');
 
-        return $this->currentSalaryGrade()->first();
+        $currentGrade = $this->currentSalaryGrade()->first();
+        
+        // Check if we have a valid salary grade object
+        if ($currentGrade && is_object($currentGrade)) {
+            return $currentGrade;
+        }
+        
+        return null;
     }
 
     /**
@@ -185,6 +193,36 @@ class Faculty extends Authenticatable
                     ->orderBy('academic_year', 'desc')
                     ->orderBy('semester', 'desc')
                     ->get();
+    }
+
+    /**
+     * Get the attendance records for the faculty.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Get current month attendance summary.
+     */
+    public function getCurrentMonthAttendance()
+    {
+        return $this->attendances()
+                    ->whereYear('date', now()->year)
+                    ->whereMonth('date', now()->month)
+                    ->get();
+    }
+
+    /**
+     * Get total hours worked in current month.
+     */
+    public function getCurrentMonthHours()
+    {
+        return $this->attendances()
+                    ->whereYear('date', now()->year)
+                    ->whereMonth('date', now()->month)
+                    ->sum('total_hours');
     }
 
     /**

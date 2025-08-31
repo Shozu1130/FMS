@@ -229,7 +229,7 @@
             
             <div class="navbar-nav ms-auto">
                 <!-- Logout Button -->
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ session()->has('attendance_user') ? route('attendance.logout') : route('logout') }}">
                     @csrf
                     <button type="submit" class="btn logout-btn">
                         <i class="bi bi-box-arrow-right me-1"></i> Logout
@@ -262,13 +262,23 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('professor.evaluation.*') ? 'active' : '' }}" href="{{ route('professor.evaluation.index') }}">
+                    <i class="bi bi-graph-up"></i> Evaluations
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('professor.salary_grades.*') ? 'active' : '' }}" href="{{ route('professor.salary_grades.index') }}">
                     <i class="bi bi-currency-dollar"></i> Salary Grades
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('admin.leave.index') }}" target="_blank">
-                    <i class="bi bi-calendar-event"></i> Admin Leave Requests
+                <a class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}" href="{{ route('attendance.dashboard') }}">
+                    <i class="bi bi-clock"></i> Attendance Monitoring
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('professor.attendance.*') ? 'active' : '' }}" href="{{ route('professor.attendance.history') }}">
+                    <i class="bi bi-calendar-week"></i> My Attendance History
                 </a>
             </li>
         </ul>

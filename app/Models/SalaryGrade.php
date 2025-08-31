@@ -213,4 +213,132 @@ class SalaryGrade extends Model
                 return [$grade->id => "Grade {$grade->grade}-{$grade->step} ({$grade->formatted_total_salary})"];
             });
     }
+
+    /**
+     * Calculate salary based on attendance for a specific month.
+     */
+    public function calculateSalaryWithAttendance($facultyId, $year, $month)
+    {
+        $attendance = \App\Models\Attendance::where('faculty_id', $facultyId)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->get();
+
+        $totalHours = $attendance->sum('total_hours');
+        $workingDays = $attendance->where('status', '!=', 'absent')->count();
+        $lateDays = $attendance->where('status', 'late')->count();
+        $earlyDepartureDays = $attendance->where('status', 'early_departure')->count();
+        $halfDays = $attendance->where('status', 'half_day')->count();
+
+        // Calculate deductions for late arrivals and early departures
+        $lateDeduction = $lateDays * 0.1; // 10% deduction per late day
+        $earlyDeduction = $earlyDepartureDays * 0.1; // 10% deduction per early departure
+        $halfDayDeduction = $halfDays * 0.5; // 50% deduction per half day
+
+        $totalDeduction = $lateDeduction + $earlyDeduction + $halfDayDeduction;
+
+        // Calculate final salary
+        $baseSalary = $this->base_salary;
+        $allowance = $this->allowance;
+        $totalSalary = $baseSalary + $allowance;
+
+        // Apply deductions
+        $finalSalary = $totalSalary * (1 - $totalDeduction);
+
+        return [
+            'base_salary' => $baseSalary,
+            'allowance' => $allowance,
+            'total_salary' => $totalSalary,
+            'total_hours' => $totalHours,
+            'working_days' => $workingDays,
+            'late_days' => $lateDays,
+            'early_departure_days' => $earlyDepartureDays,
+            'half_days' => $halfDays,
+            'deductions' => $totalDeduction,
+            'final_salary' => $finalSalary,
+            'formatted_final_salary' => '₱' . number_format($finalSalary, 2)
+        ];
+    }
+
+    /**
+     * Get total hours worked for current month.
+     */
+    public function getCurrentMonthTotalHours($facultyId)
+    {
+        return \App\Models\Attendance::where('faculty_id', $facultyId)
+            ->whereYear('date', now()->year)
+            ->whereMonth('date', now()->month)
+            ->sum('total_hours');
+    }
+
+    /**
+     * Get total hours worked for a specific period.
+     */
+    public function getTotalHoursForPeriod($facultyId, $year, $month)
+    {
+        return \App\Models\Attendance::where('faculty_id', $facultyId)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->sum('total_hours');
+    }
+
+    /**
+     * Get attendance summary for current month.
+     */
+    public function getCurrentMonthAttendanceSummary($facultyId)
+    {
+        $attendance = \App\Models\Attendance::where('faculty_id', $facultyId)
+            ->whereYear('date', now()->year)
+            ->whereMonth('date', now()->month)
+            ->get();
+
+        return [
+            'total_records' => $attendance->count(),
+            'present_days' => $attendance->where('status', 'present')->count(),
+            'late_days' => $attendance->where('status', 'late')->count(),
+            'early_departure_days' => $attendance->where('status', 'early_departure')->count(),
+            'half_days' => $attendance->where('status', 'half_day')->count(),
+            'absent_days' => $attendance->where('status', 'absent')->count(),
+            'total_hours' => $attendance->sum('total_hours'),
+            'average_hours_per_day' => $attendance->count() > 0 ? $attendance->sum('total_hours') / $attendance->count() : 0
+        ];
+    }
+
+    /**
+     * Get attendance summary for a specific period.
+     */
+    public function getAttendanceSummaryForPeriod($facultyId, $year, $month)
+    {
+        $attendance = \App\Models\Attendance::where('faculty_id', $facultyId)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->get();
+
+        return [
+            'total_records' => $attendance->count(),
+            'present_days' => $attendance->where('status', 'present')->count(),
+            'late_days' => $attendance->where('status', 'late')->count(),
+            'early_departure_days' => $attendance->where('status', 'early_departure')->count(),
+            'half_days' => $attendance->where('status', 'half_day')->count(),
+            'absent_days' => $attendance->where('status', 'absent')->count(),
+            'total_hours' => $attendance->sum('total_hours'),
+            'average_hours_per_day' => $attendance->count() > 0 ? $attendance->sum('total_hours') / $attendance->count() : 0
+        ];
+    }
+
+    /**
+     * Calculate adjusted salary for current month based on attendance.
+     */
+    public function getCurrentMonthAdjustedSalary($facultyId)
+    {
+        return $this->calculateSalaryWithAttendance($facultyId, now()->year, now()->month);
+    }
+
+    /**
+     * Calculate adjusted salary for a specific period based on attendance.
+     */
+    public function getAdjustedSalaryForPeriod($facultyId, $year, $month)
+    {
+        return $this->calculateSalaryWithAttendance($facultyId, $year, $month);
+    }
 }

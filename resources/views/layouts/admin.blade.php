@@ -262,6 +262,10 @@
                 <a class="nav-link {{ request()->routeIs('admin.salary_grades.*') ? 'active' : '' }}" href="{{ route('admin.salary_grades.index') }}">
                     <i class="bi bi-currency-dollar"></i> Salary Grades & Pay
                 </a>
+                <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}" href="{{ route('admin.attendance.index') }}">
+                    <i class="bi bi-clock"></i> Attendance Monitoring
+                </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.leave.*') ? 'active' : '' }}" href="{{ route('admin.leave.index') }}">
@@ -289,7 +293,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.evaluation.*') ? 'active' : '' }}" href="{{ route('admin.evaluation.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.evaluation.faculty_summary') ? 'active' : '' }}" href="{{ route('admin.evaluation.faculty_summary') }}">
                     <i class="bi bi-file-earmark-text"></i> Evaluation Summary
                 </a>
             </li>
