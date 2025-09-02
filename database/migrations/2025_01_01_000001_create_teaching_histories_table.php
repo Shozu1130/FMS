@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('teaching_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculty')->onDelete('cascade');
+            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+
             $table->string('course_code');
             $table->string('course_title');
             $table->string('semester');

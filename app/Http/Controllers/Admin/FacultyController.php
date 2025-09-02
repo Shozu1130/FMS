@@ -23,7 +23,7 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        $faculty = Faculty::orderByDesc('created_at')->paginate(10);
+        $faculty = Faculty::whereNull('deleted_at')->orderByDesc('created_at')->paginate(10);
         return view('admin.faculty.index', compact('faculty'));
     }
 
@@ -34,7 +34,7 @@ class FacultyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-     public function store(Request $request)
+    public function store(Request $request)
 {
     // FORCE GMAIL CONFIGURATION AT THE TOP
     config([
@@ -51,7 +51,8 @@ class FacultyController extends Controller
 
     $validated = $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:faculty',
+        'email' => 'required|email|unique:faculties',
+        'employment_type' => 'required|in:Full-Time,Part-Time',
     ]);
 
     // Generate professor ID
@@ -116,15 +117,16 @@ Change your password after first login.", function($message) use ($faculty) {
         $validated = $request->validate([
             'professor_id' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:faculty,email,' . $faculty->id,
+            'email' => 'required|email|unique:faculties,email,' . $faculty->id,
             'status' => 'required|in:active,inactive',
-        ]);
+            'employment_type' => 'required|in:Full-Time,Part-Time',
+    ]);
 
-        $faculty->update($validated);
+    $faculty->update($validated);
 
-        return redirect()->route('admin.faculty.index')
-            ->with('success', 'Professor updated successfully.');
-    }
+    return redirect()->route('admin.faculty.index')
+        ->with('success', 'Professor updated successfully.');
+}
 
     /**
      * Remove the specified resource from storage.
@@ -134,7 +136,7 @@ Change your password after first login.", function($message) use ($faculty) {
         try {
             $faculty->delete();
             return redirect()->route('admin.faculty.index')
-                ->with('success', 'Professor deleted successfully.');
+                ->with('success', 'Professor moved to directory successfully.');
         } catch (\Throwable $e) {
             Log::error('Failed to delete professor', [
                 'faculty_id' => $faculty->id,
@@ -142,6 +144,46 @@ Change your password after first login.", function($message) use ($faculty) {
             ]);
             return redirect()->route('admin.faculty.index')
                 ->with('warning', 'Unable to delete professor. It may be referenced by other records.');
+        }
+    }
+
+    /**
+     * Restore a soft deleted faculty member.
+     */
+    public function restore($id)
+    {
+        try {
+            $faculty = Faculty::onlyTrashed()->findOrFail($id);
+            $faculty->restore();
+            return redirect()->route('admin.directory.index')
+                ->with('success', 'Professor restored successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Failed to restore professor', [
+                'faculty_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+            return redirect()->route('admin.directory.index')
+                ->with('warning', 'Unable to restore professor.');
+        }
+    }
+
+    /**
+     * Permanently delete a faculty member.
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $faculty = Faculty::onlyTrashed()->findOrFail($id);
+            $faculty->forceDelete();
+            return redirect()->route('admin.directory.index')
+                ->with('success', 'Professor permanently deleted successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Failed to permanently delete professor', [
+                'faculty_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+            return redirect()->route('admin.directory.index')
+                ->with('warning', 'Unable to permanently delete professor.');
         }
     }
 }

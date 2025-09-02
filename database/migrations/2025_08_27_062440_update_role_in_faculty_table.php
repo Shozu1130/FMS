@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('faculty', function (Blueprint $table) {
+    Schema::table('faculties', function (Blueprint $table) {
         $table->string('role')->default('professor')->change();
     });
 }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('faculty', function (Blueprint $table) {
+        Schema::table('faculties', function (Blueprint $table) {
             //
         });
     }

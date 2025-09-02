@@ -4,25 +4,28 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Log;
 use App\Models\Clearance;
 use App\Models\TeachingHistory;
 use App\Models\Evaluation;
 use App\Models\SalaryGrade;
+use App\Models\ScheduleAssignment;
 
 class Faculty extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
-    protected $table = 'faculty';
+    protected $table = 'faculties';
     
     protected $fillable = [
         'professor_id',
         'name',
-        'email', 
+        'email',
         'password',
         'status',
+        'employment_type',
         'picture',
         'skills',
         'experiences'
@@ -37,11 +40,10 @@ class Faculty extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        
     ];
+    
     protected $rememberTokenName = ['remember_token'];
     
-
     /**
      * Generate automatic Professor ID (PROF-YYYY-0001)
      */
@@ -49,58 +51,48 @@ class Faculty extends Authenticatable
     {
         $currentYear = date('Y');
         
-        // Get the highest existing ID for the current year
-        $lastProfessor = self::where('professor_id', 'like', 'PROF-' . $currentYear . '-%')
+        $lastProfessor = self::withTrashed()
+                            ->where('professor_id', 'like', 'PROF-' . $currentYear . '-%')
                             ->orderBy('professor_id', 'desc')
                             ->first();
 
         if ($lastProfessor && !empty($lastProfessor->professor_id)) {
-            // Extract the number part safely
             $parts = explode('-', $lastProfessor->professor_id);
-            
-            // Check if we have enough parts and the last part is numeric
             if (count($parts) >= 3 && is_numeric(end($parts))) {
                 $lastNumber = (int) end($parts);
                 $newNumber = $lastNumber + 1;
             } else {
-                // Fallback: start from 1 if format is wrong
                 $newNumber = 1;
             }
         } else {
-            // First professor of the year
             $newNumber = 1;
         }
 
-        return 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        $proposedId = 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        
+        while (self::withTrashed()->where('professor_id', $proposedId)->exists()) {
+            $newNumber++;
+            $proposedId = 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        }
+
+        return $proposedId;
     }
 
-    /**
-     * Get the teaching histories for the faculty.
-     */
     public function teachingHistories()
     {
         return $this->hasMany(TeachingHistory::class);
     }
 
-    /**
-     * Get the clearances for the faculty.
-     */
     public function clearances()
     {
         return $this->hasMany(Clearance::class);
     }
 
-    /**
-     * Get the evaluations for the faculty.
-     */
     public function evaluations()
     {
         return $this->hasMany(Evaluation::class);
     }
 
-    /**
-     * Get the salary grades for the faculty.
-     */
     public function salaryGrades()
     {
         return $this->belongsToMany(SalaryGrade::class, 'faculty_salary_grade')
@@ -108,9 +100,6 @@ class Faculty extends Authenticatable
                     ->withTimestamps();
     }
 
-    /**
-     * Get the current salary grade relationship for the faculty.
-     */
     public function currentSalaryGrade()
     {
         return $this->salaryGrades()
@@ -122,24 +111,19 @@ class Faculty extends Authenticatable
                     ->orderBy('faculty_salary_grade.effective_date', 'desc');
     }
 
-    /**
-     * Get the current salary grade model instance for the faculty.
-     */
     public function getCurrentSalaryGrade()
     {
         Log::info('Current Salary Grade requested.');
 
-        return $this->currentSalaryGrade()->first();
+        $currentGrade = $this->currentSalaryGrade()->first();
+        return ($currentGrade && is_object($currentGrade)) ? $currentGrade : null;
     }
 
-    /**
-     * Get active teaching assignments for current semester.
-     */
     public function currentTeachingAssignments()
     {
         $currentYear = date('Y');
-        $currentSemester = $this->getCurrentSemester();
-        
+        $currentSemester = TeachingHistory::getCurrentSemesterStatic();
+
         return $this->teachingHistories()
                     ->where('academic_year', $currentYear)
                     ->where('semester', $currentSemester)
@@ -147,9 +131,6 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Get valid clearances (cleared and not expired).
-     */
     public function validClearances()
     {
         return $this->clearances()
@@ -161,9 +142,6 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Get overall evaluation rating average.
-     */
     public function getOverallRatingAverage()
     {
         return $this->evaluations()
@@ -171,13 +149,9 @@ class Faculty extends Authenticatable
                     ->avg('overall_rating');
     }
 
-    /**
-     * Get recent evaluations (last 2 years).
-     */
     public function recentEvaluations()
     {
         $twoYearsAgo = date('Y') - 2;
-        
         return $this->evaluations()
                     ->where('academic_year', '>=', $twoYearsAgo)
                     ->where('is_published', true)
@@ -186,9 +160,52 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Determine current semester based on current date.
-     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function payslips()
+    {
+        return $this->hasMany(Payslip::class);
+    }
+
+    public function user()
+    {
+        return $this;
+    }
+
+    public function clearanceRequests()
+    {
+        return $this->hasMany(ClearanceRequest::class);
+    }
+
+    public function subjectLoads()
+    {
+        return $this->hasMany(SubjectLoadTracker::class);
+    }
+
+    public function scheduleAssignments()
+    {
+        return $this->hasMany(ScheduleAssignment::class);
+    }
+
+    public function getCurrentMonthAttendance()
+    {
+        return $this->attendances()
+                    ->whereYear('date', now()->year)
+                    ->whereMonth('date', now()->month)
+                    ->get();
+    }
+
+    public function getCurrentMonthHours()
+    {
+        return $this->attendances()
+                    ->whereYear('date', now()->year)
+                    ->whereMonth('date', now()->month)
+                    ->sum('total_hours');
+    }
+
     private function getCurrentSemester()
     {
         $month = date('n');

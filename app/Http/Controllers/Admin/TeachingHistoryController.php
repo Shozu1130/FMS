@@ -29,7 +29,7 @@ class TeachingHistoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate(TeachingHistory::rules());
-
+        
         TeachingHistory::create($validated);
 
         return redirect()->route('admin.teaching_history.index')
@@ -51,7 +51,7 @@ class TeachingHistoryController extends Controller
     public function update(Request $request, TeachingHistory $teachingHistory)
     {
         $validated = $request->validate(TeachingHistory::rules($teachingHistory->id));
-
+        
         $teachingHistory->update($validated);
 
         return redirect()->route('admin.teaching_history.index')
@@ -79,7 +79,7 @@ class TeachingHistoryController extends Controller
     public function currentSemester()
     {
         $currentYear = date('Y');
-        $currentSemester = (new TeachingHistory())->getCurrentSemester();
+        $currentSemester = TeachingHistory::getCurrentSemesterStatic();
 
         $teachingHistories = TeachingHistory::with('faculty')
             ->where('academic_year', $currentYear)

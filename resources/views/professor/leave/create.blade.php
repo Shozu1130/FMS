@@ -1,11 +1,11 @@
-@extends('layouts.professor')
+@extends('layouts.professor_admin')
 
 @section('content')
-<h1 class="text-purple mb-4">Apply for Leave</h1>
+<h1 class="mb-4">Apply for Leave</h1>
 
-<div class="card shadow">
+<div class="card">
     <div class="card-body">
-        <form method="POST" action="{{ route('professor.leave.store') }}">
+        <form method="POST" action="{{ route('professor.leave.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Type of Leave</label>
@@ -29,9 +29,14 @@
                 <label class="form-label">Reason (optional)</label>
                 <textarea name="reason" class="form-control" rows="4" placeholder="Brief reason...">{{ old('reason') }}</textarea>
             </div>
+            <div class="mb-3">
+                <label class="form-label">Attachment (PDF only, max 2MB)</label>
+                <input type="file" name="attachment" class="form-control" accept=".pdf" required>
+                <div class="form-text">Please upload a PDF document supporting your leave request.</div>
+            </div>
             <div class="d-flex gap-2">
                 <a href="{{ route('professor.leave.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-purple">Submit Request</button>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
             </div>
         </form>
     </div>

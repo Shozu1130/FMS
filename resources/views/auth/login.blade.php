@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestlink College Of the Philippines</title>
+    <title>SMS III</title>
     <link rel="icon" href="{{ asset('images/logo300.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -152,6 +152,51 @@
                     <h1 class="mt-3 fw-bold">Sign in</h1>
                 </div>
 
+                <!-- Display session error messages -->
+                @if(session('error'))
+                    <div class="alert alert-danger mb-4">
+                        @if(is_array(session('error')))
+                            <ul class="mb-0">
+                                @foreach(session('error') as $key => $error)
+                                    @if(is_array($error))
+                                        @foreach($error as $subError)
+                                            <li>{{ $subError }}</li>
+                                        @endforeach
+                                    @else
+                                        <li>{{ $error }}</li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        @else
+                            {{ session('error') }}
+                        @endif
+                    </div>
+                @endif
+
+                <!-- Display any other session messages that might be arrays -->
+                @php
+                    $sessionKeys = array_keys(session()->all());
+                    $messageKeys = array_filter($sessionKeys, function($key) {
+                        return strpos($key, 'errors') !== false || 
+                               strpos($key, 'message') !== false ||
+                               strpos($key, 'warning') !== false ||
+                               strpos($key, 'info') !== false ||
+                               strpos($key, 'success') !== false;
+                    });
+                @endphp
+
+                @foreach($messageKeys as $key)
+                    @if(session($key) && is_array(session($key)))
+                        <div class="alert alert-{{ strpos($key, 'error') !== false ? 'danger' : (strpos($key, 'success') !== false ? 'success' : (strpos($key, 'warning') !== false ? 'warning' : 'info')) }} mb-4">
+                            <ul class="mb-0">
+                                @foreach(session($key) as $message)
+                                    <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                @endforeach
+
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div class="mb-4">
@@ -179,6 +224,12 @@
             Sign in
         </button>
                 </form>
+
+                <div class="text-center mt-4">
+                    <a href="{{ route('attendance.login') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-clock"></i> Faculty Attendance Login
+                    </a>
+                </div>
             </div>
         </div>
         <div class="branding-container">

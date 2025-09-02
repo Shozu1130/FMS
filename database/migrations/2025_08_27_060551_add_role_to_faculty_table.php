@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('faculty', function (Blueprint $table) {
+    Schema::table('faculties', function (Blueprint $table) {
         $table->string('role')->default('professor')->after('password');
     });
 }
 
 public function down()
 {
-    Schema::table('faculty', function (Blueprint $table) {
+    Schema::table('faculties', function (Blueprint $table) {
         $table->dropColumn('role');
     });
 }

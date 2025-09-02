@@ -56,6 +56,9 @@ class LoginController extends Controller
         Auth::logout();
         Auth::guard('faculty')->logout();
         
+        // Clear attendance user flag if it exists
+        $request->session()->forget('attendance_user');
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         

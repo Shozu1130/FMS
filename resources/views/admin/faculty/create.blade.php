@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -43,6 +43,14 @@
                             <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
                         </div>
                     </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Employment Type *</label>
+                    <select name="employment_type" class="form-select" required>
+                        <option value="Full-Time" {{ old('employment_type', 'Full-Time') == 'Full-Time' ? 'selected' : '' }}>Full-Time</option>
+                        <option value="Part-Time" {{ old('employment_type') == 'Part-Time' ? 'selected' : '' }}>Part-Time</option>
+                    </select>
                 </div>
 
                 <div class="d-flex gap-2">

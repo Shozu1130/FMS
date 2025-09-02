@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -36,7 +36,7 @@
                     <label class="form-check-label" for="is_active">Active</label>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.salary_grades.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('admin.salary-grades.index') }}" class="btn btn-outline-secondary">Cancel</a>
                     <button class="btn btn-primary">Save Changes</button>
                 </div>
             </form>

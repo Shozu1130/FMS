@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -16,6 +16,7 @@
                         <th>Professor</th>
                         <th>Type</th>
                         <th>Dates</th>
+                        <th>Attachment</th>
                         <th>Status</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -26,6 +27,13 @@
                         <td>{{ $r->faculty->name }} ({{ $r->faculty->professor_id }})</td>
                         <td>{{ ucfirst($r->type) }}</td>
                         <td>{{ $r->start_date }} - {{ $r->end_date }}</td>
+                        <td>
+                            @if($r->file_path)
+                                <a href="{{ asset('storage/' . $r->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">View PDF</a>
+                            @else
+                                No attachment
+                            @endif
+                        </td>
                         <td>
                             <span class="badge bg-{{ $r->status == 'approved' ? 'success' : ($r->status == 'rejected' ? 'danger' : 'secondary') }}">{{ ucfirst($r->status) }}</span>
                         </td>
@@ -45,7 +53,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="text-center">No leave requests.</td></tr>
+                    <tr><td colspan="6" class="text-center">No leave requests.</td></tr>
                     @endforelse
                 </tbody>
             </table>

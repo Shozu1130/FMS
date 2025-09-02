@@ -32,7 +32,13 @@ class LeaveRequestController extends Controller
             'reason' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'attachment' => 'required|file|mimes:pdf|max:2048',
         ]);
+
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('leave_attachments', 'public');
+            $validated['file_path'] = $path;
+        }
 
         $validated['faculty_id'] = $professor->id;
         $validated['status'] = LeaveRequest::STATUS_PENDING;

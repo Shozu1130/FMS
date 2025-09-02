@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('faculty_salary_grade', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculty')->onDelete('cascade');
+            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
             $table->foreignId('salary_grade_id')->constrained('salary_grades')->onDelete('cascade');
             $table->date('effective_date');
             $table->date('end_date')->nullable();

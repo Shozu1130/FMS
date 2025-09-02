@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('css/schedule-assignment.css') }}" rel="stylesheet"> />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -74,64 +75,121 @@
         
         /* Sidebar */
         .sidebar {
-            width: var(--sidebar-width);
-            background: white;
             position: fixed;
             top: var(--header-height);
             left: 0;
+            width: var(--sidebar-width);
             height: calc(100vh - var(--header-height));
-            padding: 1.5rem 0;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-            transition: var(--transition);
-            z-index: 900;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            border-right: 1px solid #e3e6f0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
             overflow-y: auto;
+            z-index: 999;
         }
         
         .sidebar-header {
-            padding: 0 1.5rem 1.5rem;
-            border-bottom: 1px solid #edf2f7;
-            margin-bottom: 1rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            background: rgba(74, 108, 247, 0.05);
         }
         
         .sidebar-header h4 {
+            color: var(--primary);
             font-weight: 600;
-            color: var(--dark);
-            font-size: 1.2rem;
-        }
-        
-        .nav-item {
-            margin: 0.3rem 0.8rem;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-        
-        .nav-item:hover {
-            background-color: #f0f5ff;
-        }
-        
-        .nav-link {
-            color: var(--secondary);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
+            margin: 0;
             font-size: 1.1rem;
         }
         
-        .nav-link.active {
-            background: linear-gradient(120deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.25);
+        .sidebar .nav {
+            padding: 1rem 0;
         }
         
-        .nav-link:hover:not(.active) {
+        .sidebar .nav-item {
+            margin: 0 0.75rem 0.25rem 0.75rem;
+        }
+        
+        .sidebar .nav-link {
+            padding: 0.875rem 1rem;
+            color: #5a6c7d;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.875rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: rgba(74, 108, 247, 0.08);
             color: var(--primary);
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(74, 108, 247, 0.15);
+        }
+        
+        .sidebar .nav-link:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.4);
+            transform: translateX(2px);
+        }
+        
+        .sidebar .nav-link.active::before {
+            transform: scaleY(1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .sidebar .nav-link.active i {
+            color: white;
+        }
+        
+        /* Sidebar Groups */
+        .sidebar-group {
+            margin: 1.5rem 0.75rem 0.5rem 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e3e6f0;
+        }
+        
+        .sidebar-group:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        .sidebar-group-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8492a6;
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
         }
         
         /* Main Content */
@@ -150,10 +208,12 @@
             margin-bottom: 2rem;
         }
         
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
             }
             
             .sidebar.active {
@@ -162,10 +222,45 @@
             
             .main-content {
                 margin-left: 0;
+                padding: 1.5rem;
             }
             
-            .navbar-toggler {
+            .sidebar-toggle {
                 display: block;
+            }
+            
+            .sidebar .nav-item {
+                margin: 0 0.5rem 0.25rem 0.5rem;
+            }
+            
+            .sidebar .nav-link {
+                padding: 0.75rem 0.875rem;
+                font-size: 0.85rem;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .sidebar-group-title {
+                font-size: 0.7rem;
+                padding: 0 0.875rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100vw;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .sidebar .nav-link {
+                padding: 0.875rem 1rem;
+                font-size: 0.9rem;
             }
         }
         
@@ -246,58 +341,90 @@
         </div>
         
         <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.faculty.*') ? 'active' : '' }}" href="{{ route('admin.faculty.index') }}">
-                    <i class="bi bi-people-fill"></i> Faculty Profiles
-                </a>
-            </li>
+            <!-- Core Management -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title">Core Management</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.faculty.*') ? 'active' : '' }}" href="{{ route('admin.faculty.index') }}">
+                        <i class="fas fa-users"></i> Faculty Profiles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.directory.*') ? 'active' : '' }}" href="{{ route('admin.directory.index') }}">
+                        <i class="fas fa-address-book"></i> Faculty Directory
+                    </a>
+                </li>
+            </div>
 
-            
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.salary_grades.*') ? 'active' : '' }}" href="{{ route('admin.salary_grades.index') }}">
-                    <i class="bi bi-currency-dollar"></i> Salary Grades & Pay
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.leave.*') ? 'active' : '' }}" href="{{ route('admin.leave.index') }}">
-                    <i class="bi bi-calendar-event"></i> Leave Requests
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.teaching_history.*') ? 'active' : '' }}" href="{{ route('admin.teaching_history.index') }}">
-                    <i class="bi bi-book"></i> Teaching History
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-bookmarks"></i> Subject Load Tracker
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-calendar-check"></i> Schedule Assignment
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}" href="{{ route('admin.clearance.index') }}">
-                    <i class="bi bi-shield-lock"></i> Clearance System
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.evaluation.*') ? 'active' : '' }}" href="{{ route('admin.evaluation.index') }}">
-                    <i class="bi bi-file-earmark-text"></i> Evaluation Summary
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.directory.*') ? 'active' : '' }}" href="{{ route('admin.directory.index') }}">
-                    <i class="bi bi-directory"></i> Faculty Directory
-                </a>
-            </li>
+            <!-- Academic Management -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title">Academic Management</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.subject-loads.*') ? 'active' : '' }}" href="{{ route('admin.subject-loads.index') }}">
+                        <i class="fas fa-chalkboard-teacher"></i> Subject Load Tracker
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.schedule-assignment.*') ? 'active' : '' }}" href="{{ route('admin.schedule-assignment.dashboard') }}">
+                        <i class="fas fa-calendar-check"></i> Schedule Assignment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.schedule-search.*') ? 'active' : '' }}" href="{{ route('admin.schedule-search.index') }}">
+                        <i class="fas fa-search"></i> Schedule Search
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.teaching_history.*') ? 'active' : '' }}" href="{{ route('admin.teaching_history.index') }}">
+                        <i class="fas fa-history"></i> Teaching History
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.evaluation.*') ? 'active' : '' }}" href="{{ route('admin.evaluation.faculty_summary') }}">
+                        <i class="fas fa-star"></i> Evaluation Summary
+                    </a>
+                </li>
+            </div>
+
+            <!-- HR & Payroll -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title">HR & Payroll</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.salary-grades.*') || request()->routeIs('admin.payslips.*') ? 'active' : '' }}" href="{{ route('admin.salary-grades.index') }}">
+                        <i class="fas fa-dollar-sign"></i> Salary & Payroll
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}" href="{{ route('admin.attendance.index') }}">
+                        <i class="fas fa-clock"></i> Attendance Monitoring
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.leave.*') ? 'active' : '' }}" href="{{ route('admin.leave.index') }}">
+                        <i class="fas fa-calendar-times"></i> Leave Requests
+                    </a>
+                </li>
+            </div>
+
+            <!-- Clearance System -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title">Clearance System</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}" href="{{ route('admin.clearance.index') }}">
+                        <i class="fas fa-shield-alt"></i> Clearance System
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.clearance-requests.*') ? 'active' : '' }}" href="{{ route('admin.clearance-requests.index') }}">
+                        <i class="fas fa-clipboard-check"></i> Clearance Requests
+                    </a>
+                </li>
+            </div>
         </ul>
     </div>
 
@@ -314,7 +441,7 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    &copy; 2023 Faculty Management System. All rights reserved.
+                    &copy; 2025 Faculty Management System. All rights reserved.
                 </div>
                 <div class="col-md-6 text-md-end">
                     <span class="version">v1.2.0</span>
@@ -324,6 +451,8 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         // Toggle sidebar on mobile
         document.querySelector('.sidebar-toggle').addEventListener('click', function() {
