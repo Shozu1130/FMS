@@ -34,7 +34,7 @@ class FacultyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-     public function store(Request $request)
+    public function store(Request $request)
 {
     // FORCE GMAIL CONFIGURATION AT THE TOP
     config([
@@ -51,7 +51,8 @@ class FacultyController extends Controller
 
     $validated = $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:faculty',
+        'email' => 'required|email|unique:faculties',
+        'employment_type' => 'required|in:Full-Time,Part-Time',
     ]);
 
     // Generate professor ID
@@ -116,15 +117,16 @@ Change your password after first login.", function($message) use ($faculty) {
         $validated = $request->validate([
             'professor_id' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:faculty,email,' . $faculty->id,
+            'email' => 'required|email|unique:faculties,email,' . $faculty->id,
             'status' => 'required|in:active,inactive',
-        ]);
+            'employment_type' => 'required|in:Full-Time,Part-Time',
+    ]);
 
-        $faculty->update($validated);
+    $faculty->update($validated);
 
-        return redirect()->route('admin.faculty.index')
-            ->with('success', 'Professor updated successfully.');
-    }
+    return redirect()->route('admin.faculty.index')
+        ->with('success', 'Professor updated successfully.');
+}
 
     /**
      * Remove the specified resource from storage.

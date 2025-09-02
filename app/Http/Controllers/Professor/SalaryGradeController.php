@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log; // Ensure this line is present only once
+use PDF; // Add this import for PDF generation
 
 class SalaryGradeController extends Controller
 {
@@ -69,7 +70,7 @@ class SalaryGradeController extends Controller
         $salaryCalculation = $currentSalaryGrade->getCurrentMonthAdjustedSalary($professor->id);
 
         // Use a PDF generation library like Dompdf (barryvdh/laravel-dompdf)
-        $pdf = \PDF::loadView('professor.salary_grades.payslip', [
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('professor.salary_grades.payslip', [
             'professor' => $professor,
             'salaryGrade' => $currentSalaryGrade,
             'attendanceSummary' => $attendanceSummary,

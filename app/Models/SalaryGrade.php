@@ -12,25 +12,18 @@ class SalaryGrade extends Model
 
     protected $fillable = [
         'grade',
-        'step',
-        'base_salary',
-        'allowance',
-        'notes',
-        'is_active',
+        'full_time_base_salary',
+        'part_time_base_salary',
     ];
 
     protected $casts = [
-        'base_salary' => 'decimal:2',
-        'allowance' => 'decimal:2',
-        'is_active' => 'boolean',
+        'full_time_base_salary' => 'decimal:2',
+        'part_time_base_salary' => 'decimal:2',
     ];
 
     protected $appends = [
-        'total_salary',
-        'formatted_base_salary',
-        'formatted_allowance',
-        'formatted_total_salary',
-        'status_badge',
+        'formatted_full_time_base_salary',
+        'formatted_part_time_base_salary',
     ];
 
     /**
@@ -44,61 +37,35 @@ class SalaryGrade extends Model
     }
 
     /**
-     * Scope a query to only include active salary grades.
+     * Scope a query to find by grade.
      */
-    public function scopeActive($query)
+    public function scopeByGrade($query, $grade)
     {
-        return $query->where('is_active', true);
+        return $query->where('grade', $grade);
     }
 
     /**
-     * Scope a query to find by grade and step.
+     * Get formatted full-time base salary.
      */
-    public function scopeByGradeAndStep($query, $grade, $step)
+    public function getFormattedFullTimeBaseSalaryAttribute()
     {
-        return $query->where('grade', $grade)->where('step', $step);
+        return $this->full_time_base_salary ? '₱' . number_format($this->full_time_base_salary, 2) : 'Not set';
     }
 
     /**
-     * Get the total salary (base + allowance).
+     * Get formatted part-time base salary.
      */
-    public function getTotalSalaryAttribute()
+    public function getFormattedPartTimeBaseSalaryAttribute()
     {
-        return $this->base_salary + $this->allowance;
+        return $this->part_time_base_salary ? '₱' . number_format($this->part_time_base_salary, 2) : 'Not set';
     }
 
     /**
-     * Get formatted base salary.
+     * Get base salary for employment type.
      */
-    public function getFormattedBaseSalaryAttribute()
+    public function getBaseSalaryForEmploymentType($employmentType)
     {
-        return '₱' . number_format($this->base_salary, 2);
-    }
-
-    /**
-     * Get formatted allowance.
-     */
-    public function getFormattedAllowanceAttribute()
-    {
-        return '₱' . number_format($this->allowance, 2);
-    }
-
-    /**
-     * Get formatted total salary.
-     */
-    public function getFormattedTotalSalaryAttribute()
-    {
-        return '₱' . number_format($this->total_salary, 2);
-    }
-
-    /**
-     * Get status badge with color.
-     */
-    public function getStatusBadgeAttribute()
-    {
-        return $this->is_active 
-            ? '<span class="badge bg-success">Active</span>'
-            : '<span class="badge bg-secondary">Inactive</span>';
+        return $employmentType === 'Full-Time' ? $this->full_time_base_salary : $this->part_time_base_salary;
     }
 
     /**
@@ -129,48 +96,18 @@ class SalaryGrade extends Model
     public static function rules($id = null)
     {
         return [
-            'grade' => 'required|integer|min:1|max:99',
-            'step' => 'required|integer|min:1|max:99',
-            'base_salary' => 'required|numeric|min:0|max:9999999.99',
-            'allowance' => 'nullable|numeric|min:0|max:9999999.99',
-            'notes' => 'nullable|string|max:500',
-            'is_active' => 'nullable|boolean',
+            'grade' => 'required|integer|min:1|max:99|unique:salary_grades,grade,' . $id,
+            'full_time_base_salary' => 'required|numeric|min:0|max:9999999.99',
+            'part_time_base_salary' => 'required|numeric|min:0|max:9999999.99',
         ];
     }
 
     /**
-     * Get the next available step for a given grade.
+     * Get salary grade by grade.
      */
-    public static function getNextStep($grade)
+    public static function getByGrade($grade)
     {
-        $maxStep = self::where('grade', $grade)->max('step');
-        return $maxStep ? $maxStep + 1 : 1;
-    }
-
-    /**
-     * Get all salary grades grouped by grade.
-     */
-    public static function getGroupedByGrade()
-    {
-        return self::orderBy('grade')->orderBy('step')
-            ->get()
-            ->groupBy('grade');
-    }
-
-    /**
-     * Get salary grade by grade and step with fallback.
-     */
-    public static function getByGradeAndStep($grade, $step)
-    {
-        return self::byGradeAndStep($grade, $step)->first();
-    }
-
-    /**
-     * Get the highest step for a given grade.
-     */
-    public static function getHighestStep($grade)
-    {
-        return self::where('grade', $grade)->max('step');
+        return self::byGrade($grade)->first();
     }
 
     /**
@@ -205,12 +142,10 @@ class SalaryGrade extends Model
      */
     public static function getForDropdown()
     {
-        return self::active()
-            ->orderBy('grade')
-            ->orderBy('step')
+        return self::orderBy('grade')
             ->get()
             ->mapWithKeys(function ($grade) {
-                return [$grade->id => "Grade {$grade->grade}-{$grade->step} ({$grade->formatted_total_salary})"];
+                return [$grade->id => "Grade {$grade->grade}"];
             });
     }
 

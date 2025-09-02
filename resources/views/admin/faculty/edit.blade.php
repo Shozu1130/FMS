@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -42,6 +42,17 @@
                         <option value="inactive" {{ old('status', $professor->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                     @error('status')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="employment_type" class="form-label">Employment Type</label>
+                    <select id="employment_type" name="employment_type" class="form-select @error('employment_type') is-invalid @enderror">
+                        <option value="Full-Time" {{ old('employment_type', $professor->employment_type ?? 'Full-Time') == 'Full-Time' ? 'selected' : '' }}>Full-Time</option>
+                        <option value="Part-Time" {{ old('employment_type', $professor->employment_type ?? 'Full-Time') == 'Part-Time' ? 'selected' : '' }}>Part-Time</option>
+                    </select>
+                    @error('employment_type')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

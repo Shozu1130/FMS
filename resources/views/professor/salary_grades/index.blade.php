@@ -132,6 +132,7 @@
                                         <th>End Date</th>
                                         <th>Status</th>
                                         <th>Current Month Hours</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -161,6 +162,13 @@
                                                     <span class="badge bg-info">{{ number_format($totalHoursCurrentMonth, 2) }} hrs</span>
                                                 @else
                                                     <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($salaryGrade->pivot->is_current)
+                                                    <a href="{{ route('professor.salary_grades.downloadPayslip') }}" class="btn btn-primary btn-sm">Download Payslip</a>
+                                                @else
+                                                    <span class="text-muted">N/A</span>
                                                 @endif
                                             </td>
                                         </tr>

@@ -60,8 +60,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.leave.index') }}" target="_blank">
-                            <i class="bi bi-calendar-event"></i> Admin Leave Requests
+                        <a class="nav-link {{ request()->routeIs('professor.subject-loads.*') ? 'active' : '' }}" href="{{ route('professor.subject-loads.index') }}">
+                            <i class="bi bi-bookmarks"></i> My Subject Loads
                         </a>
                     </li>
                 </ul>

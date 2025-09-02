@@ -218,10 +218,13 @@
                     </a>
                     
                     <!-- Logout Button -->
-                    <a href="{{ route('attendance.logout') }}" class="btn logout-btn"
-                       onclick="return confirm('Are you sure you want to logout?')">
-                        <i class="bi bi-box-arrow-right me-1"></i> Logout
-                    </a>
+                    <form method="POST" action="{{ route('attendance.logout') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn logout-btn"
+                                onclick="return confirm('Are you sure you want to logout?')">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

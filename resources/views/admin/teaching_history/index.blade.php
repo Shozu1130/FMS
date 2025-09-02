@@ -8,10 +8,11 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <a href="{{ route('admin.teaching_history.create') }}" class="btn btn-purple mb-3">
-        <i class="bi bi-plus"></i> New Teaching History
-    </a>
-
+    <div class="mb-4">
+        <a href="{{ route('admin.teaching_history.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Teaching Assignment
+        </a>
+    </div>
     <div class="card shadow">
         <div class="card-body">
             <table class="table table-striped align-middle">
@@ -24,7 +25,7 @@
                         <th>Academic Year</th>
                         <th>Units</th>
                         <th>Status</th>
-                        <th class="text-end">Actions</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,12 +40,19 @@
                         <td>
                             <span class="badge bg-{{ $history->is_active ? 'success' : 'secondary' }}">{{ $history->is_active ? 'Active' : 'Inactive' }}</span>
                         </td>
-                        <td class="text-end">
-                            <a href="{{ route('admin.teaching_history.edit', $history->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
-                            <form action="{{ route('admin.teaching_history.destroy', $history->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this teaching history?');">
+                        <td>
+                            <a href="{{ route('admin.teaching_history.show', $history) }}" class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="{{ route('admin.teaching_history.edit', $history) }}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form action="{{ route('admin.teaching_history.destroy', $history) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
                             </form>
                         </td>
                     </tr>

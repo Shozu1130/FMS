@@ -11,19 +11,21 @@ use App\Models\Clearance;
 use App\Models\TeachingHistory;
 use App\Models\Evaluation;
 use App\Models\SalaryGrade;
+use App\Models\ScheduleAssignment;
 
 class Faculty extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
-    protected $table = 'faculty';
+    protected $table = 'faculties';
     
     protected $fillable = [
         'professor_id',
         'name',
-        'email', 
+        'email',
         'password',
         'status',
+        'employment_type',
         'picture',
         'skills',
         'experiences'
@@ -50,9 +52,10 @@ class Faculty extends Authenticatable
     {
         $currentYear = date('Y');
         
-        // Get the highest existing ID for the current year, excluding soft-deleted records
-        $lastProfessor = self::where('professor_id', 'like', 'PROF-' . $currentYear . '-%')
-                            ->whereNull('deleted_at') // Exclude soft-deleted records
+        // Get the highest existing ID for the current year, INCLUDING soft-deleted records
+        // to avoid UNIQUE constraint violations
+        $lastProfessor = self::withTrashed()
+                            ->where('professor_id', 'like', 'PROF-' . $currentYear . '-%')
                             ->orderBy('professor_id', 'desc')
                             ->first();
 
@@ -73,7 +76,15 @@ class Faculty extends Authenticatable
             $newNumber = 1;
         }
 
-        return 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        // Double-check that the generated ID doesn't already exist (including soft-deleted)
+        $proposedId = 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        
+        while (self::withTrashed()->where('professor_id', $proposedId)->exists()) {
+            $newNumber++;
+            $proposedId = 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        }
+
+        return $proposedId;
     }
 
     /**
@@ -147,8 +158,8 @@ class Faculty extends Authenticatable
     public function currentTeachingAssignments()
     {
         $currentYear = date('Y');
-        $currentSemester = $this->getCurrentSemester();
-        
+        $currentSemester = TeachingHistory::getCurrentSemesterStatic();
+
         return $this->teachingHistories()
                     ->where('academic_year', $currentYear)
                     ->where('semester', $currentSemester)
@@ -201,6 +212,47 @@ class Faculty extends Authenticatable
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }   
+
+    /**
+     * Get the payslips for the faculty.
+     */
+    public function payslips()
+    {
+        return $this->hasMany(Payslip::class);
+    }
+
+    /**
+     * Get the user relationship for the faculty.
+     * Faculty model acts as its own user model for authentication.
+     */
+    public function user()
+    {
+        return $this;
+    }
+
+    /**
+     * Get clearance requests for this faculty.
+     */
+    public function clearanceRequests()
+    {
+        return $this->hasMany(ClearanceRequest::class);
+    }
+
+    /**
+     * Get subject loads for this faculty.
+     */
+    public function subjectLoads()
+    {
+        return $this->hasMany(SubjectLoadTracker::class);
+    }
+
+    /**
+     * Get schedule assignments for this faculty.
+     */
+    public function scheduleAssignments()
+    {
+        return $this->hasMany(ScheduleAssignment::class);
     }
 
     /**

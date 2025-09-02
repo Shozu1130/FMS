@@ -13,6 +13,7 @@ class LeaveRequest extends Model
         'faculty_id',
         'type',
         'reason',
+        'file_path',
         'start_date',
         'end_date',
         'status',

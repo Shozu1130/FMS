@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -163,7 +163,7 @@
                                     <a href="{{ route('admin.attendance.index', ['faculty_id' => $facultySummary['faculty']->id]) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye"></i> View Records
                                     </a>
-                                    <a href="{{ route('admin.salary_grades.index') }}" class="btn btn-sm btn-outline-info">
+                                    <a href="{{ route('admin.salary-grades.index') }}" class="btn btn-sm btn-outline-info">
                                         <i class="bi bi-calculator"></i> Salary
                                     </a>
                                 </div>

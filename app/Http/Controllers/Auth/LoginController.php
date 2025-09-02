@@ -59,21 +59,6 @@ class LoginController extends Controller
         // Clear attendance user flag if it exists
         $request->session()->forget('attendance_user');
         
-        // Clear all session flash data that might contain arrays
-        $sessionKeys = array_keys($request->session()->all());
-        $messageKeys = array_filter($sessionKeys, function($key) {
-            return strpos($key, 'errors') !== false || 
-                   strpos($key, 'error') !== false ||
-                   strpos($key, 'message') !== false ||
-                   strpos($key, 'warning') !== false ||
-                   strpos($key, 'info') !== false ||
-                   strpos($key, 'success') !== false;
-        });
-        
-        foreach ($messageKeys as $key) {
-            $request->session()->forget($key);
-        }
-        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         

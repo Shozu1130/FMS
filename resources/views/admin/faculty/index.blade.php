@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -24,6 +24,7 @@
                         <th>Professor ID</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Employment Type</th>
                         <th>Status</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -34,6 +35,7 @@
                         <td>{{ $prof->professor_id }}</td>
                         <td>{{ $prof->name }}</td>
                         <td>{{ $prof->email }}</td>
+                        <td>{{ $prof->employment_type ?? 'Full-Time' }}</td>
                         <td>
                             <span class="badge bg-{{ $prof->status == 'active' ? 'success' : 'secondary' }}">
                                 {{ $prof->status }}

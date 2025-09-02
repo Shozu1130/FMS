@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendances', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('faculties', function (Blueprint $table) {
+            $table->string('employment_type')->default('Full-Time')->after('status');
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendances');
+        Schema::table('faculties', function (Blueprint $table) {
+            $table->dropColumn('employment_type');
+        });
     }
 };

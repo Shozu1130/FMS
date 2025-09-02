@@ -43,6 +43,26 @@
     </div>
     
     <div class="col-md-8">
+        {{-- Teaching History Notification --}}
+        @php
+            $currentYear = date('Y');
+            // Use static method to get current semester instead of instance method
+            $currentSemester = \App\Models\TeachingHistory::getCurrentSemesterStatic();
+            $hasCurrentTeachingHistory = $professor->teachingHistories()
+                ->where('academic_year', $currentYear)
+                ->where('semester', $currentSemester)
+                ->where('is_active', true)
+                ->exists();
+        @endphp
+        @if(!$hasCurrentTeachingHistory)
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Action Required:</strong> You haven't submitted your teaching history for the current semester ({{ $currentSemester }} {{ $currentYear }}). Please update your teaching assignments.
+            <a href="{{ route('professor.teaching_history.create') }}" class="alert-link">Add Teaching History</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
         <div class="card">
         <div class="card-body">
             <h5>Quick Actions</h5>

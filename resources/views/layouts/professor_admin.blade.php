@@ -267,8 +267,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('professor.salary_grades.*') ? 'active' : '' }}" href="{{ route('professor.salary_grades.index') }}">
-                    <i class="bi bi-currency-dollar"></i> Salary Grades
+                <a class="nav-link {{ request()->routeIs('professor.payslips.*') ? 'active' : '' }}" href="{{ route('professor.payslips.index') }}">
+                    <i class="bi bi-receipt"></i> Pay
                 </a>
             </li>
             <li class="nav-item">
@@ -279,6 +279,16 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('professor.attendance.*') ? 'active' : '' }}" href="{{ route('professor.attendance.history') }}">
                     <i class="bi bi-calendar-week"></i> My Attendance History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('professor.teaching_history.*') ? 'active' : '' }}" href="{{ route('professor.teaching_history.index') }}">
+                    <i class="bi bi-book"></i> Teaching History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('professor.clearance-requests.*') ? 'active' : '' }}" href="{{ route('professor.clearance-requests.index') }}">
+                    <i class="bi bi-clipboard-check"></i> My Clearance Requests
                 </a>
             </li>
         </ul>
@@ -296,7 +306,7 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    &copy; 2023 Faculty Management System. All rights reserved.
+                    &copy; 2025 Faculty Management System. All rights reserved.
                 </div>
                 <div class="col-md-6 text-md-end">
                     <span class="version">v1.2.0</span>

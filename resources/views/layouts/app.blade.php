@@ -259,7 +259,7 @@
 
             
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.salary_grades.*') ? 'active' : '' }}" href="{{ route('admin.salary_grades.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.salary-grades.*') ? 'active' : '' }}" href="{{ route('admin.salary-grades.index') }}">
                     <i class="bi bi-currency-dollar"></i> Salary Grades & Pay
                 </a>
             </li>
@@ -319,7 +319,7 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    &copy; 2023 Faculty Management System. All rights reserved.
+                    &copy; 2025 Faculty Management System. All rights reserved.
                 </div>
                 <div class="col-md-6 text-md-end">
                     <span class="version">v1.2.0</span>

@@ -43,6 +43,11 @@
                                 <label class="form-label">Email</label>
                                 <input type="email" class="form-control" value="{{ $professor->email }}" disabled>
                             </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Employment Type</label>
+                                <input type="text" class="form-control" value="{{ $professor->employment_type ?? 'Full-Time' }}" disabled>
+                            </div>
                         </div>
 
                         <div class="col-md-6">

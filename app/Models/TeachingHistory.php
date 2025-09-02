@@ -84,8 +84,8 @@ class TeachingHistory extends Model
     public function scopeCurrent($query)
     {
         $currentYear = date('Y');
-        $currentSemester = $this->getCurrentSemester();
-        
+        $currentSemester = self::getCurrentSemesterStatic();
+
         return $query->where('academic_year', $currentYear)
                     ->where('semester', $currentSemester)
                     ->where('is_active', true);
@@ -126,7 +126,7 @@ class TeachingHistory extends Model
     /**
      * Determine current semester based on current date.
      */
-    private function getCurrentSemester()
+    public static function getCurrentSemesterStatic()
     {
         $month = date('n');
         
@@ -144,8 +144,7 @@ class TeachingHistory extends Model
      */
     public static function rules($id = null)
     {
-        return [
-            'faculty_id' => 'required|exists:faculty,id',
+        $rules = [
             'course_code' => 'required|string|max:20',
             'course_title' => 'required|string|max:200',
             'semester' => 'required|in:1st Semester,2nd Semester,Summer',
@@ -160,5 +159,12 @@ class TeachingHistory extends Model
             'remarks' => 'nullable|string|max:500',
             'is_active' => 'nullable|boolean',
         ];
+
+        // For updates, add unique validation for course_code to prevent duplicates
+        if ($id) {
+            $rules['course_code'] = 'required|string|max:20|unique:teaching_histories,course_code,' . $id . ',id,faculty_id,' . auth('faculty')->id();
+        }
+
+        return $rules;
     }
 }
