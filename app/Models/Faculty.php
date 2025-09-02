@@ -17,6 +17,7 @@ class Faculty extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
+    protected $connection = 'sqlite';
     protected $table = 'faculties';
     
     protected $fillable = [

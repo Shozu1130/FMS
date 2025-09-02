@@ -54,7 +54,7 @@ class AttendanceController extends Controller
     public function timeIn(Request $request)
     {
         $request->validate([
-            'time_in_photo_data' => 'required|string',
+            'time_in_photo_data' => 'required|string|min:100', // Ensure photo data is substantial
             'time_in_location' => 'nullable|string',
             'notes' => 'nullable|string|max:500'
         ]);
@@ -70,6 +70,12 @@ class AttendanceController extends Controller
         if ($existingAttendance && $existingAttendance->time_in !== null) {
             return redirect()->route('attendance.dashboard')
                 ->with('error', 'You have already logged in today.');
+        }
+
+        // Validate photo data format
+        if (!preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $request->time_in_photo_data)) {
+            return redirect()->route('attendance.dashboard')
+                ->with('error', 'Invalid photo format. Please capture a new photo.');
         }
 
         // Use current time with proper timezone
@@ -103,21 +109,22 @@ class AttendanceController extends Controller
             $saved = $attendance->save();
 
             if (!$saved) {
-               
                 return redirect()->route('attendance.dashboard')
                     ->with('error', 'Failed to save attendance record. Please try again.');
             }
-
-            // Debug: Log the saved attendance record (removed raw time_in dump to avoid debug output in UI)
-           
 
             return redirect()->route('attendance.dashboard')
                 ->with('success', 'Time in recorded successfully at ' . $currentTime->format('h:i A'));
 
         } catch (\Exception $e) {
-           
+            \Log::error('Time in error: ' . $e->getMessage(), [
+                'faculty_id' => $faculty->id,
+                'date' => $today,
+                'error' => $e->getTraceAsString()
+            ]);
+            
             return redirect()->route('attendance.dashboard')
-                ->with('error', 'Error recording time in. Please try again.');
+                ->with('error', 'Error recording time in: ' . $e->getMessage());
         }
     }
 
@@ -223,6 +230,11 @@ class AttendanceController extends Controller
                 throw new \Exception('Invalid base64 image data');
             }
 
+            // Validate image data
+            if (strlen($imageData) < 1000) {
+                throw new \Exception('Image data too small, please capture a proper photo');
+            }
+
             // Generate filename
             $filename = "attendance_{$type}_{$facultyId}_{$date}_" . time() . ".jpg";
             
@@ -231,15 +243,28 @@ class AttendanceController extends Controller
             
             // Create directory if it doesn't exist
             if (!Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->makeDirectory($path);
+                Storage::disk('public')->makeDirectory($path, 0755, true);
             }
             
-            Storage::disk('public')->put("{$path}/{$filename}", $imageData);
+            // Check if we can write to the directory
+            if (!is_writable(storage_path('app/public'))) {
+                throw new \Exception('Storage directory is not writable');
+            }
+            
+            $success = Storage::disk('public')->put("{$path}/{$filename}", $imageData);
+            
+            if (!$success) {
+                throw new \Exception('Failed to save photo to storage');
+            }
             
             return "{$path}/{$filename}";
             
         } catch (\Exception $e) {
-           
+            \Log::error('Photo save error: ' . $e->getMessage(), [
+                'type' => $type,
+                'faculty_id' => $facultyId,
+                'date' => $date
+            ]);
             throw $e;
         }
     }

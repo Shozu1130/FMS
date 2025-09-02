@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Attendance extends Model
 {
     use HasFactory;
+    
+    protected $connection = 'sqlite';
 
     protected $fillable = [
         'faculty_id',
@@ -45,7 +47,7 @@ class Attendance extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
     }
 
     /**
