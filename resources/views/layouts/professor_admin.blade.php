@@ -271,11 +271,7 @@
                     <i class="bi bi-receipt"></i> Pay
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}" href="{{ route('attendance.dashboard') }}">
-                    <i class="bi bi-clock"></i> Attendance Monitoring
-                </a>
-            </li>
+            
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('professor.attendance.*') ? 'active' : '' }}" href="{{ route('professor.attendance.history') }}">
                     <i class="bi bi-calendar-week"></i> My Attendance History

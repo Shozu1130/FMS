@@ -5,9 +5,6 @@
     <h1 class="mb-0">
         <i class="bi bi-clock"></i> My Attendance History
     </h1>
-    <a href="{{ route('attendance.dashboard') }}" class="btn btn-success">
-        <i class="bi bi-clock"></i> Go to Attendance Monitoring
-    </a>
 </div>
 
 <!-- Monthly Statistics -->
@@ -163,37 +160,8 @@
     </div>
 </div>
 
-<!-- Export Options -->
-<div class="card mt-4">
-    <div class="card-header">
-        <h6 class="mb-0">
-            <i class="bi bi-download"></i> Export Options
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Current Month Summary</h6>
-                <p class="text-muted">Export your attendance data for the current month</p>
-                <button class="btn btn-outline-primary" onclick="exportCurrentMonth()">
-                    <i class="bi bi-file-earmark-excel"></i> Export Current Month
-                </button>
-            </div>
-            <div class="col-md-6">
-                <h6>Custom Date Range</h6>
-                <p class="text-muted">Export attendance data for a specific period</p>
-                <div class="input-group">
-                    <input type="date" class="form-control" id="startDate">
-                    <span class="input-group-text">to</span>
-                    <input type="date" class="form-control" id="endDate">
-                    <button class="btn btn-outline-primary" onclick="exportCustomRange()">
-                        <i class="bi bi-download"></i> Export
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
+
 @endsection
 
 @push('scripts')
