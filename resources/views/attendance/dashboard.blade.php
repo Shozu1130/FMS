@@ -479,6 +479,7 @@ document.getElementById('timeOutModal').addEventListener('shown.bs.modal', funct
     }
 });
 
+
 // Add form submit validation to ensure photo is captured for both modals
 document.querySelector('#timeInModal form').addEventListener('submit', function(event) {
     if (!document.getElementById('time_in_photo_data').value) {
@@ -488,11 +489,16 @@ document.querySelector('#timeInModal form').addEventListener('submit', function(
     }
 });
 
+
+// Add form submit validation to ensure photo is captured
+
 document.querySelector('#timeOutModal form').addEventListener('submit', function(event) {
     if (!document.getElementById('time_out_photo_data').value) {
         event.preventDefault();
         alert('Please capture a photo before submitting Time Out.');
+
         return false;
+
     }
 });
 
@@ -524,21 +530,25 @@ function startCameraOut() {
 // Start cameras when modals are shown
 document.getElementById('timeInModal').addEventListener('shown.bs.modal', function() {
     startCamera();
+
     // Reset form state
     document.getElementById('retake-btn').style.display = 'none';
     document.getElementById('capture-btn').style.display = 'inline-block';
     document.getElementById('submit-time-in').disabled = true;
     document.getElementById('time_in_photo_data').value = '';
+
 });
 
 document.getElementById('timeOutModal').addEventListener('shown.bs.modal', function() {
     startCameraOut();
+
     // Reset form state
     document.getElementById('retake-btn-out').style.display = 'none';
     document.getElementById('capture-btn-out').style.display = 'inline-block';
     document.getElementById('submit-time-out').disabled = true;
     document.getElementById('time_out_photo_data').value = '';
     
+
     // Calculate hours worked
     const timeIn = new Date('{{ $todayAttendance && $todayAttendance->time_in ? $todayAttendance->time_in : "" }}');
     const now = new Date();
@@ -549,6 +559,7 @@ document.getElementById('timeOutModal').addEventListener('shown.bs.modal', funct
         document.getElementById('hours-worked').textContent = '0.00 hours';
     }
 });
+
 
 // Clean up camera streams when modals are hidden
 document.getElementById('timeInModal').addEventListener('hidden.bs.modal', function() {
@@ -564,6 +575,7 @@ document.getElementById('timeOutModal').addEventListener('hidden.bs.modal', func
         streamOut = null;
     }
 });
+
 
 // Load attendance details
 document.getElementById('attendanceDetailModal').addEventListener('show.bs.modal', function(event) {

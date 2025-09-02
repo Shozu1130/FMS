@@ -3,58 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\Faculty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Show the attendance monitoring dashboard.
-     */
     public function dashboard()
     {
         $faculty = Auth::guard('faculty')->user();
-        
-        // Mark this user as an attendance user when they access the dashboard
         session()->put('attendance_user', true);
-        
-        // Get today's attendance record
+
         $todayDate = now()->toDateString();
         $todayAttendance = Attendance::where('faculty_id', $faculty->id)
             ->whereDate('date', $todayDate)
             ->first();
 
-        // Removed debug raw dump to avoid debug output in UI
-        if ($todayAttendance) {
-            $timeInFormatted = $todayAttendance->time_in ? $todayAttendance->time_in->format('H:i:s') : 'null';
-            
-        }
-        
-        // Test log entry to verify logging works
-       
-        
-        // Get recent attendance history (last 30 days)
         $recentAttendance = Attendance::where('faculty_id', $faculty->id)
             ->where('date', '>=', now()->subDays(30))
             ->orderBy('date', 'desc')
             ->get();
 
-      
-        
         return view('attendance.dashboard', compact('todayAttendance', 'recentAttendance'));
     }
 
-    /**
-     * Handle time in with photo capture.
-     */
     public function timeIn(Request $request)
     {
         $request->validate([
-            'time_in_photo_data' => 'required|string|min:100', // Ensure photo data is substantial
+            'time_in_photo_data' => 'required|string|min:100',
             'time_in_location' => 'nullable|string',
             'notes' => 'nullable|string|max:500'
         ]);
@@ -62,56 +39,35 @@ class AttendanceController extends Controller
         $faculty = Auth::guard('faculty')->user();
         $today = now()->toDateString();
 
-        // Check if already logged in today
         $existingAttendance = Attendance::where('faculty_id', $faculty->id)
             ->whereDate('date', $today)
             ->first();
 
-        if ($existingAttendance && $existingAttendance->time_in !== null) {
+        if ($existingAttendance && $existingAttendance->time_in) {
             return redirect()->route('attendance.dashboard')
                 ->with('error', 'You have already logged in today.');
         }
 
-        // Validate photo data format
         if (!preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $request->time_in_photo_data)) {
             return redirect()->route('attendance.dashboard')
                 ->with('error', 'Invalid photo format. Please capture a new photo.');
         }
 
-        // Use current time with proper timezone
         $currentTime = Carbon::now();
-        
-        try {
-            // Save photo
-            $photoPath = $this->savePhoto($request->time_in_photo_data, 'time_in', $faculty->id, $today);
-            
-            // Create or update attendance record
-            if (!$existingAttendance) {
-                $attendance = new Attendance();
-                $attendance->faculty_id = $faculty->id;
-                $attendance->date = $today;
-                $attendance->status = 'present';
-            } else {
-                $attendance = $existingAttendance;
-            }
 
+        try {
+            $photoPath = $this->savePhoto($request->time_in_photo_data, 'time_in', $faculty->id, $today);
+
+            $attendance = $existingAttendance ?? new Attendance();
+            $attendance->faculty_id = $faculty->id;
+            $attendance->date = $today;
             $attendance->time_in = $currentTime;
             $attendance->time_in_photo = $photoPath;
             $attendance->time_in_location = $request->time_in_location;
             $attendance->notes = $request->notes;
-            
-            // Check if late (after 8:00 AM)
-            $expectedTime = Carbon::parse($today)->setTime(8, 0, 0);
-            if ($currentTime->gt($expectedTime)) {
-                $attendance->status = 'late';
-            }
-            
-            $saved = $attendance->save();
+            $attendance->status = $currentTime->gt(Carbon::parse($today)->setTime(8, 0, 0)) ? 'late' : 'present';
 
-            if (!$saved) {
-                return redirect()->route('attendance.dashboard')
-                    ->with('error', 'Failed to save attendance record. Please try again.');
-            }
+            $attendance->save();
 
             return redirect()->route('attendance.dashboard')
                 ->with('success', 'Time in recorded successfully at ' . $currentTime->format('h:i A'));
@@ -120,17 +76,13 @@ class AttendanceController extends Controller
             \Log::error('Time in error: ' . $e->getMessage(), [
                 'faculty_id' => $faculty->id,
                 'date' => $today,
-                'error' => $e->getTraceAsString()
             ]);
-            
+
             return redirect()->route('attendance.dashboard')
-                ->with('error', 'Error recording time in: ' . $e->getMessage());
+                ->with('error', 'Error recording time in. Please try again.');
         }
     }
 
-    /**
-     * Handle time out with photo capture.
-     */
     public function timeOut(Request $request)
     {
         $request->validate([
@@ -142,7 +94,6 @@ class AttendanceController extends Controller
         $faculty = Auth::guard('faculty')->user();
         $today = now()->toDateString();
 
-        // Get today's attendance record
         $attendance = Attendance::where('faculty_id', $faculty->id)
             ->whereDate('date', $today)
             ->first();
@@ -157,56 +108,44 @@ class AttendanceController extends Controller
                 ->with('error', 'You have already logged out today.');
         }
 
-        // Use current time with proper timezone
         $currentTime = Carbon::now();
-        
+
         try {
-            // Save photo
             $photoPath = $this->savePhoto($request->time_out_photo_data, 'time_out', $faculty->id, $today);
-            
+
             $attendance->time_out = $currentTime;
             $attendance->time_out_photo = $photoPath;
             $attendance->time_out_location = $request->time_out_location;
-            
-            // Update notes if provided
             if ($request->notes) {
                 $attendance->notes = $attendance->notes ? $attendance->notes . "\n" . $request->notes : $request->notes;
             }
-            
-            // Calculate total hours
+
             $attendance->calculateTotalHours();
-            
-            // Check if early departure (before 5:00 PM)
+
             $expectedTime = Carbon::parse($today)->setTime(17, 0, 0);
             if ($currentTime->lt($expectedTime)) {
-                if ($attendance->status === 'late') {
-                    $attendance->status = 'half_day';
-                } else {
-                    $attendance->status = 'early_departure';
-                }
+                $attendance->status = $attendance->status === 'late' ? 'half_day' : 'early_departure';
             }
-            
-            $attendance->save();
 
-            
+            $attendance->save();
 
             return redirect()->route('attendance.dashboard')
                 ->with('success', 'Time out recorded successfully at ' . $currentTime->format('h:i A') . '. Total hours: ' . $attendance->formatted_total_hours);
 
         } catch (\Exception $e) {
-            
+            \Log::error('Time out error: ' . $e->getMessage(), [
+                'faculty_id' => $faculty->id,
+                'date' => $today,
+            ]);
+
             return redirect()->route('attendance.dashboard')
                 ->with('error', 'Error recording time out. Please try again.');
         }
     }
 
-    /**
-     * Show attendance details.
-     */
     public function showDetails($id)
     {
         $faculty = Auth::guard('faculty')->user();
-        
         $attendance = Attendance::where('id', $id)
             ->where('faculty_id', $faculty->id)
             ->firstOrFail();
@@ -214,84 +153,49 @@ class AttendanceController extends Controller
         return view('attendance.details', compact('attendance'));
     }
 
-    /**
-     * Save photo from base64 data.
-     */
     private function savePhoto($base64Data, $type, $facultyId, $date)
     {
-        try {
-            // Remove data:image/jpeg;base64, prefix if present
-            $base64Data = preg_replace('/^data:image\/\w+;base64,/', '', $base64Data);
-            
-            // Decode base64
-            $imageData = base64_decode($base64Data);
-            
-            if ($imageData === false) {
-                throw new \Exception('Invalid base64 image data');
-            }
+        $base64Data = preg_replace('/^data:image\/\w+;base64,/', '', $base64Data);
+        $imageData = base64_decode($base64Data);
 
-            // Validate image data
-            if (strlen($imageData) < 1000) {
-                throw new \Exception('Image data too small, please capture a proper photo');
-            }
-
-            // Generate filename
-            $filename = "attendance_{$type}_{$facultyId}_{$date}_" . time() . ".jpg";
-            
-            // Save to storage - ensure directory exists
-            $path = "attendance_photos/{$facultyId}/{$date}";
-            
-            // Create directory if it doesn't exist
-            if (!Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->makeDirectory($path, 0755, true);
-            }
-            
-            // Check if we can write to the directory
-            if (!is_writable(storage_path('app/public'))) {
-                throw new \Exception('Storage directory is not writable');
-            }
-            
-            $success = Storage::disk('public')->put("{$path}/{$filename}", $imageData);
-            
-            if (!$success) {
-                throw new \Exception('Failed to save photo to storage');
-            }
-            
-            return "{$path}/{$filename}";
-            
-        } catch (\Exception $e) {
-            \Log::error('Photo save error: ' . $e->getMessage(), [
-                'type' => $type,
-                'faculty_id' => $facultyId,
-                'date' => $date
-            ]);
-            throw $e;
+        if (!$imageData || strlen($imageData) < 1000) {
+            throw new \Exception('Invalid or too small image data.');
         }
+
+        $filename = "attendance_{$type}_{$facultyId}_{$date}_" . time() . ".jpg";
+        $path = "attendance_photos/{$facultyId}/{$date}";
+
+        if (!Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->makeDirectory($path, 0755, true);
+        }
+
+        $success = Storage::disk('public')->put("{$path}/{$filename}", $imageData);
+        if (!$success) {
+            throw new \Exception('Failed to save photo to storage.');
+        }
+
+        return "{$path}/{$filename}";
     }
 
-    /**
-     * Get attendance statistics for the current month.
-     */
     public function getMonthlyStats()
     {
         $faculty = Auth::guard('faculty')->user();
         $currentMonth = now()->startOfMonth();
-        
+
         $monthlyAttendance = Attendance::where('faculty_id', $faculty->id)
             ->whereYear('date', $currentMonth->year)
             ->whereMonth('date', $currentMonth->month)
             ->get();
-        
+
         $stats = [
             'total_days' => $monthlyAttendance->count(),
             'present_days' => $monthlyAttendance->where('status', 'present')->count(),
             'late_days' => $monthlyAttendance->where('status', 'late')->count(),
             'absent_days' => $monthlyAttendance->where('status', 'absent')->count(),
             'total_hours' => $monthlyAttendance->sum('total_hours'),
-            'average_hours_per_day' => $monthlyAttendance->avg('total_hours')
+            'average_hours_per_day' => $monthlyAttendance->avg('total_hours'),
         ];
-        
+
         return response()->json($stats);
     }
 }
-

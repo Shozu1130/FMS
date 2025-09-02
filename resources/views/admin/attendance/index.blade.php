@@ -8,7 +8,21 @@
                 <h1 class="h3 mb-0 text-gray-800">
                     <i class="bi bi-clock"></i> Attendance Management
                 </h1>
+<<<<<<< HEAD
              
+=======
+                <div>
+                    <a href="{{ route('admin.attendance.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Attendance Record
+                    </a>
+                    <a href="{{ route('admin.attendance.export') }}" class="btn btn-success">
+                        <i class="bi bi-download"></i> Export CSV
+                    </a>
+                    <a href="{{ route('admin.attendance.faculty_summary') }}" class="btn btn-info">
+                        <i class="bi bi-bar-chart"></i> Faculty Summary
+                    </a>
+                </div>
+>>>>>>> b5ad117 (Updated Sched Ass)
             </div>
         </div>
     </div>

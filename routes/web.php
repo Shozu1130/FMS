@@ -81,6 +81,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('schedule-assignment/check-conflict', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'checkConflict'])->name('admin.schedule-assignment.check-conflict');
     Route::get('schedule-assignment/check-duplicate', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'checkDuplicate'])->name('admin.schedule-assignment.check-duplicate');
     Route::post('schedule-assignment/bulk-update-status', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'bulkUpdateStatus'])->name('admin.schedule-assignment.bulk-update-status');
+
+    Route::delete('schedule-assignment/bulk-delete', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'bulkDelete'])->name('admin.schedule-assignment.bulk-delete');
+
     Route::resource('schedule-assignment', \App\Http\Controllers\Admin\ScheduleAssignmentController::class)->names('admin.schedule-assignment');
     
     // Schedule Search (simplified)

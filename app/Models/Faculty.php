@@ -17,7 +17,6 @@ class Faculty extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
-    protected $connection = 'sqlite';
     protected $table = 'faculties';
     
     protected $fillable = [
@@ -41,11 +40,10 @@ class Faculty extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        
     ];
+    
     protected $rememberTokenName = ['remember_token'];
     
-
     /**
      * Generate automatic Professor ID (PROF-YYYY-0001)
      */
@@ -53,31 +51,23 @@ class Faculty extends Authenticatable
     {
         $currentYear = date('Y');
         
-        // Get the highest existing ID for the current year, INCLUDING soft-deleted records
-        // to avoid UNIQUE constraint violations
         $lastProfessor = self::withTrashed()
                             ->where('professor_id', 'like', 'PROF-' . $currentYear . '-%')
                             ->orderBy('professor_id', 'desc')
                             ->first();
 
         if ($lastProfessor && !empty($lastProfessor->professor_id)) {
-            // Extract the number part safely
             $parts = explode('-', $lastProfessor->professor_id);
-            
-            // Check if we have enough parts and the last part is numeric
             if (count($parts) >= 3 && is_numeric(end($parts))) {
                 $lastNumber = (int) end($parts);
                 $newNumber = $lastNumber + 1;
             } else {
-                // Fallback: start from 1 if format is wrong
                 $newNumber = 1;
             }
         } else {
-            // First professor of the year
             $newNumber = 1;
         }
 
-        // Double-check that the generated ID doesn't already exist (including soft-deleted)
         $proposedId = 'PROF-' . $currentYear . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
         
         while (self::withTrashed()->where('professor_id', $proposedId)->exists()) {
@@ -88,33 +78,21 @@ class Faculty extends Authenticatable
         return $proposedId;
     }
 
-    /**
-     * Get the teaching histories for the faculty.
-     */
     public function teachingHistories()
     {
         return $this->hasMany(TeachingHistory::class);
     }
 
-    /**
-     * Get the clearances for the faculty.
-     */
     public function clearances()
     {
         return $this->hasMany(Clearance::class);
     }
 
-    /**
-     * Get the evaluations for the faculty.
-     */
     public function evaluations()
     {
         return $this->hasMany(Evaluation::class);
     }
 
-    /**
-     * Get the salary grades for the faculty.
-     */
     public function salaryGrades()
     {
         return $this->belongsToMany(SalaryGrade::class, 'faculty_salary_grade')
@@ -122,9 +100,6 @@ class Faculty extends Authenticatable
                     ->withTimestamps();
     }
 
-    /**
-     * Get the current salary grade relationship for the faculty.
-     */
     public function currentSalaryGrade()
     {
         return $this->salaryGrades()
@@ -136,26 +111,14 @@ class Faculty extends Authenticatable
                     ->orderBy('faculty_salary_grade.effective_date', 'desc');
     }
 
-    /**
-     * Get the current salary grade model instance for the faculty.
-     */
     public function getCurrentSalaryGrade()
     {
         Log::info('Current Salary Grade requested.');
 
         $currentGrade = $this->currentSalaryGrade()->first();
-        
-        // Check if we have a valid salary grade object
-        if ($currentGrade && is_object($currentGrade)) {
-            return $currentGrade;
-        }
-        
-        return null;
+        return ($currentGrade && is_object($currentGrade)) ? $currentGrade : null;
     }
 
-    /**
-     * Get active teaching assignments for current semester.
-     */
     public function currentTeachingAssignments()
     {
         $currentYear = date('Y');
@@ -168,9 +131,6 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Get valid clearances (cleared and not expired).
-     */
     public function validClearances()
     {
         return $this->clearances()
@@ -182,9 +142,6 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Get overall evaluation rating average.
-     */
     public function getOverallRatingAverage()
     {
         return $this->evaluations()
@@ -192,13 +149,9 @@ class Faculty extends Authenticatable
                     ->avg('overall_rating');
     }
 
-    /**
-     * Get recent evaluations (last 2 years).
-     */
     public function recentEvaluations()
     {
         $twoYearsAgo = date('Y') - 2;
-        
         return $this->evaluations()
                     ->where('academic_year', '>=', $twoYearsAgo)
                     ->where('is_published', true)
@@ -207,58 +160,36 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Get the attendance records for the faculty.
-     */
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
-    }   
+    }
 
-    /**
-     * Get the payslips for the faculty.
-     */
     public function payslips()
     {
         return $this->hasMany(Payslip::class);
     }
 
-    /**
-     * Get the user relationship for the faculty.
-     * Faculty model acts as its own user model for authentication.
-     */
     public function user()
     {
         return $this;
     }
 
-    /**
-     * Get clearance requests for this faculty.
-     */
     public function clearanceRequests()
     {
         return $this->hasMany(ClearanceRequest::class);
     }
 
-    /**
-     * Get subject loads for this faculty.
-     */
     public function subjectLoads()
     {
         return $this->hasMany(SubjectLoadTracker::class);
     }
 
-    /**
-     * Get schedule assignments for this faculty.
-     */
     public function scheduleAssignments()
     {
         return $this->hasMany(ScheduleAssignment::class);
     }
 
-    /**
-     * Get current month attendance summary.
-     */
     public function getCurrentMonthAttendance()
     {
         return $this->attendances()
@@ -267,9 +198,6 @@ class Faculty extends Authenticatable
                     ->get();
     }
 
-    /**
-     * Get total hours worked in current month.
-     */
     public function getCurrentMonthHours()
     {
         return $this->attendances()
@@ -278,9 +206,6 @@ class Faculty extends Authenticatable
                     ->sum('total_hours');
     }
 
-    /**
-     * Determine current semester based on current date.
-     */
     private function getCurrentSemester()
     {
         $month = date('n');

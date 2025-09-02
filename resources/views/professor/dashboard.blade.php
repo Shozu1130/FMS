@@ -70,6 +70,12 @@
                 <i class="bi bi-person-circle"></i> Edit My Profile
             </a>
 
+
+            <a href="{{ route('attendance.dashboard') }}" class="btn btn-success me-1 mb-1">
+                <i class="bi bi-clock"></i> Go to Attendance
+            </a>
+            
+
             <div class="mt-4">
                 <h6>Your Status: 
                     <span class="badge bg-{{ $professor->status == 'active' ? 'success' : 'secondary' }}">

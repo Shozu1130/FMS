@@ -158,7 +158,11 @@
                                     <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span></label>
                                     <input type="time" name="start_time" id="start_time" 
                                            class="form-control @error('start_time') is-invalid @enderror" 
+<<<<<<< HEAD
                                            value="{{ old('start_time', $subjectLoad->start_time ? $subjectLoad->start_time->format('H:i') : '') }}" required>
+=======
+                                           value="{{ old('start_time', $subjectLoad->start_time) }}" required>
+>>>>>>> b5ad117 (Updated Sched Ass)
                                     @error('start_time')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -169,7 +173,11 @@
                                     <label for="end_time" class="form-label">End Time <span class="text-danger">*</span></label>
                                     <input type="time" name="end_time" id="end_time" 
                                            class="form-control @error('end_time') is-invalid @enderror" 
+<<<<<<< HEAD
                                            value="{{ old('end_time', $subjectLoad->end_time ? $subjectLoad->end_time->format('H:i') : '') }}" required>
+=======
+                                           value="{{ old('end_time', $subjectLoad->end_time) }}" required>
+>>>>>>> b5ad117 (Updated Sched Ass)
                                     @error('end_time')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

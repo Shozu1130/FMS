@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Attendance extends Model
 {
     use HasFactory;
-    
-    protected $connection = 'sqlite';
 
     protected $fillable = [
         'faculty_id',
@@ -47,7 +45,7 @@ class Attendance extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
+        return $this->belongsTo(Faculty::class);
     }
 
     /**
@@ -96,7 +94,7 @@ class Attendance extends Model
     public function getIsLateAttribute()
     {
         if (!$this->time_in) return false;
-        
+
         $expectedTime = \Carbon\Carbon::parse($this->date)->setTime(8, 0, 0);
         return $this->time_in->gt($expectedTime);
     }
@@ -107,7 +105,7 @@ class Attendance extends Model
     public function getIsEarlyDepartureAttribute()
     {
         if (!$this->time_out) return false;
-        
+
         $expectedTime = \Carbon\Carbon::parse($this->date)->setTime(17, 0, 0);
         return $this->time_out->lt($expectedTime);
     }
@@ -146,6 +144,6 @@ class Attendance extends Model
     public function scopeCurrentMonth($query)
     {
         return $query->whereYear('date', now()->year)
-                    ->whereMonth('date', now()->month);
+                     ->whereMonth('date', now()->month);
     }
 }

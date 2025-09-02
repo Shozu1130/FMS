@@ -32,8 +32,8 @@ class ScheduleAssignment extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'start_time' => 'string',
+        'end_time' => 'string',
         'units' => 'integer',
         'hours_per_week' => 'integer',
         'academic_year' => 'integer',
@@ -103,8 +103,13 @@ class ScheduleAssignment extends Model
     public function getTimeRangeAttribute()
     {
         if ($this->start_time && $this->end_time) {
-            return Carbon::parse($this->start_time)->format('g:i A') . ' - ' . 
-                   Carbon::parse($this->end_time)->format('g:i A');
+            try {
+                $startTime = Carbon::createFromFormat('H:i', $this->start_time);
+                $endTime = Carbon::createFromFormat('H:i', $this->end_time);
+                return $startTime->format('g:i A') . ' - ' . $endTime->format('g:i A');
+            } catch (\Exception $e) {
+                return 'Invalid time format';
+            }
         }
         return 'No schedule';
     }
@@ -248,11 +253,13 @@ class ScheduleAssignment extends Model
     {
         // Get data from ScheduleAssignment
         $scheduleQuery = self::with('faculty')
-                            ->select('*', \DB::raw("'Schedule Assignment' as source_table"));
+                            ->select('*', \DB::raw("'Schedule Assignment' as source_table"))
+                            ->where('status', self::STATUS_ACTIVE);
 
         // Get data from SubjectLoadTracker
         $subjectLoadQuery = SubjectLoadTracker::with('faculty')
-                                             ->select('*', \DB::raw("'Subject Load Tracker' as source_table"));
+                                             ->select('*', \DB::raw("'Subject Load Tracker' as source_table"))
+                                             ->where('status', SubjectLoadTracker::STATUS_ACTIVE);
 
         // Apply filters to both queries
         if (!empty($filters['faculty_id'])) {
@@ -481,7 +488,7 @@ class ScheduleAssignment extends Model
     }
 
     /**
-     * Get calendar data for a specific week.
+     * Get calendar data for a specific period.
      */
     public static function getCalendarData($academicYear, $semester, $facultyId = null)
     {
@@ -508,7 +515,6 @@ class ScheduleAssignment extends Model
         // Process ScheduleAssignment data
         foreach ($scheduleData as $assignment) {
             $day = $assignment->schedule_day;
-            $startTime = Carbon::parse($assignment->start_time)->format('H:i');
             
             if (!isset($calendar[$day])) {
                 $calendar[$day] = [];
@@ -519,7 +525,7 @@ class ScheduleAssignment extends Model
                 'subject_code' => $assignment->subject_code,
                 'subject_name' => $assignment->subject_name,
                 'section' => $assignment->section,
-                'faculty_name' => $assignment->faculty->name,
+                'faculty_name' => $assignment->faculty->name ?? 'Unknown Faculty',
                 'time_range' => $assignment->time_range,
                 'room' => $assignment->room,
                 'source' => 'Schedule Assignment',
@@ -530,7 +536,6 @@ class ScheduleAssignment extends Model
         // Process SubjectLoadTracker data
         foreach ($subjectLoadData as $load) {
             $day = $load->schedule_day;
-            $startTime = Carbon::parse($load->start_time)->format('H:i');
             
             if (!isset($calendar[$day])) {
                 $calendar[$day] = [];
@@ -541,7 +546,7 @@ class ScheduleAssignment extends Model
                 'subject_code' => $load->subject_code,
                 'subject_name' => $load->subject_name,
                 'section' => $load->section,
-                'faculty_name' => $load->faculty->name,
+                'faculty_name' => $load->faculty->name ?? 'Unknown Faculty',
                 'time_range' => $load->time_range,
                 'room' => $load->room,
                 'source' => 'Subject Load Tracker',

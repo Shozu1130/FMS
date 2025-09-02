@@ -4,59 +4,45 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <!-- Simple Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 mb-0">Schedule Assignments</h1>
         <div>
-            <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
-                <i class="fas fa-calendar-alt text-primary mr-2"></i>
-                Schedule Assignments
-            </h1>
-            <p class="text-muted mb-0">Manage and track faculty schedule assignments</p>
-        </div>
-        <div class="d-sm-flex">
-            <a href="{{ route('admin.schedule-assignment.create') }}" class="btn btn-primary btn-sm shadow-sm mr-2 rounded-pill">
-                <i class="fas fa-plus fa-sm mr-1"></i> New Assignment
+            <a href="{{ route('admin.schedule-assignment.create') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> New
             </a>
-            <a href="{{ route('admin.schedule-assignment.calendar') }}" class="btn btn-info btn-sm shadow-sm mr-2 rounded-pill">
-                <i class="fas fa-calendar fa-sm mr-1"></i> Calendar View
+            <a href="{{ route('admin.schedule-assignment.calendar') }}" class="btn btn-info btn-sm ml-2">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
-            <a href="{{ route('admin.schedule-assignment.export') }}" class="btn btn-success btn-sm shadow-sm rounded-pill">
-                <i class="fas fa-download fa-sm mr-1"></i> Export
+            <a href="{{ route('admin.schedule-assignment.export') }}" class="btn btn-success btn-sm ml-2">
+                <i class="fas fa-download"></i> Export
             </a>
         </div>
     </div>
 
-    <!-- Statistics Summary -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Assignments</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total_assignments'] }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Faculty</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active_faculty'] }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Schedule Conflicts</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['conflicts'] }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Overloaded Faculty</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['overloaded_faculty'] }}</div>
+    <!-- Simple Stats -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body py-2">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <small class="text-muted">Total</small>
+                            <div class="font-weight-bold">{{ $stats['total_assignments'] }}</div>
+                        </div>
+                        <div class="col-3">
+                            <small class="text-muted">Faculty</small>
+                            <div class="font-weight-bold">{{ $stats['active_faculty'] }}</div>
+                        </div>
+                        <div class="col-3">
+                            <small class="text-muted">Units</small>
+                            <div class="font-weight-bold">{{ $stats['total_units'] }}</div>
+                        </div>
+                        <div class="col-3">
+                            <small class="text-muted">Conflicts</small>
+                            <div class="font-weight-bold text-warning">{{ $stats['conflicts'] }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,6 +123,48 @@
                     <a href="{{ route('admin.schedule-assignment.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
                         <i class="fas fa-redo"></i>
                     </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Simple Filters -->
+    <div class="card mb-3">
+        <div class="card-body py-3">
+            <form method="GET" class="row align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label small">Semester</label>
+                    <select name="semester" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach(\App\Models\ScheduleAssignment::getSemesters() as $key => $sem)
+                            <option value="{{ $key }}" {{ request('semester') == $key ? 'selected' : '' }}>{{ $sem }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Faculty</label>
+                    <select name="faculty_id" class="form-select form-select-sm">
+                        <option value="">All Faculty</option>
+                        @foreach($faculties as $faculty)
+                            <option value="{{ $faculty->id }}" {{ request('faculty_id') == $faculty->id ? 'selected' : '' }}>{{ $faculty->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Year</label>
+                    <select name="academic_year" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @for($year = date('Y'); $year >= 2020; $year--)
+                            <option value="{{ $year }}" {{ request('academic_year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Search</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="form-control form-control-sm">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
                 </div>
             </form>
         </div>
@@ -400,6 +428,163 @@
 .spinner-border-lg {
     width: 3rem;
     height: 3rem;
+    <!-- Simple Assignment List -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Assignments ({{ $paginatedAssignments->total() }})</h5>
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary" id="selectAllBtn">Select All</button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="bulkUpdateStatus('active')">Mark Active</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="bulkUpdateStatus('inactive')">Mark Inactive</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="bulkUpdateStatus('completed')">Mark Completed</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="bulkDelete()">Delete Selected</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if($paginatedAssignments->count() > 0)
+            <!-- Simple Table Layout -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="30"><input type="checkbox" id="selectAllCheckbox"></th>
+                            <th>Faculty</th>
+                            <th>Subject</th>
+                            <th>Schedule</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                @foreach($paginatedAssignments as $assignment)
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input assignment-checkbox" value="{{ $assignment->id }}">
+                            </td>
+                            <td>
+                                <strong>{{ $assignment->faculty->name ?? 'N/A' }}</strong>
+                                <br><small class="text-muted">ID: {{ $assignment->faculty->professor_id ?? $assignment->faculty_id }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ $assignment->subject_code }}</span>
+                                <br>{{ $assignment->subject_name }}
+                                <br><small class="text-muted">{{ $assignment->section }} - {{ $assignment->year_level }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ ucfirst($assignment->schedule_day) }}</strong>
+                                <br>{{ $assignment->time_range }}
+                                <br><small class="text-muted">Room: {{ $assignment->room ?? 'TBA' }}</small>
+                            </td>
+                            <td>
+                                @if($assignment->status == 'active')
+                                    <span class="badge bg-success">Active</span>
+                                @elseif($assignment->status == 'inactive')
+                                    <span class="badge bg-danger">Inactive</span>
+                                @elseif($assignment->status == 'completed')
+                                    <span class="badge bg-info">Completed</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ ucfirst($assignment->status) }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    @if(isset($assignment->source_table) && $assignment->source_table == 'Subject Load Tracker')
+                                        <a href="{{ route('admin.subject-loads.show', $assignment->id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('admin.subject-loads.edit', $assignment->id) }}" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="deleteSubjectLoad({{ $assignment->id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    @else
+                                        <a href="{{ route('admin.schedule-assignment.show', $assignment->id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('admin.schedule-assignment.edit', $assignment->id) }}" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="deleteAssignment({{ $assignment->id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+            @endforeach
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">
+                    Showing {{ $paginatedAssignments->count() }} of {{ $assignments->count() }} assignments
+                </small>
+                {{ $paginatedAssignments->links() }}
+            </div>
+        @else
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                <h5>No Schedule Assignments Found</h5>
+                <p class="text-muted">
+                    @if(array_filter($filters))
+                        No assignments match your filters.
+                    @else
+                        Get started by creating your first assignment.
+                    @endif
+                </p>
+                <div class="mt-3">
+                    @if(array_filter($filters))
+                        <a href="{{ route('admin.schedule-assignment.index') }}" class="btn btn-secondary btn-sm me-2">
+                            Clear Filters
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.schedule-assignment.create') }}" class="btn btn-primary btn-sm">
+                        Create Assignment
+                    </a>
+                </div>
+            </div>
+        @endif
+        </div>
+    </div>
+</div>
+
+@push('styles')
+<style>
+/* Simple table styling */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+/* Simple hover effects */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Checkbox styling */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
 }
 </style>
 @endpush
@@ -581,3 +766,194 @@ function confirmDelete(assignmentId) {
 }
 </script>
 @endpush
+// JavaScript for bulk actions with debugging
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing checkbox functionality...');
+    
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    
+    // Use a more dynamic selector since checkboxes are loaded via pagination
+    function getCheckboxes() {
+        return document.querySelectorAll('.assignment-checkbox');
+    }
+    
+    // Handle select all button
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Select all button clicked');
+            const checkboxes = getCheckboxes();
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+            
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = !allChecked;
+            }
+            
+            console.log('Checkboxes updated:', !allChecked);
+        });
+    }
+    
+    // Handle select all checkbox
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            console.log('Select all checkbox changed:', this.checked);
+            const checkboxes = getCheckboxes();
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+    
+    // Handle individual checkboxes - use event delegation
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('assignment-checkbox')) {
+            console.log('Individual checkbox changed');
+            const checkboxes = getCheckboxes();
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = Array.from(checkboxes).every(cb => cb.checked);
+            }
+        }
+    });
+});
+
+function bulkUpdateStatus(status) {
+    const checkedBoxes = document.querySelectorAll('.assignment-checkbox:checked');
+    if (checkedBoxes.length === 0) {
+        alert('Please select assignments to update.');
+        return;
+    }
+    
+    const ids = Array.from(checkedBoxes).map(cb => cb.value);
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("admin.schedule-assignment.bulk-update-status") }}';
+    
+    // Add CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    form.appendChild(csrfInput);
+    
+    // Add assignment IDs
+    ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'assignment_ids[]';
+        input.value = id;
+        form.appendChild(input);
+    });
+    
+    // Add status
+    const statusInput = document.createElement('input');
+    statusInput.type = 'hidden';
+    statusInput.name = 'status';
+    statusInput.value = status;
+    form.appendChild(statusInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function bulkDelete() {
+    const checkedBoxes = document.querySelectorAll('.assignment-checkbox:checked');
+    if (checkedBoxes.length === 0) {
+        alert('Please select assignments to delete.');
+        return;
+    }
+    
+    if (confirm('Are you sure you want to delete the selected assignments? This action cannot be undone.')) {
+        const ids = Array.from(checkedBoxes).map(cb => cb.value);
+        
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("admin.schedule-assignment.bulk-delete") }}';
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        form.appendChild(csrfInput);
+        
+        // Add method override for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+        
+        // Add assignment IDs
+        ids.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'assignment_ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function deleteAssignment(id) {
+    if (confirm('Are you sure you want to delete this assignment? This action cannot be undone.')) {
+        // Use fetch API for better error handling
+        fetch(`{{ url('admin/schedule-assignment') }}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting assignment. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Error deleting assignment. Please try again.');
+        });
+    }
+}
+
+function deleteSubjectLoad(id) {
+    if (confirm('Are you sure you want to delete this subject load? This action cannot be undone.')) {
+        // Use fetch API for subject load deletion
+        fetch(`{{ url('admin/subject-loads') }}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting subject load. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Error deleting subject load. Please try again.');
+        });
+    }
+}
+</script>
+@endpush
+@endsection

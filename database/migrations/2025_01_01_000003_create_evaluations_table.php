@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+
             $table->foreignId('teaching_history_id')->nullable()->constrained('teaching_histories')->onDelete('set null');
             $table->string('evaluation_period');
             $table->year('academic_year');
