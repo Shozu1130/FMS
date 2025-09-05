@@ -66,19 +66,7 @@
                     </div>
 
 
-                    <div class="mb-3">
-                        <label class="form-label">Skills (comma separated)</label>
-                        <input type="text" name="skills" class="form-control" 
-                               value="{{ old('skills', $professor->skills) }}"
-                               placeholder="Teaching, Research, Programming, Leadership">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Experiences</label>
-                        <textarea name="experiences" class="form-control" rows="4"
-                                  placeholder="- PhD in Computer Science, 2015&#10;- Senior Developer, 2010-2015">{{ old('experiences', $professor->experiences) }}</textarea>
-                    </div>
-
+                    
 
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle"></i> Update Profile

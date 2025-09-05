@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('schedule_assignments', function (Blueprint $table) {
-            $table->string('source')->default('direct')->after('status');
+        Schema::table('salary_grades', function (Blueprint $table) {
+            $table->string('department')->nullable()->after('part_time_base_salary');
+            $table->index('department');
         });
     }
 
@@ -21,8 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('schedule_assignments', function (Blueprint $table) {
-            $table->dropColumn('source');
+        Schema::table('salary_grades', function (Blueprint $table) {
+            $table->dropIndex(['department']);
+            $table->dropColumn('department');
         });
     }
 };

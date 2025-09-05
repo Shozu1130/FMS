@@ -7,11 +7,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfessorProfileController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\TeachingHistoryController;
-use App\Http\Controllers\Admin\ClearanceController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\AttendanceAuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Middleware\EnsureAttendanceUser;
 
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -23,95 +23,97 @@ Route::get('attendance/login', [AttendanceAuthController::class, 'showLoginForm'
 Route::post('attendance/login', [AttendanceAuthController::class, 'login']);
 Route::post('attendance/logout', [AttendanceAuthController::class, 'logout'])->name('attendance.logout');
 
+// Master Admin Routes
+Route::prefix('master-admin')->middleware(['auth', 'master_admin'])->group(function () {
+    Route::resource('admin-management', \App\Http\Controllers\MasterAdmin\AdminManagementController::class)->names('master_admin.admin_management');
+});
+
 // Admin Routes
 Route::prefix('admin')->middleware('auth')->group(function () {
+    // Dashboard accessible to all admins (both master and regular)
     Route::get('dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::resource('faculty', \App\Http\Controllers\Admin\FacultyController::class)->names('admin.faculty');
     
-    // Leave approvals
-    Route::get('leave', [\App\Http\Controllers\Admin\LeaveApprovalController::class, 'index'])->name('admin.leave.index');
-    Route::put('leave/{leave}', [\App\Http\Controllers\Admin\LeaveApprovalController::class, 'update'])->name('admin.leave.update');
-    
-    // Salary Grades & Pay
-    Route::resource('salary-grades', \App\Http\Controllers\Admin\SalaryGradeController::class)->names('admin.salary-grades');
-    
-    // Payslips (moved under salary grades)
-    Route::get('payslips', [\App\Http\Controllers\Admin\PayslipController::class, 'index'])->name('admin.payslips.index');
-    Route::get('payslips/calculations', [\App\Http\Controllers\Admin\PayslipController::class, 'calculations'])->name('admin.payslips.calculations');
-    Route::post('payslips/generate-all', [\App\Http\Controllers\Admin\PayslipController::class, 'generateAll'])->name('admin.payslips.generate-all');
-    Route::get('payslips/{payslip}', [\App\Http\Controllers\Admin\PayslipController::class, 'show'])->name('admin.payslips.show');
-    Route::post('payslips/{payslip}/finalize', [\App\Http\Controllers\Admin\PayslipController::class, 'finalize'])->name('admin.payslips.finalize');
-    Route::post('payslips/{payslip}/mark-paid', [\App\Http\Controllers\Admin\PayslipController::class, 'markPaid'])->name('admin.payslips.mark-paid');
-    
-    // Attendance Management
-    Route::resource('attendance', \App\Http\Controllers\Admin\AttendanceController::class)->names('admin.attendance');
-    Route::get('attendance/faculty-summary', [\App\Http\Controllers\Admin\AttendanceController::class, 'facultySummary'])->name('admin.attendance.faculty_summary');
-    Route::get('attendance/export', [\App\Http\Controllers\Admin\AttendanceController::class, 'export'])->name('admin.attendance.export');
-    
-    // Teaching History
-    Route::resource('teaching-history', \App\Http\Controllers\Admin\TeachingHistoryController::class)->names('admin.teaching_history');
-    
-    // Clearance System
-    Route::resource('clearance', \App\Http\Controllers\Admin\ClearanceController::class)->names('admin.clearance');
-    
-    // Clearance Requests Management
-    Route::get('clearance-requests/dashboard', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'dashboard'])->name('admin.clearance-requests.dashboard');
-    Route::get('clearance-requests/export', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'export'])->name('admin.clearance-requests.export');
-    Route::post('clearance-requests/bulk-approve', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'bulkApprove'])->name('admin.clearance-requests.bulk-approve');
-    Route::post('clearance-requests/bulk-reject', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'bulkReject'])->name('admin.clearance-requests.bulk-reject');
-    Route::post('clearance-requests/{clearanceRequest}/approve', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'approve'])->name('admin.clearance-requests.approve');
-    Route::post('clearance-requests/{clearanceRequest}/reject', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'reject'])->name('admin.clearance-requests.reject');
-    Route::resource('clearance-requests', \App\Http\Controllers\Admin\ClearanceRequestController::class)->names('admin.clearance-requests');
-    
-    // Subject Load Tracker
-    Route::get('subject-loads/dashboard', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'dashboard'])->name('admin.subject-loads.dashboard');
-    Route::get('subject-loads/report', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'report'])->name('admin.subject-loads.report');
-    Route::get('subject-loads/export', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'export'])->name('admin.subject-loads.export');
-    Route::post('subject-loads/check-conflicts', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'checkConflicts'])->name('admin.subject-loads.check-conflicts');
-    Route::post('subject-loads/faculty-load', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'getFacultyLoad'])->name('admin.subject-loads.faculty-load');
-    Route::post('subject-loads/bulk-status', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'bulkUpdateStatus'])->name('admin.subject-loads.bulk-status');
-    Route::resource('subject-loads', \App\Http\Controllers\Admin\SubjectLoadTrackerController::class)->names('admin.subject-loads');
-    
-    // Schedule Assignment
-    Route::get('schedule-assignment/dashboard', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'dashboard'])->name('admin.schedule-assignment.dashboard');
-    Route::get('schedule-assignment/calendar', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'calendar'])->name('admin.schedule-assignment.calendar');
-    Route::get('schedule-assignment/reports', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'reports'])->name('admin.schedule-assignment.reports');
-    Route::get('schedule-assignment/export', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'export'])->name('admin.schedule-assignment.export');
-    Route::get('schedule-assignment/faculty-load-summary', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'getFacultyLoadSummary'])->name('admin.schedule-assignment.faculty-load-summary');
-    Route::get('schedule-assignment/check-conflict', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'checkConflict'])->name('admin.schedule-assignment.check-conflict');
-    Route::get('schedule-assignment/check-duplicate', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'checkDuplicate'])->name('admin.schedule-assignment.check-duplicate');
-    Route::post('schedule-assignment/bulk-update-status', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'bulkUpdateStatus'])->name('admin.schedule-assignment.bulk-update-status');
+    // Routes restricted to regular admins only (not master admins)
+    Route::middleware('regular_admin')->group(function () {
+        // Faculty Management
+        Route::resource('faculty', \App\Http\Controllers\Admin\FacultyController::class)->names('admin.faculty');
+        Route::patch('faculty/{faculty}/restore', [FacultyController::class, 'restore'])->name('admin.faculty.restore');
+        Route::delete('faculty/{faculty}/force-delete', [FacultyController::class, 'forceDelete'])->name('admin.faculty.force-delete');
+        
+        // Faculty Directory
+        Route::get('directory', [\App\Http\Controllers\Admin\FacultyDirectoryController::class, 'index'])->name('admin.directory.index');
+        
+        // Leave approvals
+        Route::get('leave', [\App\Http\Controllers\Admin\LeaveApprovalController::class, 'index'])->name('admin.leave.index');
+        Route::put('leave/{leave}', [\App\Http\Controllers\Admin\LeaveApprovalController::class, 'update'])->name('admin.leave.update');
+        
+        // Salary Grades & Pay
+        Route::resource('salary-grades', \App\Http\Controllers\Admin\SalaryGradeController::class)->names('admin.salary-grades');
+        Route::get('salary-grades/{salary_grade}/faculty', [\App\Http\Controllers\Admin\SalaryGradeController::class, 'faculty'])->name('admin.salary-grades.faculty');
+        Route::get('salary-grades-assign', [\App\Http\Controllers\Admin\SalaryGradeController::class, 'assign'])->name('admin.salary-grades.assign');
+        Route::post('salary-grades-assign', [\App\Http\Controllers\Admin\SalaryGradeController::class, 'assignStore'])->name('admin.salary-grades.assign.store');
+        Route::delete('salary-grades-assign/{assignment}', [\App\Http\Controllers\Admin\SalaryGradeController::class, 'assignRemove'])->name('admin.salary-grades.assign.remove');
+        
+        // Payslips
+        Route::get('payslips', [\App\Http\Controllers\Admin\PayslipController::class, 'index'])->name('admin.payslips.index');
+        Route::get('payslips/calculations', [\App\Http\Controllers\Admin\PayslipController::class, 'calculations'])->name('admin.payslips.calculations');
+        Route::post('payslips/generate-all', [\App\Http\Controllers\Admin\PayslipController::class, 'generateAll'])->name('admin.payslips.generate-all');
+        Route::post('payslips/generate-single', [\App\Http\Controllers\Admin\PayslipController::class, 'generateSingle'])->name('admin.payslips.generate-single');
+        Route::get('payslips/{payslip}', [\App\Http\Controllers\Admin\PayslipController::class, 'show'])->name('admin.payslips.show');
+        Route::post('payslips/{payslip}/finalize', [\App\Http\Controllers\Admin\PayslipController::class, 'finalize'])->name('admin.payslips.finalize');
+        Route::post('payslips/{payslip}/mark-paid', [\App\Http\Controllers\Admin\PayslipController::class, 'markPaid'])->name('admin.payslips.mark-paid');
+        Route::post('payslips/bulk-finalize', [\App\Http\Controllers\Admin\PayslipController::class, 'bulkFinalize'])->name('admin.payslips.bulk-finalize');
+        
+        // Attendance Management
+        Route::resource('attendance', \App\Http\Controllers\Admin\AttendanceController::class)->names('admin.attendance');
+        Route::get('attendance/faculty-summary', [\App\Http\Controllers\Admin\AttendanceController::class, 'facultySummary'])->name('admin.attendance.faculty_summary');
+        Route::get('attendance/export', [\App\Http\Controllers\Admin\AttendanceController::class, 'export'])->name('admin.attendance.export');
+        
+        // Teaching History
+        Route::resource('teaching-history', \App\Http\Controllers\Admin\TeachingHistoryController::class)->names('admin.teaching_history');
+        
+        // Clearance Requests Management
+        Route::get('clearance-requests/dashboard', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'dashboard'])->name('admin.clearance-requests.dashboard');
+        Route::get('clearance-requests/export', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'export'])->name('admin.clearance-requests.export');
+        Route::post('clearance-requests/bulk-approve', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'bulkApprove'])->name('admin.clearance-requests.bulk-approve');
+        Route::post('clearance-requests/bulk-reject', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'bulkReject'])->name('admin.clearance-requests.bulk-reject');
+        Route::post('clearance-requests/{clearanceRequest}/approve', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'approve'])->name('admin.clearance-requests.approve');
+        Route::post('clearance-requests/{clearanceRequest}/reject', [\App\Http\Controllers\Admin\ClearanceRequestController::class, 'reject'])->name('admin.clearance-requests.reject');
+        Route::resource('clearance-requests', \App\Http\Controllers\Admin\ClearanceRequestController::class)->names('admin.clearance-requests');
+        
+        // Subject Load Tracker
+        Route::get('subject-loads/dashboard', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'dashboard'])->name('admin.subject-loads.dashboard');
+        Route::get('subject-loads/report', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'report'])->name('admin.subject-loads.report');
+        Route::get('subject-loads/export', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'export'])->name('admin.subject-loads.export');
+        Route::post('subject-loads/check-conflicts', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'checkConflicts'])->name('admin.subject-loads.check-conflicts');
+        Route::post('subject-loads/faculty-load', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'getFacultyLoad'])->name('admin.subject-loads.faculty-load');
+        Route::post('subject-loads/bulk-status', [\App\Http\Controllers\Admin\SubjectLoadTrackerController::class, 'bulkUpdateStatus'])->name('admin.subject-loads.bulk-status');
+        Route::resource('subject-loads', \App\Http\Controllers\Admin\SubjectLoadTrackerController::class)->names('admin.subject-loads');
+        
+        // Schedule Assignment
+        Route::get('schedule-assignment/dashboard', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'dashboard'])->name('admin.schedule-assignment.dashboard');
+        Route::get('schedule-assignment/calendar', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'calendar'])->name('admin.schedule-assignment.calendar');
+        Route::get('schedule-assignment/reports', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'reports'])->name('admin.schedule-assignment.reports');
+        Route::get('schedule-assignment/export', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'export'])->name('admin.schedule-assignment.export');
+        Route::get('schedule-assignment/faculty-load-summary', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'getFacultyLoadSummary'])->name('admin.schedule-assignment.faculty-load-summary');
+        Route::get('schedule-assignment/check-conflict', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'checkConflict'])->name('admin.schedule-assignment.check-conflict');
+        Route::get('schedule-assignment/check-duplicate', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'checkDuplicate'])->name('admin.schedule-assignment.check-duplicate');
+        Route::post('schedule-assignment/bulk-update-status', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'bulkUpdateStatus'])->name('admin.schedule-assignment.bulk-update-status');
+        Route::delete('schedule-assignment/bulk-delete', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'bulkDelete'])->name('admin.schedule-assignment.bulk-delete');
+        Route::resource('schedule-assignment', \App\Http\Controllers\Admin\ScheduleAssignmentController::class)->names('admin.schedule-assignment');
+        
+        // Schedule Search
+        Route::get('schedule-search', [\App\Http\Controllers\Admin\ScheduleSearchController::class, 'index'])->name('admin.schedule-search.index');
+        Route::get('schedule-search/export', [\App\Http\Controllers\Admin\ScheduleSearchController::class, 'export'])->name('admin.schedule-search.export');
 
-    Route::delete('schedule-assignment/bulk-delete', [\App\Http\Controllers\Admin\ScheduleAssignmentController::class, 'bulkDelete'])->name('admin.schedule-assignment.bulk-delete');
-
-    Route::resource('schedule-assignment', \App\Http\Controllers\Admin\ScheduleAssignmentController::class)->names('admin.schedule-assignment');
-    
-    // Schedule Search (simplified)
-    Route::get('schedule-search', [\App\Http\Controllers\Admin\ScheduleSearchController::class, 'index'])->name('admin.schedule-search.index');
-    Route::get('schedule-search/export', [\App\Http\Controllers\Admin\ScheduleSearchController::class, 'export'])->name('admin.schedule-search.export');
-
-    // Payroll Management
-    Route::get('payslips', [\App\Http\Controllers\Admin\PayslipController::class, 'index'])->name('admin.payslips.index');
-    Route::get('payslips/calculations', [\App\Http\Controllers\Admin\PayslipController::class, 'calculations'])->name('admin.payslips.calculations');
-    Route::get('payslips/{payslip}', [\App\Http\Controllers\Admin\PayslipController::class, 'show'])->name('admin.payslips.show');
-    Route::post('payslips/generate-all', [\App\Http\Controllers\Admin\PayslipController::class, 'generateAll'])->name('admin.payslips.generate-all');
-    Route::post('payslips/generate-single', [\App\Http\Controllers\Admin\PayslipController::class, 'generateSingle'])->name('admin.payslips.generate-single');
-    Route::post('payslips/{payslip}/finalize', [\App\Http\Controllers\Admin\PayslipController::class, 'finalize'])->name('admin.payslips.finalize');
-    Route::post('payslips/{payslip}/mark-paid', [\App\Http\Controllers\Admin\PayslipController::class, 'markPaid'])->name('admin.payslips.mark-paid');
-    Route::post('payslips/bulk-finalize', [\App\Http\Controllers\Admin\PayslipController::class, 'bulkFinalize'])->name('admin.payslips.bulk-finalize');
-
-    // Evaluation System (specific routes first to avoid resource catching them)
-    Route::get('evaluation/faculty-summary', [EvaluationController::class, 'facultyRatingSummary'])->name('admin.evaluation.faculty_summary');
-    Route::get('evaluation/faculty/{faculty}/create', [EvaluationController::class, 'createForFaculty'])->name('admin.evaluation.create_for_faculty');
-    Route::post('evaluation/faculty/{faculty}', [EvaluationController::class, 'storeForFaculty'])->name('admin.evaluation.store_for_faculty');
-    Route::post('evaluation/store-from-modal', [EvaluationController::class, 'storeFromModal'])->name('admin.evaluation.store');
-    Route::resource('evaluation', EvaluationController::class)->names('admin.evaluation');
-    
-    // Faculty Directory
-    Route::get('directory', [\App\Http\Controllers\Admin\FacultyDirectoryController::class, 'index'])->name('admin.directory.index');
-    Route::patch('faculty/{faculty}/restore', [FacultyController::class, 'restore'])->name('admin.faculty.restore');
-    Route::delete('faculty/{faculty}/force-delete', [FacultyController::class, 'forceDelete'])->name('admin.faculty.force-delete');
- });
+        // Evaluation System
+        Route::get('evaluation/faculty-summary', [EvaluationController::class, 'facultyRatingSummary'])->name('admin.evaluation.faculty_summary');
+        Route::get('evaluation/faculty/{faculty}/create', [EvaluationController::class, 'createForFaculty'])->name('admin.evaluation.create_for_faculty');
+        Route::post('evaluation/faculty/{faculty}', [EvaluationController::class, 'storeForFaculty'])->name('admin.evaluation.store_for_faculty');
+        Route::post('evaluation/store-from-modal', [EvaluationController::class, 'storeFromModal'])->name('admin.evaluation.store_from_modal');
+        Route::resource('evaluation', EvaluationController::class)->names('admin.evaluation');
+    });
+});
 
 // Professor Routes (faculty guard)
 Route::prefix('professor')->middleware(['auth:faculty'])->group(function () {
@@ -134,11 +136,10 @@ Route::prefix('professor')->middleware(['auth:faculty'])->group(function () {
     // Attendance history
     Route::get('attendance', [\App\Http\Controllers\Professor\DashboardController::class, 'attendanceHistory'])->name('professor.attendance.history');
 
-    // Payslips
-    Route::get('payslips', [\App\Http\Controllers\Professor\PayslipController::class, 'index'])->name('professor.payslips.index');
-    Route::get('payslips/{payslip}', [\App\Http\Controllers\Professor\PayslipController::class, 'show'])->name('professor.payslips.show');
-    Route::get('payslips/{payslip}/download-pdf', [\App\Http\Controllers\Professor\PayslipController::class, 'downloadPdf'])->name('professor.payslips.download-pdf');
-    Route::post('payslips/generate-current', [\App\Http\Controllers\Professor\PayslipController::class, 'generateCurrent'])->name('professor.payslips.generate-current');
+    // Pay Records
+    Route::get('pay', [\App\Http\Controllers\Professor\PayslipController::class, 'index'])->name('professor.pay.index');
+    Route::get('pay/{payslip}', [\App\Http\Controllers\Professor\PayslipController::class, 'show'])->name('professor.pay.show');
+    Route::get('pay/{payslip}/download-pdf', [\App\Http\Controllers\Professor\PayslipController::class, 'downloadPdf'])->name('professor.pay.download-pdf');
     
     // Clearance Requests
     Route::resource('clearance-requests', \App\Http\Controllers\Professor\ClearanceRequestController::class)->names('professor.clearance-requests');
@@ -148,9 +149,6 @@ Route::prefix('professor')->middleware(['auth:faculty'])->group(function () {
     Route::get('subject-loads/schedule', [\App\Http\Controllers\Professor\SubjectLoadController::class, 'schedule'])->name('professor.subject-loads.schedule');
     Route::get('subject-loads/{subjectLoad}', [\App\Http\Controllers\Professor\SubjectLoadController::class, 'show'])->name('professor.subject-loads.show');
 });
-
-
-use App\Http\Middleware\EnsureAttendanceUser;
 
 // Attendance Monitoring Routes (requires faculty authentication and attendance login)
 Route::prefix('attendance')->middleware(['auth:faculty', 'attendance_user'])->group(function () {

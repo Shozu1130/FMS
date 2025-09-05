@@ -30,7 +30,7 @@ class LoginController extends Controller
             $user = Auth::user();
             Log::info('Admin login successful', ['user_id' => $user->id, 'role' => $user->role]);
             
-            if ($user->role === 'admin') {
+            if ($user->role === 'admin' || $user->role === 'master_admin') {
                 return redirect()->route('admin.dashboard');
             }
             

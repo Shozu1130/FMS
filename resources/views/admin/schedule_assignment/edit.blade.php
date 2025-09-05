@@ -23,11 +23,11 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
             <div class="card border-0 shadow-lg">
                 <div class="card-header bg-gradient-warning text-white py-3">
-                    <h6 class="m-0 font-weight-bold">
+                    <h6 class="m-0 font-weight-bold text-center">
                         <i class="fas fa-edit mr-2"></i>Assignment Details
                     </h6>
                 </div>
@@ -193,11 +193,7 @@
                                 <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span></label>
                                 <input type="time" name="start_time" id="start_time" 
                                        class="form-control @error('start_time') is-invalid @enderror" 
-<<<<<<< HEAD
-                                       value="{{ old('start_time', $scheduleAssignment->start_time ? $scheduleAssignment->start_time->format('H:i') : '') }}" required>
-=======
-                                       value="{{ old('start_time', $scheduleAssignment->start_time) }}" required>
->>>>>>> b5ad117 (Updated Sched Ass)
+                                       value="{{ old('start_time', $scheduleAssignment->start_time ? (is_string($scheduleAssignment->start_time) ? $scheduleAssignment->start_time : $scheduleAssignment->start_time->format('H:i')) : '') }}" required>
                                 @error('start_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -206,11 +202,7 @@
                                 <label for="end_time" class="form-label">End Time <span class="text-danger">*</span></label>
                                 <input type="time" name="end_time" id="end_time" 
                                        class="form-control @error('end_time') is-invalid @enderror" 
-<<<<<<< HEAD
-                                       value="{{ old('end_time', $scheduleAssignment->end_time ? $scheduleAssignment->end_time->format('H:i') : '') }}" required>
-=======
-                                       value="{{ old('end_time', $scheduleAssignment->end_time) }}" required>
->>>>>>> b5ad117 (Updated Sched Ass)
+                                       value="{{ old('end_time', $scheduleAssignment->end_time ? (is_string($scheduleAssignment->end_time) ? $scheduleAssignment->end_time : $scheduleAssignment->end_time->format('H:i')) : '') }}" required>
                                 @error('end_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -273,55 +265,65 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Faculty Load Summary -->
-        <div class="col-lg-4">
+    <!-- Faculty Load Summary Section -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-10 col-xl-8">
             <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">Faculty Load Summary</h6>
+                <div class="card-header py-3 bg-gradient-info text-white">
+                    <h6 class="m-0 font-weight-bold text-center">
+                        <i class="fas fa-chart-line mr-2"></i>Faculty Load Summary
+                    </h6>
                 </div>
                 <div class="card-body" id="load-summary">
                     <!-- Initial load summary -->
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Current Load Summary</h6>
+                        <h6 class="font-weight-bold text-center">Current Load Summary</h6>
                         <div class="row text-center">
                             <div class="col-4">
-                                <div class="font-weight-bold text-primary">{{ $loadSummary['total_units'] }}</div>
-                                <small>Units</small>
+                                <div class="font-weight-bold text-primary display-6">{{ $loadSummary['total_units'] }}</div>
+                                <small class="text-muted">Units</small>
                             </div>
                             <div class="col-4">
-                                <div class="font-weight-bold text-info">{{ $loadSummary['total_hours'] }}</div>
-                                <small>Hours</small>
+                                <div class="font-weight-bold text-info display-6">{{ $loadSummary['total_hours'] }}</div>
+                                <small class="text-muted">Hours</small>
                             </div>
                             <div class="col-4">
-                                <span class="badge bg-{{ $loadSummary['workload_status']['class'] }}">
-                                    {{ $loadSummary['workload_status']['label'] }}
-                                </span>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="badge bg-{{ $loadSummary['workload_status']['class'] }} badge-lg px-3 py-2">
+                                        {{ $loadSummary['workload_status']['label'] }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     @if($loadSummary['total_assignments'] > 0)
                         <div class="mb-3">
-                            <h6 class="font-weight-bold">Current Assignments ({{ $loadSummary['total_assignments'] }})</h6>
-                            <div class="small">
+                            <h6 class="font-weight-bold text-center">Current Assignments ({{ $loadSummary['total_assignments'] }})</h6>
+                            <div class="row">
                                 @if($loadSummary['schedule_assignments']->count() > 0)
-                                    <div class="mb-2"><strong>Schedule Assignments:</strong></div>
-                                    @foreach($loadSummary['schedule_assignments'] as $assignment)
-                                        <div class="mb-1">
-                                            • {{ $assignment->subject_code }} ({{ $assignment->schedule_display }})
-                                            @if($assignment->id == $scheduleAssignment->id)
-                                                <span class="badge bg-warning">Current</span>
-                                            @endif
-                                        </div>
-                                    @endforeach
+                                    <div class="col-md-6">
+                                        <div class="mb-2"><strong>Schedule Assignments:</strong></div>
+                                        @foreach($loadSummary['schedule_assignments'] as $assignment)
+                                            <div class="mb-1 small">
+                                                • {{ $assignment->subject_code }} ({{ $assignment->schedule_display }})
+                                                @if($assignment->id == $scheduleAssignment->id)
+                                                    <span class="badge bg-warning">Current</span>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @endif
                                 
                                 @if($loadSummary['subject_load_assignments']->count() > 0)
-                                    <div class="mb-2"><strong>Subject Load Tracker:</strong></div>
-                                    @foreach($loadSummary['subject_load_assignments'] as $assignment)
-                                        <div class="mb-1">• {{ $assignment->subject_code }} ({{ $assignment->schedule_display }})</div>
-                                    @endforeach
+                                    <div class="col-md-6">
+                                        <div class="mb-2"><strong>Subject Load Tracker:</strong></div>
+                                        @foreach($loadSummary['subject_load_assignments'] as $assignment)
+                                            <div class="mb-1 small">• {{ $assignment->subject_code }} ({{ $assignment->schedule_display }})</div>
+                                        @endforeach
+                                    </div>
                                 @endif
                             </div>
                         </div>

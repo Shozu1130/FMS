@@ -18,6 +18,13 @@ class SubjectLoadTrackerController extends Controller
     {
         $query = SubjectLoadTracker::with('faculty');
 
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+
         // Filter by faculty
         if ($request->filled('faculty_id')) {
             $query->where('faculty_id', $request->faculty_id);
@@ -59,7 +66,12 @@ class SubjectLoadTrackerController extends Controller
                              ->orderBy('start_time', 'asc')
                              ->paginate(15);
 
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->orderBy('name')->get();
         $academicYears = SubjectLoadTracker::distinct()->pluck('academic_year')->sort()->values();
         
         return view('admin.subject_loads.index', compact('subjectLoads', 'faculties', 'academicYears'));
@@ -70,7 +82,12 @@ class SubjectLoadTrackerController extends Controller
      */
     public function create()
     {
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->orderBy('name')->get();
         $days = SubjectLoadTracker::getDays();
         $semesters = SubjectLoadTracker::getSemesters();
         $yearLevels = SubjectLoadTracker::getYearLevels();
@@ -118,7 +135,15 @@ class SubjectLoadTrackerController extends Controller
             ]);
         }
 
-        SubjectLoadTracker::create($request->all());
+        // Prepare data for creation
+        $data = $request->all();
+        
+        // Set default source if not provided
+        if (!isset($data['source'])) {
+            $data['source'] = SubjectLoadTracker::SOURCE_SUBJECT_LOAD_TRACKER;
+        }
+        
+        SubjectLoadTracker::create($data);
 
         return redirect()->route('admin.subject-loads.index')
                         ->with('success', 'Subject load assigned successfully.');
@@ -161,7 +186,12 @@ class SubjectLoadTrackerController extends Controller
      */
     public function edit(SubjectLoadTracker $subjectLoad)
     {
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active')->orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $days = SubjectLoadTracker::getDays();
         $semesters = SubjectLoadTracker::getSemesters();
         $yearLevels = SubjectLoadTracker::getYearLevels();
@@ -236,30 +266,51 @@ class SubjectLoadTrackerController extends Controller
         $currentYear = date('Y');
         $currentSemester = '1st Semester'; // You can make this dynamic
 
+        // Filter statistics by department
+        $statsQuery = SubjectLoadTracker::active();
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $statsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $currentPeriodQuery = SubjectLoadTracker::active()->forPeriod($currentYear, $currentSemester);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $currentPeriodQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
         $stats = [
-            'total_loads' => SubjectLoadTracker::active()->count(),
-            'total_faculties' => SubjectLoadTracker::active()->distinct('faculty_id')->count(),
-            'current_period_loads' => SubjectLoadTracker::active()
-                                                      ->forPeriod($currentYear, $currentSemester)
-                                                      ->count(),
-            'total_units' => SubjectLoadTracker::active()->sum('units'),
-            'total_hours' => SubjectLoadTracker::active()->sum('hours_per_week')
+            'total_loads' => $statsQuery->count(),
+            'total_faculties' => $statsQuery->distinct('faculty_id')->count(),
+            'current_period_loads' => $currentPeriodQuery->count(),
+            'total_units' => $statsQuery->sum('units'),
+            'total_hours' => $statsQuery->sum('hours_per_week')
         ];
 
-        // Recent assignments
-        $recentLoads = SubjectLoadTracker::with('faculty')
-                                        ->orderBy('created_at', 'desc')
-                                        ->limit(10)
-                                        ->get();
+        // Recent assignments - filter by department
+        $recentLoadsQuery = SubjectLoadTracker::with('faculty')->orderBy('created_at', 'desc');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $recentLoadsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        $recentLoads = $recentLoadsQuery->limit(10)->get();
 
-        // Faculty with highest loads
-        $facultyLoads = SubjectLoadTracker::select('faculty_id')
+        // Faculty with highest loads - filter by department
+        $facultyLoadsQuery = SubjectLoadTracker::select('faculty_id')
                                          ->selectRaw('SUM(units) as total_units')
                                          ->selectRaw('SUM(hours_per_week) as total_hours')
                                          ->with('faculty')
                                          ->active()
-                                         ->forPeriod($currentYear, $currentSemester)
-                                         ->groupBy('faculty_id')
+                                         ->forPeriod($currentYear, $currentSemester);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultyLoadsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        $facultyLoads = $facultyLoadsQuery->groupBy('faculty_id')
                                          ->orderBy('total_units', 'desc')
                                          ->limit(10)
                                          ->get();
@@ -275,19 +326,32 @@ class SubjectLoadTrackerController extends Controller
         $academicYear = $request->get('academic_year', date('Y'));
         $semester = $request->get('semester', '1st Semester');
 
-        $facultyLoads = Faculty::with(['subjectLoads' => function($query) use ($academicYear, $semester) {
+        // Filter faculties by department
+        $facultyQuery = Faculty::with(['subjectLoads' => function($query) use ($academicYear, $semester) {
             $query->active()->forPeriod($academicYear, $semester);
-        }])->where('status', 'active')
-          ->orderBy('name')
-          ->get();
+        }])->where('status', 'active');
+        
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultyQuery->where('department', auth()->user()->department);
+        }
+        
+        $facultyLoads = $facultyQuery->orderBy('name')->get();
 
+        // Filter summary statistics by department
+        $summaryQuery = SubjectLoadTracker::active()->forPeriod($academicYear, $semester);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $summaryQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
         $summary = [
             'total_faculties' => $facultyLoads->count(),
-            'total_loads' => SubjectLoadTracker::active()->forPeriod($academicYear, $semester)->count(),
-            'total_units' => SubjectLoadTracker::active()->forPeriod($academicYear, $semester)->sum('units'),
-            'total_hours' => SubjectLoadTracker::active()->forPeriod($academicYear, $semester)->sum('hours_per_week'),
+            'total_loads' => $summaryQuery->count(),
+            'total_units' => $summaryQuery->sum('units'),
+            'total_hours' => $summaryQuery->sum('hours_per_week'),
             'average_units_per_faculty' => $facultyLoads->count() > 0 ? 
-                SubjectLoadTracker::active()->forPeriod($academicYear, $semester)->sum('units') / $facultyLoads->count() : 0,
+                $summaryQuery->sum('units') / $facultyLoads->count() : 0,
             'academic_year' => $academicYear,
             'semester' => $semester
         ];

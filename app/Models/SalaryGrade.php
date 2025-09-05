@@ -14,6 +14,7 @@ class SalaryGrade extends Model
         'grade',
         'full_time_base_salary',
         'part_time_base_salary',
+        'department',
     ];
 
     protected $casts = [
@@ -42,6 +43,14 @@ class SalaryGrade extends Model
     public function scopeByGrade($query, $grade)
     {
         return $query->where('grade', $grade);
+    }
+
+    /**
+     * Scope a query to filter by department.
+     */
+    public function scopeByDepartment($query, $department)
+    {
+        return $query->where('department', $department);
     }
 
     /**
@@ -93,12 +102,20 @@ class SalaryGrade extends Model
     /**
      * Validation rules for creating/updating salary grades.
      */
-    public static function rules($id = null)
+    public static function rules($id = null, $department = null)
     {
+        $gradeRule = 'required|integer|min:1|max:99';
+        if ($department) {
+            $gradeRule .= '|unique:salary_grades,grade,' . $id . ',id,department,' . $department;
+        } else {
+            $gradeRule .= '|unique:salary_grades,grade,' . $id;
+        }
+
         return [
-            'grade' => 'required|integer|min:1|max:99|unique:salary_grades,grade,' . $id,
+            'grade' => $gradeRule,
             'full_time_base_salary' => 'required|numeric|min:0|max:9999999.99',
             'part_time_base_salary' => 'required|numeric|min:0|max:9999999.99',
+            'department' => 'required|string|max:255',
         ];
     }
 
@@ -140,12 +157,17 @@ class SalaryGrade extends Model
     /**
      * Get salary grades for dropdown selection.
      */
-    public static function getForDropdown()
+    public static function getForDropdown($department = null)
     {
-        return self::orderBy('grade')
-            ->get()
+        $query = self::orderBy('grade');
+        
+        if ($department) {
+            $query->byDepartment($department);
+        }
+        
+        return $query->get()
             ->mapWithKeys(function ($grade) {
-                return [$grade->id => "Grade {$grade->grade}"];
+                return [$grade->id => "Grade {$grade->grade} - FT:₱" . number_format($grade->full_time_base_salary, 2) . "/hr, PT:₱" . number_format($grade->part_time_base_salary, 2) . "/hr"];
             });
     }
 

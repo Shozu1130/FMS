@@ -13,8 +13,6 @@ return new class extends Migration
 
             $table->foreignId('faculty_id')->constrained('faculties')->cascadeOnDelete();
 
-            $table->foreignId('faculty_id')->constrained('faculty')->cascadeOnDelete();
-
             $table->string('type');
             $table->text('reason')->nullable();
             $table->date('start_date');

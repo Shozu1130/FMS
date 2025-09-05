@@ -12,21 +12,47 @@ class EvaluationController extends Controller
 {
     public function index()
     {
-        $evaluations = Evaluation::with(['faculty', 'teachingHistory'])
-            ->orderBy('academic_year', 'desc')
+        $query = Evaluation::with(['faculty', 'teachingHistory']);
+        
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $evaluations = $query->orderBy('academic_year', 'desc')
             ->orderBy('semester')
             ->orderBy('faculty_id')
             ->paginate(20);
 
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active')->orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
 
         return view('admin.evaluation.index', compact('evaluations', 'faculties'));
     }
 
     public function create()
     {
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
-        $teachingHistories = TeachingHistory::active()->with('faculty')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active')->orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
+        
+        // Filter teaching histories by department
+        $teachingHistoriesQuery = TeachingHistory::active()->with('faculty');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $teachingHistoriesQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        $teachingHistories = $teachingHistoriesQuery->get();
         $evaluationPeriods = Evaluation::getEvaluationPeriods();
         
         return view('admin.evaluation.create', compact('faculties', 'teachingHistories', 'evaluationPeriods'));
@@ -50,8 +76,21 @@ class EvaluationController extends Controller
 
     public function edit(Evaluation $evaluation)
     {
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
-        $teachingHistories = TeachingHistory::active()->with('faculty')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active')->orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
+        
+        // Filter teaching histories by department
+        $teachingHistoriesQuery = TeachingHistory::active()->with('faculty');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $teachingHistoriesQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        $teachingHistories = $teachingHistoriesQuery->get();
         $evaluationPeriods = Evaluation::getEvaluationPeriods();
         
         return view('admin.evaluation.edit', compact('evaluation', 'faculties', 'teachingHistories', 'evaluationPeriods'));
@@ -104,11 +143,19 @@ class EvaluationController extends Controller
 
     public function published()
     {
-        $evaluations = Evaluation::with(['faculty', 'teachingHistory'])
+        $evaluationsQuery = Evaluation::with(['faculty', 'teachingHistory'])
             ->published()
             ->orderBy('academic_year', 'desc')
-            ->orderBy('semester')
-            ->paginate(20);
+            ->orderBy('semester');
+            
+        // Filter by department
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $evaluationsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $evaluations = $evaluationsQuery->paginate(20);
 
         return view('admin.evaluation.published', compact('evaluations'));
     }
@@ -119,10 +166,18 @@ class EvaluationController extends Controller
         $semester = $request->get('semester', '1st Semester');
         $period = $request->get('evaluation_period');
 
-        $evaluations = Evaluation::with(['faculty', 'teachingHistory'])
+        $evaluationsQuery = Evaluation::with(['faculty', 'teachingHistory'])
             ->byPeriod($academicYear, $semester, $period)
-            ->orderBy('faculty_id')
-            ->paginate(20);
+            ->orderBy('faculty_id');
+            
+        // Filter by department
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $evaluationsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $evaluations = $evaluationsQuery->paginate(20);
 
         $years = range(date('Y') - 5, date('Y') + 1);
         $semesters = ['1st Semester', '2nd Semester', 'Summer'];
@@ -136,12 +191,20 @@ class EvaluationController extends Controller
 
     public function ratingsReport()
     {
-        $evaluations = Evaluation::published()
+        $evaluationsQuery = Evaluation::published()
             ->with('faculty')
             ->orderBy('academic_year', 'desc')
             ->orderBy('semester')
-            ->orderBy('overall_rating', 'desc')
-            ->get();
+            ->orderBy('overall_rating', 'desc');
+            
+        // Filter by department
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $evaluationsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $evaluations = $evaluationsQuery->get();
 
         $ratingStats = [
             'outstanding' => $evaluations->where('overall_rating', '>=', 4.5)->count(),
@@ -156,9 +219,16 @@ class EvaluationController extends Controller
 
     public function facultyRatingSummary()
     {
-        $faculties = Faculty::with(['evaluations' => function($query) {
+        $facultiesQuery = Faculty::with(['evaluations' => function($query) {
             $query->published()->orderBy('academic_year', 'desc');
-        }])->where('status', 'active')->get();
+        }])->where('status', 'active');
+        
+        // Filter by department
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        
+        $faculties = $facultiesQuery->get();
 
         $faculties = $faculties->map(function($faculty) {
             $faculty->average_rating = $faculty->getOverallRatingAverage();

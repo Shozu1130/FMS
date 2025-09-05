@@ -26,6 +26,7 @@ class Faculty extends Authenticatable
         'password',
         'status',
         'employment_type',
+        'department',
         'picture',
         'skills',
         'experiences'
@@ -217,5 +218,13 @@ class Faculty extends Authenticatable
         } else {
             return 'Summer';
         }
+    }
+
+    /**
+     * Get department enum
+     */
+    public function getDepartmentEnum(): ?\App\Enums\Department
+    {
+        return $this->department ? \App\Enums\Department::from($this->department) : null;
     }
 }

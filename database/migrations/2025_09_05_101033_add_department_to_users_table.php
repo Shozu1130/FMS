@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('subject_load_trackers', function (Blueprint $table) {
-            $table->string('year_level')->after('section')->nullable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('department')->nullable()->after('role');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('subject_load_trackers', function (Blueprint $table) {
-            $table->dropColumn('year_level');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('department');
         });
     }
 };

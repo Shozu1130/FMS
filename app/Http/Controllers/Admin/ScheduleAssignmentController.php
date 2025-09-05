@@ -43,8 +43,12 @@ class ScheduleAssignmentController extends Controller
         $assignments = $this->scheduleService->getCombinedScheduleData($filters);
         $paginatedAssignments = $this->scheduleService->getPaginatedScheduleData($filters, 15);
 
-        // Filter options
-        $faculties = Faculty::orderBy('name')->get();
+        // Filter options - filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $academicYears = range(date('Y') - 2, date('Y') + 2);
         $semesters = ['1st Semester' => '1st Semester', '2nd Semester' => '2nd Semester', 'Summer' => 'Summer'];
 
@@ -86,7 +90,12 @@ class ScheduleAssignmentController extends Controller
      */
     public function create()
     {
-        $faculties = Faculty::orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $days = ScheduleAssignment::getDays();
         $semesters = ScheduleAssignment::getSemesters();
         $yearLevels = ScheduleAssignment::getYearLevels();
@@ -151,7 +160,12 @@ class ScheduleAssignmentController extends Controller
      */
     public function edit(ScheduleAssignment $scheduleAssignment)
     {
-        $faculties = Faculty::orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $days = ScheduleAssignment::getDays();
         $semesters = ScheduleAssignment::getSemesters();
         $yearLevels = ScheduleAssignment::getYearLevels();
@@ -198,6 +212,197 @@ class ScheduleAssignmentController extends Controller
 
         return redirect()->route('admin.schedule-assignment.index')
                          ->with('success', 'Schedule assignment updated successfully.');
+    }
+
+    /**
+     * Display calendar view of schedule assignments.
+     */
+    public function calendar(Request $request)
+    {
+        $currentYear = $request->get('academic_year', date('Y'));
+        $currentSemester = $request->get('semester', $this->getCurrentSemester());
+        $facultyId = $request->get('faculty_id');
+
+        // Get all assignments for the calendar view
+        $filters = [
+            'academic_year' => $currentYear,
+            'semester' => $currentSemester,
+            'status' => 'active'
+        ];
+
+        // Add faculty filter if specified
+        if ($facultyId) {
+            $filters['faculty_id'] = $facultyId;
+        }
+
+        $assignments = $this->scheduleService->getCombinedScheduleData($filters);
+
+        // Group assignments by day and time for calendar display
+        $calendarData = [];
+        $timeSlots = [];
+
+        foreach ($assignments as $assignment) {
+            $day = $assignment->schedule_day;
+            $startTime = $assignment->start_time;
+            $endTime = $assignment->end_time;
+            
+            if (!isset($calendarData[$day])) {
+                $calendarData[$day] = [];
+            }
+            
+            $calendarData[$day][] = $assignment;
+            
+            // Collect unique time slots
+            $timeSlots[] = $startTime;
+            $timeSlots[] = $endTime;
+        }
+
+        // Sort and deduplicate time slots
+        $timeSlots = array_unique($timeSlots);
+        sort($timeSlots);
+
+        // Filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
+        $academicYears = range(date('Y') - 2, date('Y') + 2);
+        $semesters = ['1st Semester' => '1st Semester', '2nd Semester' => '2nd Semester', 'Summer' => 'Summer'];
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        return view('admin.schedule_assignment.calendar', compact(
+            'calendarData', 'timeSlots', 'days', 'faculties', 'academicYears', 
+            'semesters', 'currentYear', 'currentSemester', 'facultyId'
+        ));
+    }
+
+    /**
+     * Display reports and analytics for schedule assignments.
+     */
+    public function reports(Request $request)
+    {
+        $currentYear = $request->get('academic_year', date('Y'));
+        $currentSemester = $request->get('semester', $this->getCurrentSemester());
+
+        // Get faculty workload distribution
+        $workloadDistribution = $this->scheduleService->getFacultyWorkloadDistribution($currentYear, $currentSemester);
+
+        // Get dashboard stats for the reports
+        $stats = $this->scheduleService->getDashboardStats($currentYear, $currentSemester);
+
+        // Get all assignments for detailed analysis
+        $filters = [
+            'academic_year' => $currentYear,
+            'semester' => $currentSemester
+        ];
+        $assignments = $this->scheduleService->getCombinedScheduleData($filters);
+
+        // Group assignments by faculty for detailed reporting
+        $facultyReports = [];
+        foreach ($assignments as $assignment) {
+            $facultyId = $assignment->faculty_id;
+            if (!isset($facultyReports[$facultyId])) {
+                $facultyReports[$facultyId] = [
+                    'faculty' => $assignment->faculty,
+                    'assignments' => [],
+                    'total_units' => 0,
+                    'total_hours' => 0
+                ];
+            }
+            $facultyReports[$facultyId]['assignments'][] = $assignment;
+            $facultyReports[$facultyId]['total_units'] += $assignment->units ?? 0;
+            $facultyReports[$facultyId]['total_hours'] += $assignment->hours ?? 0;
+        }
+
+        // Filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
+        $academicYears = range(date('Y') - 2, date('Y') + 2);
+        $semesters = ['1st Semester' => '1st Semester', '2nd Semester' => '2nd Semester', 'Summer' => 'Summer'];
+
+        return view('admin.schedule_assignment.reports', compact(
+            'workloadDistribution', 'stats', 'facultyReports', 'faculties',
+            'academicYears', 'semesters', 'currentYear', 'currentSemester'
+        ));
+    }
+
+    /**
+     * Export schedule assignments to CSV.
+     */
+    public function export(Request $request)
+    {
+        $currentYear = $request->get('academic_year', date('Y'));
+        $currentSemester = $request->get('semester', $this->getCurrentSemester());
+
+        $filters = [
+            'academic_year' => $currentYear,
+            'semester' => $currentSemester
+        ];
+
+        if ($request->get('faculty_id')) {
+            $filters['faculty_id'] = $request->get('faculty_id');
+        }
+
+        $assignments = $this->scheduleService->getCombinedScheduleData($filters);
+
+        $filename = "schedule_assignments_{$currentYear}_{$currentSemester}_" . date('Y-m-d') . ".csv";
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($assignments) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV Headers
+            fputcsv($file, [
+                'Faculty Name',
+                'Subject Code',
+                'Subject Name',
+                'Section',
+                'Units',
+                'Hours',
+                'Schedule Day',
+                'Start Time',
+                'End Time',
+                'Room',
+                'Year Level',
+                'Academic Year',
+                'Semester',
+                'Status',
+                'Source'
+            ]);
+
+            // CSV Data
+            foreach ($assignments as $assignment) {
+                fputcsv($file, [
+                    $assignment->faculty->name ?? 'N/A',
+                    $assignment->subject_code,
+                    $assignment->subject_name,
+                    $assignment->section,
+                    $assignment->units ?? 0,
+                    $assignment->hours ?? 0,
+                    $assignment->schedule_day,
+                    $assignment->start_time,
+                    $assignment->end_time,
+                    $assignment->room ?? 'N/A',
+                    $assignment->year_level ?? 'N/A',
+                    $assignment->academic_year,
+                    $assignment->semester,
+                    $assignment->status,
+                    $assignment->source ?? 'Direct Assignment'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 
     /**

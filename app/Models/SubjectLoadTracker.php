@@ -27,20 +27,13 @@ class SubjectLoadTracker extends Model
         'academic_year',
         'semester',
         'status',
-
         'source',
-
         'notes'
     ];
 
     protected $casts = [
-
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
-
         'start_time' => 'string',
         'end_time' => 'string',
-
         'units' => 'integer',
         'hours_per_week' => 'integer',
         'academic_year' => 'integer',
@@ -112,18 +105,12 @@ class SubjectLoadTracker extends Model
     public function getTimeRangeAttribute()
     {
         if ($this->start_time && $this->end_time) {
-
-            return Carbon::parse($this->start_time)->format('g:i A') . ' - ' . 
-                   Carbon::parse($this->end_time)->format('g:i A');
-
             try {
-                $startTime = Carbon::createFromFormat('H:i', $this->start_time);
-                $endTime = Carbon::createFromFormat('H:i', $this->end_time);
-                return $startTime->format('g:i A') . ' - ' . $endTime->format('g:i A');
+                return Carbon::parse($this->start_time)->format('g:i A') . ' - ' . 
+                       Carbon::parse($this->end_time)->format('g:i A');
             } catch (\Exception $e) {
                 return 'Invalid time format';
             }
-
         }
         return 'No schedule';
     }
@@ -295,7 +282,7 @@ class SubjectLoadTracker extends Model
             'status' => 'required|in:' . implode(',', [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_COMPLETED]),
 
 
-            'source' => 'required|in:' . implode(',', [self::SOURCE_DIRECT, self::SOURCE_SUBJECT_LOAD_TRACKER]),
+            'source' => 'nullable|in:' . implode(',', [self::SOURCE_DIRECT, self::SOURCE_SUBJECT_LOAD_TRACKER]),
 
             'notes' => 'nullable|string|max:1000'
         ];

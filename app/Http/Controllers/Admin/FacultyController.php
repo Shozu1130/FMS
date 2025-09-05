@@ -23,7 +23,14 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        $faculty = Faculty::whereNull('deleted_at')->orderByDesc('created_at')->paginate(10);
+        $query = Faculty::whereNull('deleted_at');
+        
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->where('department', auth()->user()->department);
+        }
+        
+        $faculty = $query->orderByDesc('created_at')->paginate(10);
         return view('admin.faculty.index', compact('faculty'));
     }
 
@@ -36,18 +43,6 @@ class FacultyController extends Controller
      */
     public function store(Request $request)
 {
-    // FORCE GMAIL CONFIGURATION AT THE TOP
-    config([
-        'mail.mailers.smtp' => [
-            'transport' => 'smtp',
-            'host' => 'smtp.gmail.com',
-            'port' => 465,
-            'encryption' => 'ssl',
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
-        ]
-    ]);
 
     $validated = $request->validate([
         'name' => 'required|string|max:255',
@@ -63,30 +58,36 @@ class FacultyController extends Controller
     $validated['password'] = bcrypt($plainPassword);
     
     $validated['status'] = 'active';
+    
+    // Assign department based on admin's department (or allow master admin to choose)
+    if (auth()->user()->isMasterAdmin()) {
+        $validated['department'] = $request->input('department', 'BSIT');
+    } else {
+        $validated['department'] = auth()->user()->department ?? 'BSIT';
+    }
 
     // Create faculty member
     $faculty = Faculty::create($validated);
 
     try {
-        // FIXED: Send to PROFESSOR'S email, not yours
-        Mail::raw("Welcome {$faculty->name}!
-
-Your Professor Account Details:
-- Professor ID: {$faculty->professor_id}
-- Email: {$faculty->email}
-- Password: {$plainPassword}
-
-Please login at: ".url('/login')."
-
-Change your password after first login.", function($message) use ($faculty) {
-            $message->to($faculty->email) // ← CHANGED TO PROFESSOR'S EMAIL
-                    ->subject('Professor Account Created');
-        });
+        // Send email using the ProfessorAccountCreated mailable
+        Mail::to($faculty->email)->send(new ProfessorAccountCreated(
+            $faculty->name,
+            $faculty->email,
+            $faculty->professor_id,
+            $plainPassword
+        ));
 
         return redirect()->route('admin.faculty.index')
-                         ->with('success', 'Professor account created! ID: ' . $faculty->professor_id);
+                         ->with('success', 'Professor account created and email sent! ID: ' . $faculty->professor_id);
                          
     } catch (\Exception $e) {
+        Log::error('Email sending failed', [
+            'faculty_id' => $faculty->id,
+            'email' => $faculty->email,
+            'error' => $e->getMessage()
+        ]);
+        
         return redirect()->route('admin.faculty.index')
                          ->with('warning', 'Professor account created but email failed: ' . $e->getMessage());
     }

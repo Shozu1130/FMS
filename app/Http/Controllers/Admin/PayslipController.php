@@ -20,18 +20,30 @@ class PayslipController extends Controller
         $year = $request->get('year', now()->year);
         $month = $request->get('month', now()->month);
         
-        $payslips = Payslip::with('faculty')
-            ->forPeriod($year, $month)
-            ->orderBy('net_salary', 'desc')
-            ->paginate(15);
-
-        $totalPayroll = Payslip::forPeriod($year, $month)->sum('net_salary');
-        $totalFaculty = Payslip::forPeriod($year, $month)->count();
+        $query = Payslip::with('faculty')->forPeriod($year, $month);
         
-        $fullTimeCount = Payslip::forPeriod($year, $month)
-            ->where('employment_type', 'Full-Time')->count();
-        $partTimeCount = Payslip::forPeriod($year, $month)
-            ->where('employment_type', 'Part-Time')->count();
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $payslips = $query->orderBy('net_salary', 'desc')->paginate(15);
+
+        // Apply department filtering to statistics
+        $statsQuery = Payslip::forPeriod($year, $month);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $statsQuery->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $totalPayroll = $statsQuery->sum('net_salary');
+        $totalFaculty = $statsQuery->count();
+        
+        $fullTimeCount = (clone $statsQuery)->where('employment_type', 'Full-Time')->count();
+        $partTimeCount = (clone $statsQuery)->where('employment_type', 'Part-Time')->count();
 
         return view('admin.payslips.index', compact(
             'payslips', 'year', 'month', 'totalPayroll', 
@@ -45,6 +57,14 @@ class PayslipController extends Controller
     public function show($id)
     {
         $payslip = Payslip::with('faculty')->findOrFail($id);
+        
+        // Check if admin can access this payslip (department filtering)
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            if ($payslip->faculty->department !== auth()->user()->department) {
+                abort(403, 'Unauthorized access to payslip from different department.');
+            }
+        }
+        
         $faculty = $payslip->faculty;
         $salaryGrade = $faculty->getCurrentSalaryGrade();
         
@@ -71,7 +91,12 @@ class PayslipController extends Controller
         $year = $request->year;
         $month = $request->month;
         
-        $faculties = Faculty::whereNotNull('employment_type')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::whereNotNull('employment_type');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $generated = 0;
         $errors = [];
 
@@ -108,9 +133,16 @@ class PayslipController extends Controller
             'month' => 'required|integer|min:1|max:12'
         ]);
 
+        // Check if admin can generate payslip for this faculty (department filtering)
+        $faculty = Faculty::find($request->faculty_id);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            if ($faculty->department !== auth()->user()->department) {
+                return redirect()->back()->with('error', 'Unauthorized: Cannot generate payslip for faculty from different department.');
+            }
+        }
+
         try {
             $payslip = Payslip::generateForFaculty($request->faculty_id, $request->year, $request->month);
-            $faculty = Faculty::find($request->faculty_id);
             
             return redirect()->route('admin.payslips.show', $payslip->id)
                 ->with('success', "Payslip generated successfully for {$faculty->name}");
@@ -127,11 +159,17 @@ class PayslipController extends Controller
         $year = $request->get('year', now()->year);
         $month = $request->get('month', now()->month);
         
-        $faculties = Faculty::with(['attendances' => function($query) use ($year, $month) {
+        $facultiesQuery = Faculty::with(['attendances' => function($query) use ($year, $month) {
                 $query->whereYear('date', $year)->whereMonth('date', $month);
             }])
-            ->whereNotNull('employment_type')
-            ->get();
+            ->whereNotNull('employment_type');
+            
+        // Filter by department
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        
+        $faculties = $facultiesQuery->get();
 
         $calculationData = [];
         

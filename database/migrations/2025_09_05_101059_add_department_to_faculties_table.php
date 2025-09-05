@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('schedule_assignments', function (Blueprint $table) {
-            //
+        Schema::table('faculties', function (Blueprint $table) {
+            $table->string('department')->default('BSIT')->after('employment_type');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('schedule_assignments', function (Blueprint $table) {
-            //
+        Schema::table('faculties', function (Blueprint $table) {
+            $table->dropColumn('department');
         });
     }
 };

@@ -289,7 +289,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}" href="{{ route('admin.clearance.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.clearance-requests.*') ? 'active' : '' }}" href="{{ route('admin.clearance-requests.index') }}">
                     <i class="bi bi-shield-lock"></i> Clearance System
                 </a>
             </li>

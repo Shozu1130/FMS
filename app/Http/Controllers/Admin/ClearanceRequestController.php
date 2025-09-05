@@ -17,6 +17,13 @@ class ClearanceRequestController extends Controller
     {
         $query = ClearanceRequest::with(['faculty']);
 
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+
         // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -45,7 +52,13 @@ class ClearanceRequestController extends Controller
         $requests = $query->orderBy('created_at', 'desc')->paginate(15);
 
         $clearanceTypes = ClearanceRequest::getClearanceTypes();
-        $faculties = Faculty::all();
+        
+        // Filter faculties by department
+        $facultiesQuery = Faculty::query();
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
 
         return view('admin.clearance_requests.index', compact('requests', 'clearanceTypes', 'faculties'));
     }

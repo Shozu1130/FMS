@@ -8,9 +8,6 @@
                 <h1 class="h3 mb-0 text-gray-800">
                     <i class="bi bi-clock"></i> Attendance Management
                 </h1>
-<<<<<<< HEAD
-             
-=======
                 <div>
                     <a href="{{ route('admin.attendance.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Add Attendance Record
@@ -22,7 +19,7 @@
                         <i class="bi bi-bar-chart"></i> Faculty Summary
                     </a>
                 </div>
->>>>>>> b5ad117 (Updated Sched Ass)
+
             </div>
         </div>
     </div>

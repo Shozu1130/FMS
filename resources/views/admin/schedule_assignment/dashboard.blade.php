@@ -245,7 +245,7 @@
                                                 <div class="text-muted small">{{ Str::limit($assignment->subject_name, 30) }}</div>
                                             </td>
                                             <td class="border-0 py-3">
-                                                <span class="badge badge-light border font-weight-bold">{{ $assignment->section }}</span>
+                                                <span class="badge badge-light border font-weight-bold text-dark">{{ $assignment->section }}</span>
                                             </td>
                                             <td class="border-0 py-3">
                                                 <div class="font-weight-bold text-dark">{{ $assignment->schedule_display }}</div>

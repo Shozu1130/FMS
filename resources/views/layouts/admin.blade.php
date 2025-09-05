@@ -341,6 +341,23 @@
         </div>
         
         <ul class="nav flex-column">
+            @if(auth()->user()->isMasterAdmin())
+            <!-- Master Admin Section - Only Admin Management -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title">Master Admin</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('master_admin.admin_management.*') ? 'active' : '' }}" href="{{ route('master_admin.admin_management.index') }}">
+                        <i class="fas fa-user-shield"></i> Admin Management
+                    </a>
+                </li>
+            </div>
+            @else
+            <!-- Regular Admin Sections - Full Access -->
             <!-- Core Management -->
             <div class="sidebar-group">
                 <div class="sidebar-group-title">Core Management</div>
@@ -375,11 +392,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.schedule-search.*') ? 'active' : '' }}" href="{{ route('admin.schedule-search.index') }}">
-                        <i class="fas fa-search"></i> Schedule Search
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.teaching_history.*') ? 'active' : '' }}" href="{{ route('admin.teaching_history.index') }}">
                         <i class="fas fa-history"></i> Teaching History
                     </a>
@@ -396,7 +408,7 @@
                 <div class="sidebar-group-title">HR & Payroll</div>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.salary-grades.*') || request()->routeIs('admin.payslips.*') ? 'active' : '' }}" href="{{ route('admin.salary-grades.index') }}">
-                        <i class="fas fa-dollar-sign"></i> Salary & Payroll
+                        <i class="fas fa-dollar-sign"></i> Salary Grades & Pay
                     </a>
                 </li>
                 <li class="nav-item">
@@ -413,18 +425,13 @@
 
             <!-- Clearance System -->
             <div class="sidebar-group">
-                <div class="sidebar-group-title">Clearance System</div>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}" href="{{ route('admin.clearance.index') }}">
-                        <i class="fas fa-shield-alt"></i> Clearance System
-                    </a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.clearance-requests.*') ? 'active' : '' }}" href="{{ route('admin.clearance-requests.index') }}">
                         <i class="fas fa-clipboard-check"></i> Clearance Requests
                     </a>
                 </li>
             </div>
+            @endif
         </ul>
     </div>
 

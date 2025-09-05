@@ -11,7 +11,12 @@ class ScheduleSearchController extends Controller
 {
     public function index(Request $request)
     {
-        $faculties = Faculty::orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $academicYears = SubjectLoadTracker::distinct()->pluck('academic_year')->filter()->sort()->values();
         
         // Only show results if there's a search query or filter applied

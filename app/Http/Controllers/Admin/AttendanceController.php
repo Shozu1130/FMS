@@ -18,6 +18,13 @@ class AttendanceController extends Controller
     {
         $query = Attendance::with('faculty');
 
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+
         // Filter by date range
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
@@ -45,7 +52,12 @@ class AttendanceController extends Controller
                             ->orderBy('faculty_id')
                             ->paginate(20);
 
-        $faculties = Faculty::orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         
         // Get summary statistics
         $summary = $this->getAttendanceSummary($request);
@@ -231,6 +243,13 @@ class AttendanceController extends Controller
     {
         $query = Attendance::query();
 
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+
         // Apply same filters as main query
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
@@ -334,10 +353,15 @@ class AttendanceController extends Controller
      */
     public function facultySummary()
     {
-        $faculties = Faculty::with(['attendances' => function($query) {
+        // Filter faculties by department
+        $facultiesQuery = Faculty::with(['attendances' => function($query) {
             $query->whereYear('date', now()->year)
                   ->whereMonth('date', now()->month);
-        }])->get();
+        }]);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
 
         $summary = [];
         foreach ($faculties as $faculty) {

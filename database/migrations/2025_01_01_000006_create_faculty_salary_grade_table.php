@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('is_current')->default(true);
             $table->timestamps();
             
-            $table->unique(['faculty_id', 'salary_grade_id', 'effective_date']);
+            $table->unique(['faculty_id', 'salary_grade_id', 'effective_date'], 'faculty_salary_grade_unique');
             $table->index(['faculty_id', 'is_current']);
         });
     }

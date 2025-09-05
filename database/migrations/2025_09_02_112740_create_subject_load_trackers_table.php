@@ -32,7 +32,7 @@ return new class extends Migration
 
             // Indexes for performance
             $table->index(['faculty_id', 'academic_year', 'semester']);
-            $table->index(['subject_code', 'section', 'academic_year', 'semester']);
+            $table->index(['subject_code', 'section', 'academic_year', 'semester'], 'subject_load_trackers_idx');
             $table->index(['schedule_day', 'start_time', 'end_time']);
             $table->index('status');
 

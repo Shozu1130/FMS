@@ -90,7 +90,7 @@
             </h6>
         </div>
         <div class="card-body">
-            @if(count($facultyWorkloads) > 0)
+            @if($workloadDistribution && is_array($workloadDistribution) && count($workloadDistribution) > 0)
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead class="table-light">
@@ -104,7 +104,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($facultyWorkloads as $index => $workload)
+                            @foreach($workloadDistribution as $index => $workload)
                                 <tr class="{{ $workload['workload_status']['status'] == 'overloaded' ? 'table-danger' : '' }}">
                                     <td class="text-center font-weight-bold">
                                         {{ $index + 1 }}
@@ -168,10 +168,10 @@
                         <h6 class="font-weight-bold text-gray-800 mb-3">Workload Distribution Summary</h6>
                         <div class="row">
                             @php
-                                $overloaded = collect($facultyWorkloads)->where('workload_status.status', 'overloaded')->count();
-                                $fullLoad = collect($facultyWorkloads)->where('workload_status.status', 'full_load')->count();
-                                $partialLoad = collect($facultyWorkloads)->where('workload_status.status', 'partial_load')->count();
-                                $totalFaculty = count($facultyWorkloads);
+                                $overloaded = $workloadDistribution ? collect($workloadDistribution)->where('workload_status.status', 'overloaded')->count() : 0;
+                                $fullLoad = $workloadDistribution ? collect($workloadDistribution)->where('workload_status.status', 'full_load')->count() : 0;
+                                $partialLoad = $workloadDistribution ? collect($workloadDistribution)->where('workload_status.status', 'partial_load')->count() : 0;
+                                $totalFaculty = $workloadDistribution ? count($workloadDistribution) : 0;
                             @endphp
                             
                             <div class="col-md-3">

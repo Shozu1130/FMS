@@ -21,7 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', 
+        'role',
+        'department',
     ];
 
     /**
@@ -46,5 +47,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Check if user is master admin
+     */
+    public function isMasterAdmin(): bool
+    {
+        return $this->role === 'master_admin';
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is professor
+     */
+    public function isProfessor(): bool
+    {
+        return $this->role === 'professor';
+    }
+
+    /**
+     * Get department enum
+     */
+    public function getDepartmentEnum(): ?\App\Enums\Department
+    {
+        return $this->department ? \App\Enums\Department::from($this->department) : null;
     }
 }

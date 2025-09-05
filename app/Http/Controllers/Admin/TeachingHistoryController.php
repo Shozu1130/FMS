@@ -11,8 +11,16 @@ class TeachingHistoryController extends Controller
 {
     public function index()
     {
-        $teachingHistories = TeachingHistory::with('faculty')
-            ->orderBy('academic_year', 'desc')
+        $query = TeachingHistory::with('faculty');
+        
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $teachingHistories = $query->orderBy('academic_year', 'desc')
             ->orderBy('semester')
             ->orderBy('faculty_id')
             ->paginate(20);
@@ -22,7 +30,12 @@ class TeachingHistoryController extends Controller
 
     public function create()
     {
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active')->orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         return view('admin.teaching_history.create', compact('faculties'));
     }
 
@@ -44,7 +57,12 @@ class TeachingHistoryController extends Controller
 
     public function edit(TeachingHistory $teachingHistory)
     {
-        $faculties = Faculty::where('status', 'active')->orderBy('name')->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::where('status', 'active')->orderBy('name');
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         return view('admin.teaching_history.edit', compact('teachingHistory', 'faculties'));
     }
 

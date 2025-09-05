@@ -83,6 +83,13 @@ class ScheduleService
      */
     private function applyFilters($query, array $filters): void
     {
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+
         if (!empty($filters['faculty_id'])) {
             $query->where('faculty_id', $filters['faculty_id']);
         }
@@ -160,10 +167,18 @@ class ScheduleService
         $currentSemester = $semester ?: $this->getCurrentSemester();
 
         return DB::transaction(function() use ($currentYear, $currentSemester) {
-            // Use more efficient counting queries
-            $scheduleStats = ScheduleAssignment::where('academic_year', $currentYear)
-                ->where('semester', $currentSemester)
-                ->selectRaw('
+            // Use more efficient counting queries with department filtering
+            $scheduleQuery = ScheduleAssignment::where('academic_year', $currentYear)
+                ->where('semester', $currentSemester);
+            
+            // Filter by department if not master admin
+            if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+                $scheduleQuery->whereHas('faculty', function($q) {
+                    $q->where('department', auth()->user()->department);
+                });
+            }
+            
+            $scheduleStats = $scheduleQuery->selectRaw('
                     COUNT(*) as total_assignments,
                     COUNT(CASE WHEN status = "active" THEN 1 END) as active_assignments,
                     COUNT(DISTINCT faculty_id) as active_faculty,
@@ -172,9 +187,17 @@ class ScheduleService
                 ')
                 ->first();
 
-            $subjectLoadStats = SubjectLoadTracker::where('academic_year', $currentYear)
-                ->where('semester', $currentSemester)
-                ->selectRaw('
+            $subjectLoadQuery = SubjectLoadTracker::where('academic_year', $currentYear)
+                ->where('semester', $currentSemester);
+            
+            // Filter by department if not master admin
+            if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+                $subjectLoadQuery->whereHas('faculty', function($q) {
+                    $q->where('department', auth()->user()->department);
+                });
+            }
+            
+            $subjectLoadStats = $subjectLoadQuery->selectRaw('
                     COUNT(*) as total_assignments,
                     COUNT(CASE WHEN status = "active" THEN 1 END) as active_assignments,
                     COUNT(DISTINCT faculty_id) as active_faculty,
@@ -291,7 +314,12 @@ class ScheduleService
      */
     public function getFacultyWorkloadDistribution(int $academicYear, string $semester): array
     {
-        $faculties = Faculty::select(['id', 'name', 'professor_id'])->get();
+        // Filter faculties by department
+        $facultiesQuery = Faculty::select(['id', 'name', 'professor_id', 'department']);
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $facultiesQuery->where('department', auth()->user()->department);
+        }
+        $faculties = $facultiesQuery->get();
         $workloadDistribution = [];
         
         foreach ($faculties as $faculty) {

@@ -11,22 +11,33 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class PayslipController extends Controller
 {
     /**
-     * Display professor's payslips.
+     * Display professor's pay records.
      */
     public function index(Request $request)
     {
         $year = $request->get('year', now()->year);
+        $faculty = Auth::user();
         
-        $payslips = Auth::user()->payslips()
+        // Auto-generate current month payslip if it doesn't exist
+        $currentMonthPayslip = $faculty->payslips()
+            ->currentMonth()
+            ->first();
+            
+        if (!$currentMonthPayslip) {
+            try {
+                $currentMonthPayslip = Payslip::generateForFaculty($faculty->id, now()->year, now()->month);
+            } catch (\Exception $e) {
+                // Log error but continue showing the page
+                \Log::error('Auto-generation of payslip failed: ' . $e->getMessage());
+            }
+        }
+        
+        $payslips = $faculty->payslips()
             ->where('year', $year)
             ->orderBy('month', 'desc')
             ->paginate(12);
 
-        $currentMonthPayslip = Auth::user()->payslips()
-            ->currentMonth()
-            ->first();
-
-        return view('professor.payslips.index', compact('payslips', 'year', 'currentMonthPayslip'));
+        return view('professor.pay.index', compact('payslips', 'year', 'currentMonthPayslip'));
     }
 
     /**
@@ -45,11 +56,11 @@ class PayslipController extends Controller
             ->orderBy('date')
             ->get();
 
-        return view('professor.payslips.show', compact('payslip', 'faculty', 'salaryGrade', 'attendances'));
+        return view('professor.pay.show', compact('payslip', 'faculty', 'salaryGrade', 'attendances'));
     }
 
     /**
-     * Download payslip as PDF.
+     * Download pay record as PDF.
      */
     public function downloadPdf($id)
     {
@@ -64,26 +75,10 @@ class PayslipController extends Controller
             ->orderBy('date')
             ->get();
 
-        $pdf = Pdf::loadView('professor.payslips.pdf', compact('payslip', 'faculty', 'salaryGrade', 'attendances'));
+        $pdf = Pdf::loadView('professor.pay.pdf', compact('payslip', 'faculty', 'salaryGrade', 'attendances'));
         
-        $filename = "payslip_{$faculty->professor_id}_{$payslip->year}_{$payslip->month}.pdf";
+        $filename = "pay_record_{$faculty->professor_id}_{$payslip->year}_{$payslip->month}.pdf";
         
         return $pdf->download($filename);
-    }
-
-    /**
-     * Generate current month payslip if not exists.
-     */
-    public function generateCurrent()
-    {
-        try {
-            $faculty = Auth::user();
-            $payslip = Payslip::generateForFaculty($faculty->id, now()->year, now()->month);
-            
-            return redirect()->route('professor.payslips.show', $payslip->id)
-                ->with('success', 'Current month payslip generated successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error generating payslip: ' . $e->getMessage());
-        }
     }
 }

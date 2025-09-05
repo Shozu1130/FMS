@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fms_database
+      MYSQL_USER: fms_user
+      MYSQL_PASSWORD: fms_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/fms_mysql.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - fms-network
+
+  # Laravel app container
+  app:
+    image: lorisleiva/laravel-docker:8.2
+    container_name: fms-app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mysql
+    networks:
+      - fms-network
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    environment:
+      - DB_HOST=fms-mysql
+      - DB_DATABASE=fms_database
+      - DB_USERNAME=fms_user
+      - DB_PASSWORD=fms_password
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USERNAME=shozuabadenis@gmail.com
+      - MAIL_PASSWORD=vayaetrokgjrdyt
+      - MAIL_ENCRYPTION=tls
+      - MAIL_FROM_ADDRESS=shozuabadenis@gmail.com
+      - MAIL_FROM_NAME=Faculty Management System
+
+volumes:
+  mysql_data:
+
+networks:
+  fms-network:
+    driver: bridge

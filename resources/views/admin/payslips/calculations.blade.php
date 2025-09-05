@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Salary Calculations')
+@section('title', 'Pay Calculations')
 
 @section('content')
 <div class="container-fluid">
@@ -8,10 +8,15 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Salary Calculations - {{ \Carbon\Carbon::createFromDate($year, $month)->format('F Y') }}</h3>
-                    <a href="{{ route('admin.payslips.index', ['year' => $year, 'month' => $month]) }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Payslips
-                    </a>
+                    <h3 class="card-title">Pay Calculations - {{ \Carbon\Carbon::createFromDate($year, $month)->format('F Y') }}</h3>
+                    <div class="btn-group">
+                        <a href="{{ route('admin.salary-grades.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Salary Grades
+                        </a>
+                        <a href="{{ route('admin.payslips.index', ['year' => $year, 'month' => $month]) }}" class="btn btn-info">
+                            <i class="fas fa-file-invoice"></i> View Payslips
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Period Filter -->
@@ -67,7 +72,7 @@
                                             {{ $data['faculty']->employment_type }}
                                         </span>
                                         @if($data['salary_grade'])
-                                        <br><small class="text-muted">Grade {{ $data['salary_grade']->grade }}-{{ $data['salary_grade']->step }}</small>
+                                        <br><small class="text-muted">Grade {{ $data['salary_grade']->grade }}</small>
                                         @endif
                                     </td>
                                     <td>

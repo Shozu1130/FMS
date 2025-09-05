@@ -11,7 +11,14 @@ class FacultyDirectoryController extends Controller
     public function index()
     {
         // Retrieve only soft deleted faculty members for the directory
-        $deletedFaculty = Faculty::onlyTrashed()->orderByDesc('deleted_at')->get();
+        $query = Faculty::onlyTrashed();
+        
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->where('department', auth()->user()->department);
+        }
+        
+        $deletedFaculty = $query->orderByDesc('deleted_at')->get();
         return view('admin.directory.index', compact('deletedFaculty'));
     }
 }

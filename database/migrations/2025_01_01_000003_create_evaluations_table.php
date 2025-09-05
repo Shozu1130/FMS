@@ -29,7 +29,7 @@ return new class extends Migration
             $table->timestamps();
             
             $table->index(['faculty_id', 'academic_year', 'semester']);
-            $table->unique(['faculty_id', 'teaching_history_id', 'evaluation_period']);
+            $table->unique(['faculty_id', 'teaching_history_id', 'evaluation_period'], 'evaluations_unique_constraint');
         });
     }
 

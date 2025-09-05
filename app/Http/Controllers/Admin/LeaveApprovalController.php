@@ -10,7 +10,16 @@ class LeaveApprovalController extends Controller
 {
     public function index()
     {
-        $requests = LeaveRequest::with('faculty')->orderByDesc('created_at')->get();
+        $query = LeaveRequest::with('faculty');
+        
+        // Filter by department if not master admin
+        if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
+            $query->whereHas('faculty', function($q) {
+                $q->where('department', auth()->user()->department);
+            });
+        }
+        
+        $requests = $query->orderByDesc('created_at')->get();
         return view('admin.leave.index', compact('requests'));
     }
 

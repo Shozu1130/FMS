@@ -267,19 +267,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('professor.payslips.*') ? 'active' : '' }}" href="{{ route('professor.payslips.index') }}">
-                    <i class="bi bi-receipt"></i> Pay
+                <a class="nav-link {{ request()->routeIs('professor.pay.*') ? 'active' : '' }}" href="{{ route('professor.pay.index') }}">
+                    <i class="bi bi-cash-coin"></i> My Pay
                 </a>
             </li>
-<<<<<<< HEAD
-            
-=======
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}" href="{{ route('attendance.dashboard') }}">
                     <i class="bi bi-clock"></i> Attendance Monitoring
                 </a>
             </li>
->>>>>>> b5ad117 (Updated Sched Ass)
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('professor.attendance.*') ? 'active' : '' }}" href="{{ route('professor.attendance.history') }}">
                     <i class="bi bi-calendar-week"></i> My Attendance History
