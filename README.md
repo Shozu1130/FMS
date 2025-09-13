@@ -59,3 +59,17 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+ Master Admin account: 
+username:master@bestlink.edu.ph
+password:master123
+
+admin account: 
+username:admin@bestlink.edu.ph
+password:SimplePassword!
+
+Professor account: 
+username:abadenisraymond@gmail.com
+password:09102523841
+
