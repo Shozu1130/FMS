@@ -142,15 +142,15 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="{{ route('admin.schedule-assignment.index', ['faculty_id' => $workload['faculty']->id, 'academic_year' => $currentYear, 'semester' => $currentSemester]) }}" 
+                                            <a href="{{ route('admin.schedule-assignment.index', ['professor_id' => $workload['faculty']->id, 'academic_year' => $currentYear, 'semester' => $currentSemester]) }}" 
                                                class="btn btn-sm btn-outline-primary" title="View Assignments">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('admin.schedule-assignment.create', ['faculty_id' => $workload['faculty']->id]) }}" 
+                                            <a href="{{ route('admin.schedule-assignment.create', ['professor_id' => $workload['faculty']->id]) }}" 
                                                class="btn btn-sm btn-outline-success" title="Add Assignment">
                                                 <i class="fas fa-plus"></i>
                                             </a>
-                                            <a href="{{ route('admin.schedule-assignment.calendar', ['faculty_id' => $workload['faculty']->id, 'academic_year' => $currentYear, 'semester' => $currentSemester]) }}" 
+                                            <a href="{{ route('admin.schedule-assignment.calendar', ['professor_id' => $workload['faculty']->id, 'academic_year' => $currentYear, 'semester' => $currentSemester]) }}" 
                                                class="btn btn-sm btn-outline-info" title="View Calendar">
                                                 <i class="fas fa-calendar"></i>
                                             </a>

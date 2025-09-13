@@ -16,7 +16,7 @@ return new class extends Migration
         // First, create a temporary table with the correct structure
         Schema::create('attendances_temp', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
             $table->date('date');
             $table->datetime('time_in')->nullable();
             $table->datetime('time_out')->nullable();
@@ -30,12 +30,12 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes for better performance
-            $table->index(['faculty_id', 'date']);
+            $table->index(['professor_id', 'date']);
             $table->index(['date']);
             $table->index(['status']);
             
             // Ensure one attendance record per faculty per day
-            $table->unique(['faculty_id', 'date']);
+            $table->unique(['professor_id', 'date']);
         });
 
         // Copy data from old table to new table (if any exists)

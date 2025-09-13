@@ -21,7 +21,7 @@ class ClearanceRequestController extends Controller
             return redirect()->route('professor.dashboard')->with('error', 'Faculty profile not found.');
         }
 
-        $requests = ClearanceRequest::where('faculty_id', $faculty->id)
+        $requests = ClearanceRequest::where('professor_id', $faculty->id)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -61,7 +61,7 @@ class ClearanceRequestController extends Controller
         ]);
 
         // Check if there's already a pending request for this clearance type
-        $existingRequest = ClearanceRequest::where('faculty_id', $faculty->id)
+        $existingRequest = ClearanceRequest::where('professor_id', $faculty->id)
             ->where('clearance_type', $validated['clearance_type'])
             ->where('status', ClearanceRequest::STATUS_PENDING)
             ->first();
@@ -73,7 +73,7 @@ class ClearanceRequestController extends Controller
         }
 
         ClearanceRequest::create([
-            'faculty_id' => $faculty->id,
+            'professor_id' => $faculty->id,
             'clearance_type' => $validated['clearance_type'],
             'reason' => $validated['reason'],
             'status' => ClearanceRequest::STATUS_PENDING,
@@ -91,7 +91,7 @@ class ClearanceRequestController extends Controller
     {
         $faculty = Auth::guard('faculty')->user();
         
-        if (!$faculty || $clearanceRequest->faculty_id !== $faculty->id) {
+        if (!$faculty || $clearanceRequest->professor_id !== $faculty->id) {
             abort(403, 'Unauthorized access to this clearance request.');
         }
 
@@ -106,7 +106,7 @@ class ClearanceRequestController extends Controller
     {
         $faculty = Auth::guard('faculty')->user();
         
-        if (!$faculty || $clearanceRequest->faculty_id !== $faculty->id) {
+        if (!$faculty || $clearanceRequest->professor_id !== $faculty->id) {
             abort(403, 'Unauthorized access to this clearance request.');
         }
 
@@ -128,7 +128,7 @@ class ClearanceRequestController extends Controller
     {
         $faculty = Auth::guard('faculty')->user();
         
-        if (!$faculty || $clearanceRequest->faculty_id !== $faculty->id) {
+        if (!$faculty || $clearanceRequest->professor_id !== $faculty->id) {
             abort(403, 'Unauthorized access to this clearance request.');
         }
 
@@ -144,7 +144,7 @@ class ClearanceRequestController extends Controller
 
         // Check if there's already a pending request for this clearance type (excluding current request)
         if ($validated['clearance_type'] !== $clearanceRequest->clearance_type) {
-            $existingRequest = ClearanceRequest::where('faculty_id', $faculty->id)
+            $existingRequest = ClearanceRequest::where('professor_id', $faculty->id)
                 ->where('clearance_type', $validated['clearance_type'])
                 ->where('status', ClearanceRequest::STATUS_PENDING)
                 ->where('id', '!=', $clearanceRequest->id)
@@ -171,7 +171,7 @@ class ClearanceRequestController extends Controller
     {
         $faculty = Auth::guard('faculty')->user();
         
-        if (!$faculty || $clearanceRequest->faculty_id !== $faculty->id) {
+        if (!$faculty || $clearanceRequest->professor_id !== $faculty->id) {
             abort(403, 'Unauthorized access to this clearance request.');
         }
 
@@ -198,10 +198,10 @@ class ClearanceRequestController extends Controller
         }
 
         $stats = [
-            'total' => ClearanceRequest::where('faculty_id', $faculty->id)->count(),
-            'pending' => ClearanceRequest::where('faculty_id', $faculty->id)->pending()->count(),
-            'approved' => ClearanceRequest::where('faculty_id', $faculty->id)->approved()->count(),
-            'rejected' => ClearanceRequest::where('faculty_id', $faculty->id)->rejected()->count(),
+            'total' => ClearanceRequest::where('professor_id', $faculty->id)->count(),
+            'pending' => ClearanceRequest::where('professor_id', $faculty->id)->pending()->count(),
+            'approved' => ClearanceRequest::where('professor_id', $faculty->id)->approved()->count(),
+            'rejected' => ClearanceRequest::where('professor_id', $faculty->id)->rejected()->count(),
         ];
 
         return response()->json($stats);

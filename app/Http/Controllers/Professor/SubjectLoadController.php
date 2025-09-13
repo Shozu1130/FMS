@@ -16,7 +16,7 @@ class SubjectLoadController extends Controller
     {
         $faculty = Auth::guard('faculty')->user();
         
-        $query = SubjectLoadTracker::where('faculty_id', $faculty->id);
+        $query = SubjectLoadTracker::where('professor_id', $faculty->id);
         
         // Filter by academic year
         if ($request->filled('academic_year')) {
@@ -40,7 +40,7 @@ class SubjectLoadController extends Controller
                              ->paginate(15);
         
         // Get available academic years and semesters for filters
-        $academicYears = SubjectLoadTracker::where('faculty_id', $faculty->id)
+        $academicYears = SubjectLoadTracker::where('professor_id', $faculty->id)
                                           ->distinct()
                                           ->pluck('academic_year')
                                           ->sort()
@@ -52,7 +52,7 @@ class SubjectLoadController extends Controller
         $currentYear = now()->year;
         $currentSemester = now()->month <= 5 ? '2nd Semester' : '1st Semester';
         
-        $currentLoads = SubjectLoadTracker::where('faculty_id', $faculty->id)
+        $currentLoads = SubjectLoadTracker::where('professor_id', $faculty->id)
                                          ->where('academic_year', $currentYear)
                                          ->where('semester', $currentSemester)
                                          ->where('status', 'active')
@@ -82,12 +82,12 @@ class SubjectLoadController extends Controller
         $faculty = Auth::guard('faculty')->user();
         
         // Ensure the subject load belongs to the authenticated professor
-        if ($subjectLoad->faculty_id !== $faculty->id) {
+        if ($subjectLoad->professor_id !== $faculty->id) {
             abort(403, 'Unauthorized access to subject load.');
         }
         
         // Get other loads for the same academic period
-        $otherLoads = SubjectLoadTracker::where('faculty_id', $faculty->id)
+        $otherLoads = SubjectLoadTracker::where('professor_id', $faculty->id)
                                        ->where('academic_year', $subjectLoad->academic_year)
                                        ->where('semester', $subjectLoad->semester)
                                        ->where('id', '!=', $subjectLoad->id)
@@ -118,7 +118,7 @@ class SubjectLoadController extends Controller
         $academicYear = $request->get('academic_year', now()->year);
         $semester = $request->get('semester', now()->month <= 5 ? '2nd Semester' : '1st Semester');
         
-        $loads = SubjectLoadTracker::where('faculty_id', $faculty->id)
+        $loads = SubjectLoadTracker::where('professor_id', $faculty->id)
                                   ->where('academic_year', $academicYear)
                                   ->where('semester', $semester)
                                   ->where('status', 'active')
@@ -143,7 +143,7 @@ class SubjectLoadController extends Controller
         ];
         
         // Get available academic years for filter
-        $academicYears = SubjectLoadTracker::where('faculty_id', $faculty->id)
+        $academicYears = SubjectLoadTracker::where('professor_id', $faculty->id)
                                           ->distinct()
                                           ->pluck('academic_year')
                                           ->sort()

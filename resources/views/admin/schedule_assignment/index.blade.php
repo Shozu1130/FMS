@@ -84,13 +84,13 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="faculty_id" class="form-label font-weight-bold text-dark">
+                    <label for="professor_id" class="form-label font-weight-bold text-dark">
                         <i class="fas fa-user text-success mr-1"></i>Faculty
                     </label>
-                    <select name="faculty_id" id="faculty_id" class="form-select form-select-sm border-success">
+                    <select name="professor_id" id="professor_id" class="form-select form-select-sm border-success">
                         <option value="">All Faculty</option>
                         @foreach($faculties as $faculty)
-                            <option value="{{ $faculty->id }}" {{ request('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                            <option value="{{ $faculty->id }}" {{ request('professor_id') == $faculty->id ? 'selected' : '' }}>
                                 {{ $faculty->name }}
                             </option>
                         @endforeach
@@ -143,10 +143,10 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small">Faculty</label>
-                    <select name="faculty_id" class="form-select form-select-sm">
+                    <select name="professor_id" class="form-select form-select-sm">
                         <option value="">All Faculty</option>
                         @foreach($faculties as $faculty)
-                            <option value="{{ $faculty->id }}" {{ request('faculty_id') == $faculty->id ? 'selected' : '' }}>{{ $faculty->name }}</option>
+                            <option value="{{ $faculty->id }}" {{ request('professor_id') == $faculty->id ? 'selected' : '' }}>{{ $faculty->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -471,7 +471,7 @@
                             </td>
                             <td>
                                 <strong>{{ $assignment->faculty->name ?? 'N/A' }}</strong>
-                                <br><small class="text-muted">ID: {{ $assignment->faculty->professor_id ?? $assignment->faculty_id }}</small>
+                                <br><small class="text-muted">ID: {{ $assignment->faculty->professor_id ?? $assignment->professor_id }}</small>
                             </td>
                             <td>
                                 <span class="badge bg-primary">{{ $assignment->subject_code }}</span>
@@ -639,7 +639,7 @@ $(document).ready(function() {
     }
     
     // Auto-submit form on filter change
-    $('#academic_year, #semester, #faculty_id, #status').change(function() {
+    $('#academic_year, #semester, #professor_id, #status').change(function() {
         showLoadingOverlay();
         $(this).closest('form').submit();
     });

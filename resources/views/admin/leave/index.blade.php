@@ -24,7 +24,7 @@
                 <tbody>
                     @forelse($requests as $r)
                     <tr>
-                        <td>{{ $r->faculty->name }} ({{ $r->faculty->professor_id }})</td>
+                        <td>{{ $r->professor ? $r->professor->name . ' (' . $r->professor->professor_id . ')' : 'Unknown Faculty' }}</td>
                         <td>{{ ucfirst($r->type) }}</td>
                         <td>{{ $r->start_date }} - {{ $r->end_date }}</td>
                         <td>

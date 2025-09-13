@@ -10,11 +10,11 @@ class LeaveApprovalController extends Controller
 {
     public function index()
     {
-        $query = LeaveRequest::with('faculty');
+        $query = LeaveRequest::with('professor');
         
         // Filter by department if not master admin
         if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
-            $query->whereHas('faculty', function($q) {
+            $query->whereHas('professor', function($q) {
                 $q->where('department', auth()->user()->department);
             });
         }

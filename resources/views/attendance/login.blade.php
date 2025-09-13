@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Monitoring - Bestlink College Of the Philippines</title>
+    <title>Attendance Monitoring - Faculty Management System</title>
     <link rel="icon" href="{{ asset('images/logo300.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

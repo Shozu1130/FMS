@@ -57,13 +57,13 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="faculty_id" class="form-label font-weight-bold text-dark">
+                    <label for="professor_id" class="form-label font-weight-bold text-dark">
                         <i class="fas fa-user text-success mr-1"></i>Faculty Filter
                     </label>
-                    <select name="faculty_id" id="faculty_id" class="form-select form-select-sm border-success">
+                    <select name="professor_id" id="professor_id" class="form-select form-select-sm border-success">
                         <option value="">All Faculty Members</option>
                         @foreach($faculties as $faculty)
-                            <option value="{{ $faculty->id }}" {{ request('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                            <option value="{{ $faculty->id }}" {{ request('professor_id') == $faculty->id ? 'selected' : '' }}>
                                 {{ $faculty->name }}
                             </option>
                         @endforeach
@@ -114,8 +114,8 @@
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
                 Weekly Schedule - {{ $currentYear }} {{ $currentSemester }}
-                @if($facultyId)
-                    ({{ $faculties->find($facultyId)->name }})
+                @if($professorId)
+                    ({{ $faculties->find($professorId)->name }})
                 @endif
             </h6>
         </div>
@@ -141,10 +141,16 @@
                                         @if(isset($calendarData[$day]))
                                             @foreach($calendarData[$day] as $assignment)
                                                 @php
-                                                    $startHour = (int) date('H', strtotime(explode(' - ', $assignment['time_range'])[0]));
-                                                    $endHour = (int) date('H', strtotime(explode(' - ', $assignment['time_range'])[1]));
-                                                    $startMinute = (int) date('i', strtotime(explode(' - ', $assignment['time_range'])[0]));
-                                                    $endMinute = (int) date('i', strtotime(explode(' - ', $assignment['time_range'])[1]));
+                                                    $timeParts = explode(' - ', $assignment['time_range']);
+                                                    if (count($timeParts) >= 2) {
+                                                        $startHour = (int) date('H', strtotime($timeParts[0]));
+                                                        $endHour = (int) date('H', strtotime($timeParts[1]));
+                                                        $startMinute = (int) date('i', strtotime($timeParts[0]));
+                                                        $endMinute = (int) date('i', strtotime($timeParts[1]));
+                                                    } else {
+                                                        // Skip this assignment if time format is invalid
+                                                        continue;
+                                                    }
                                                 @endphp
                                                 
                                                 @if($hour >= $startHour && $hour < $endHour || ($hour == $endHour && $endMinute > 0))
@@ -159,7 +165,7 @@
                                                             @if($assignment['room'])
                                                                 <div><small>{{ $assignment['room'] }}</small></div>
                                                             @endif
-                                                            @if(!$facultyId)
+                                                            @if(!$professorId)
                                                                 <div><small>{{ $assignment['faculty_name'] }}</small></div>
                                                             @endif
                                                         </div>
@@ -251,7 +257,7 @@ $(document).ready(function() {
     });
     
     // Auto-submit form when filters change
-    $('#academic_year, #semester, #faculty_id').change(function() {
+    $('#academic_year, #semester, #professor_id').change(function() {
         $(this).closest('form').submit();
     });
     

@@ -63,22 +63,17 @@ class AttendanceAuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $faculty = Auth::guard('faculty')->user();
+        // Clear all session data first to prevent array conversion issues
+        $request->session()->flush();
         
-        if ($faculty && isset($faculty->name)) {
-            \Log::info("Faculty " . $faculty->name . " logged out of attendance system at " . now()->format('Y-m-d H:i:s'));
-        }
-
+        // Then logout from both guards
+        Auth::logout();
         Auth::guard('faculty')->logout();
         
-        // Clear attendance user flag before invalidating session
-        $request->session()->forget('attendance_user');
-        
-        $request->session()->invalidate();
+        // Regenerate session token for security
         $request->session()->regenerateToken();
-
-        return redirect()->route('attendance.login')
-            ->with('success', 'You have been successfully logged out.');
+        
+        return redirect()->route('login')->with('message', 'You have been logged out successfully.');
     }
 
 }

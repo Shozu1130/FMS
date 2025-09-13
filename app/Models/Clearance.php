@@ -12,7 +12,7 @@ class Clearance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'clearance_type',
         'issued_date',
         'expiration_date',
@@ -157,7 +157,7 @@ class Clearance extends Model
     public static function rules($id = null)
     {
         return [
-            'faculty_id' => 'required|exists:faculty,id',
+            'professor_id' => 'required|exists:faculties,id',
             'clearance_type' => 'required|string|max:100',
             'issued_date' => 'required|date',
             'expiration_date' => 'nullable|date|after_or_equal:issued_date',

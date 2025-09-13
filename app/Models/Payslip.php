@@ -12,7 +12,7 @@ class Payslip extends Model
     use HasFactory;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'year',
         'month',
         'employment_type',
@@ -53,7 +53,7 @@ class Payslip extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -97,9 +97,9 @@ class Payslip extends Model
     /**
      * Generate payslip for a faculty member for a specific month.
      */
-    public static function generateForFaculty($facultyId, $year, $month)
+    public static function generateForFaculty($professorId, $year, $month)
     {
-        $faculty = Faculty::findOrFail($facultyId);
+        $faculty = Faculty::findOrFail($professorId);
         $salaryGrade = $faculty->getCurrentSalaryGrade();
         
         if (!$salaryGrade) {
@@ -107,7 +107,7 @@ class Payslip extends Model
         }
 
         // Get attendance records for the month
-        $attendances = Attendance::where('faculty_id', $facultyId)
+        $attendances = Attendance::where('professor_id', $professorId)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->get();
@@ -146,7 +146,7 @@ class Payslip extends Model
         // Create or update payslip
         return self::updateOrCreate(
             [
-                'faculty_id' => $facultyId,
+                'professor_id' => $professorId,
                 'year' => $year,
                 'month' => $month
             ],
@@ -207,9 +207,9 @@ class Payslip extends Model
     /**
      * Scope for specific faculty.
      */
-    public function scopeForFaculty($query, $facultyId)
+    public function scopeForFaculty($query, $professorId)
     {
-        return $query->where('faculty_id', $facultyId);
+        return $query->where('professor_id', $professorId);
     }
 
     /**

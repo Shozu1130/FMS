@@ -11,13 +11,13 @@
                 <i class="fas fa-tachometer-alt text-primary mr-2"></i>
                 Admin Dashboard
                 @if($isMasterAdmin)
-                    <span class="badge badge-danger ml-2">Master Admin</span>
+                    <span class="badge badge-danger ml-2" style="background-color: #dc3545 !important; color: white !important; font-weight: bold;">Master Admin</span>
                 @endif
             </h1>
             <p class="text-muted mb-0">
                 {{ $currentYear }} {{ $currentSemester }} - System Overview
                 @if(!$isMasterAdmin && $adminDepartment)
-                    <span class="badge badge-info ml-2">{{ $adminDepartment }} Department</span>
+                    <span class="badge badge-info ml-2" style="background-color: #17a2b8 !important; color: white !important; font-weight: bold;">{{ $adminDepartment }} Department</span>
                 @endif
             </p>
         </div>
@@ -33,7 +33,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Faculty</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Professors</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $facultyCount }}</div>
                         </div>
                         <div class="col-auto">
@@ -230,7 +230,7 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="small font-weight-bold">{{ $load->subject_code }} - {{ $load->subject_name }}</div>
-                                    <div class="small text-muted">{{ $load->faculty->name ?? 'Unknown Faculty' }}</div>
+                                    <div class="small text-muted">{{ $load->faculty ? $load->faculty->name : 'Unknown Faculty' }}</div>
                                 </div>
                                 <div class="text-muted small">
                                     {{ $load->created_at->diffForHumans() }}
@@ -268,7 +268,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="{{ route('admin.faculty.index') }}" class="btn btn-success btn-block">
-                                <i class="fas fa-users mr-2"></i>Manage Faculty
+                                <i class="fas fa-users mr-2"></i>Manage Professors
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">

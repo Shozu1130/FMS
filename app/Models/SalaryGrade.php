@@ -32,8 +32,8 @@ class SalaryGrade extends Model
      */
     public function faculties(): BelongsToMany
     {
-        return $this->belongsToMany(Faculty::class, 'faculty_salary_grade')
-                    ->withPivot(['effective_date', 'end_date', 'notes'])
+        return $this->belongsToMany(Faculty::class, 'faculty_salary_grade', 'salary_grade_id', 'professor_id')
+                    ->withPivot(['effective_date', 'end_date', 'notes', 'is_current'])
                     ->withTimestamps();
     }
 
@@ -174,9 +174,9 @@ class SalaryGrade extends Model
     /**
      * Calculate salary based on attendance for a specific month.
      */
-    public function calculateSalaryWithAttendance($facultyId, $year, $month)
+    public function calculateSalaryWithAttendance($professorId, $year, $month)
     {
-        $attendance = \App\Models\Attendance::where('faculty_id', $facultyId)
+        $attendance = \App\Models\Attendance::where('professor_id', $professorId)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->get();
@@ -220,9 +220,9 @@ class SalaryGrade extends Model
     /**
      * Get total hours worked for current month.
      */
-    public function getCurrentMonthTotalHours($facultyId)
+    public function getCurrentMonthTotalHours($professorId)
     {
-        return \App\Models\Attendance::where('faculty_id', $facultyId)
+        return \App\Models\Attendance::where('professor_id', $professorId)
             ->whereYear('date', now()->year)
             ->whereMonth('date', now()->month)
             ->sum('total_hours');
@@ -231,9 +231,9 @@ class SalaryGrade extends Model
     /**
      * Get total hours worked for a specific period.
      */
-    public function getTotalHoursForPeriod($facultyId, $year, $month)
+    public function getTotalHoursForPeriod($professorId, $year, $month)
     {
-        return \App\Models\Attendance::where('faculty_id', $facultyId)
+        return \App\Models\Attendance::where('professor_id', $professorId)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->sum('total_hours');
@@ -242,9 +242,9 @@ class SalaryGrade extends Model
     /**
      * Get attendance summary for current month.
      */
-    public function getCurrentMonthAttendanceSummary($facultyId)
+    public function getCurrentMonthAttendanceSummary($professorId)
     {
-        $attendance = \App\Models\Attendance::where('faculty_id', $facultyId)
+        $attendance = \App\Models\Attendance::where('professor_id', $professorId)
             ->whereYear('date', now()->year)
             ->whereMonth('date', now()->month)
             ->get();
@@ -264,9 +264,9 @@ class SalaryGrade extends Model
     /**
      * Get attendance summary for a specific period.
      */
-    public function getAttendanceSummaryForPeriod($facultyId, $year, $month)
+    public function getAttendanceSummaryForPeriod($professorId, $year, $month)
     {
-        $attendance = \App\Models\Attendance::where('faculty_id', $facultyId)
+        $attendance = \App\Models\Attendance::where('professor_id', $professorId)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->get();
@@ -286,16 +286,16 @@ class SalaryGrade extends Model
     /**
      * Calculate adjusted salary for current month based on attendance.
      */
-    public function getCurrentMonthAdjustedSalary($facultyId)
+    public function getCurrentMonthAdjustedSalary($professorId)
     {
-        return $this->calculateSalaryWithAttendance($facultyId, now()->year, now()->month);
+        return $this->calculateSalaryWithAttendance($professorId, now()->year, now()->month);
     }
 
     /**
      * Calculate adjusted salary for a specific period based on attendance.
      */
-    public function getAdjustedSalaryForPeriod($facultyId, $year, $month)
+    public function getAdjustedSalaryForPeriod($professorId, $year, $month)
     {
-        return $this->calculateSalaryWithAttendance($facultyId, $year, $month);
+        return $this->calculateSalaryWithAttendance($professorId, $year, $month);
     }
 }

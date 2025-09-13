@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('clearances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
 
             $table->string('clearance_type');
             $table->date('issued_date');

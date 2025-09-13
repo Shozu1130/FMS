@@ -34,7 +34,7 @@ class TeachingHistoryController extends Controller
         }
 
         $validated = $request->validate(TeachingHistory::rules());
-        $validated['faculty_id'] = $faculty->id;
+        $validated['professor_id'] = $faculty->id;
         $validated['is_active'] = true; // Set default value for is_active
 
         try {
@@ -49,7 +49,7 @@ class TeachingHistoryController extends Controller
     public function show(TeachingHistory $teachingHistory)
     {
         // Ensure the teaching history belongs to the authenticated professor
-        if ($teachingHistory->faculty_id !== auth('faculty')->id()) {
+        if ($teachingHistory->professor_id !== auth('faculty')->id()) {
             abort(403);
         }
 
@@ -60,7 +60,7 @@ class TeachingHistoryController extends Controller
     public function edit(TeachingHistory $teachingHistory)
     {
         // Ensure the teaching history belongs to the authenticated professor
-        if ($teachingHistory->faculty_id !== auth('faculty')->id()) {
+        if ($teachingHistory->professor_id !== auth('faculty')->id()) {
             abort(403);
         }
 
@@ -70,7 +70,7 @@ class TeachingHistoryController extends Controller
     public function update(Request $request, TeachingHistory $teachingHistory)
     {
         // Ensure the teaching history belongs to the authenticated professor
-        if ($teachingHistory->faculty_id !== auth('faculty')->id()) {
+        if ($teachingHistory->professor_id !== auth('faculty')->id()) {
             abort(403);
         }
 
@@ -85,7 +85,7 @@ class TeachingHistoryController extends Controller
     public function destroy(TeachingHistory $teachingHistory)
     {
         // Ensure the teaching history belongs to the authenticated professor
-        if ($teachingHistory->faculty_id !== auth('faculty')->id()) {
+        if ($teachingHistory->professor_id !== auth('faculty')->id()) {
             abort(403);
         }
 

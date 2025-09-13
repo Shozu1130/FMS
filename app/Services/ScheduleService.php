@@ -44,7 +44,7 @@ class ScheduleService
         // Build base queries with eager loading
         $scheduleQuery = ScheduleAssignment::with(['faculty:id,name,professor_id'])
             ->select([
-                'id', 'faculty_id', 'subject_code', 'subject_name', 'section', 
+                'id', 'professor_id', 'subject_code', 'subject_name', 'section', 
                 'year_level', 'units', 'hours_per_week', 'schedule_day', 
                 'start_time', 'end_time', 'room', 'academic_year', 'semester', 
                 'status', 'source', 'notes', 'created_at'
@@ -54,7 +54,7 @@ class ScheduleService
 
         $subjectLoadQuery = SubjectLoadTracker::with(['faculty:id,name,professor_id'])
             ->select([
-                'id', 'faculty_id', 'subject_code', 'subject_name', 'section', 
+                'id', 'professor_id', 'subject_code', 'subject_name', 'section', 
                 'year_level', 'units', 'hours_per_week', 'schedule_day', 
                 'start_time', 'end_time', 'room', 'academic_year', 'semester', 
                 'status', 'source', 'notes', 'created_at'
@@ -90,8 +90,8 @@ class ScheduleService
             });
         }
 
-        if (!empty($filters['faculty_id'])) {
-            $query->where('faculty_id', $filters['faculty_id']);
+        if (!empty($filters['professor_id'])) {
+            $query->where('professor_id', $filters['professor_id']);
         }
 
         if (!empty($filters['academic_year'])) {
@@ -181,7 +181,7 @@ class ScheduleService
             $scheduleStats = $scheduleQuery->selectRaw('
                     COUNT(*) as total_assignments,
                     COUNT(CASE WHEN status = "active" THEN 1 END) as active_assignments,
-                    COUNT(DISTINCT faculty_id) as active_faculty,
+                    COUNT(DISTINCT professor_id) as active_faculty,
                     SUM(CASE WHEN status = "active" THEN units ELSE 0 END) as total_units,
                     SUM(CASE WHEN status = "active" THEN hours_per_week ELSE 0 END) as total_hours
                 ')
@@ -200,7 +200,7 @@ class ScheduleService
             $subjectLoadStats = $subjectLoadQuery->selectRaw('
                     COUNT(*) as total_assignments,
                     COUNT(CASE WHEN status = "active" THEN 1 END) as active_assignments,
-                    COUNT(DISTINCT faculty_id) as active_faculty,
+                    COUNT(DISTINCT professor_id) as active_faculty,
                     SUM(CASE WHEN status = "active" THEN units ELSE 0 END) as total_units,
                     SUM(CASE WHEN status = "active" THEN hours_per_week ELSE 0 END) as total_hours
                 ')
@@ -224,22 +224,22 @@ class ScheduleService
     public function getCalendarData(int $academicYear, string $semester, ?int $facultyId = null): array
     {
         $scheduleQuery = ScheduleAssignment::with('faculty:id,name')
-            ->select(['id', 'faculty_id', 'subject_code', 'subject_name', 'section', 
+            ->select(['id', 'professor_id', 'subject_code', 'subject_name', 'section', 
                      'schedule_day', 'start_time', 'end_time', 'room'])
             ->where('academic_year', $academicYear)
             ->where('semester', $semester)
             ->where('status', ScheduleAssignment::STATUS_ACTIVE);
 
         $subjectLoadQuery = SubjectLoadTracker::with('faculty:id,name')
-            ->select(['id', 'faculty_id', 'subject_code', 'subject_name', 'section', 
+            ->select(['id', 'professor_id', 'subject_code', 'subject_name', 'section', 
                      'schedule_day', 'start_time', 'end_time', 'room'])
             ->where('academic_year', $academicYear)
             ->where('semester', $semester)
             ->where('status', SubjectLoadTracker::STATUS_ACTIVE);
 
         if ($facultyId) {
-            $scheduleQuery->where('faculty_id', $facultyId);
-            $subjectLoadQuery->where('faculty_id', $facultyId);
+            $scheduleQuery->where('professor_id', $facultyId);
+            $subjectLoadQuery->where('professor_id', $facultyId);
         }
 
         $scheduleData = $scheduleQuery->get();
@@ -351,13 +351,13 @@ class ScheduleService
      */
     private function getFacultyAssignmentCount(int $facultyId, int $academicYear, string $semester): int
     {
-        $scheduleCount = ScheduleAssignment::where('faculty_id', $facultyId)
+        $scheduleCount = ScheduleAssignment::where('professor_id', $facultyId)
             ->where('academic_year', $academicYear)
             ->where('semester', $semester)
             ->where('status', 'active')
             ->count();
 
-        $subjectLoadCount = SubjectLoadTracker::where('faculty_id', $facultyId)
+        $subjectLoadCount = SubjectLoadTracker::where('professor_id', $facultyId)
             ->where('academic_year', $academicYear)
             ->where('semester', $semester)
             ->where('status', 'active')
@@ -385,12 +385,12 @@ class ScheduleService
         $scheduleAssignments = ScheduleAssignment::where('academic_year', $academicYear)
             ->where('semester', $semester)
             ->where('status', 'active')
-            ->pluck('faculty_id');
+            ->pluck('professor_id');
         
         $subjectLoadAssignments = SubjectLoadTracker::where('academic_year', $academicYear)
             ->where('semester', $semester)
             ->where('status', 'active')
-            ->pluck('faculty_id');
+            ->pluck('professor_id');
         
         $facultyIds = $scheduleAssignments->merge($subjectLoadAssignments)->unique();
 
@@ -430,7 +430,7 @@ class ScheduleService
 
         // Check for duplicate assignment
         if (ScheduleAssignment::hasDuplicateAssignment(
-            $data['faculty_id'],
+            $data['professor_id'],
             $data['subject_code'],
             $data['section'],
             $data['academic_year'],
@@ -442,7 +442,7 @@ class ScheduleService
 
         // Check for schedule conflicts
         $conflict = $this->checkScheduleConflict(
-            $data['faculty_id'],
+            $data['professor_id'],
             $data['schedule_day'],
             $data['start_time'],
             $data['end_time'],

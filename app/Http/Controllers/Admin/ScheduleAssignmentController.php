@@ -32,7 +32,7 @@ class ScheduleAssignmentController extends Controller
 
         // Filters
         $filters = [
-            'faculty_id' => $request->get('faculty_id'),
+            'professor_id' => $request->get('professor_id'),
             'academic_year' => $currentYear,
             'semester' => $currentSemester,
             'status' => $request->get('status'),
@@ -119,14 +119,14 @@ class ScheduleAssignmentController extends Controller
 
         // Duplicate check
         if (ScheduleAssignment::hasDuplicateAssignment(
-            $request->faculty_id, $request->subject_code, $request->section, $request->academic_year, $request->semester
+            $request->professor_id, $request->subject_code, $request->section, $request->academic_year, $request->semester
         )) {
             return back()->withErrors(['duplicate' => 'This faculty member is already assigned to this subject and section for the selected academic period.'])->withInput();
         }
 
         // Schedule conflict check
         $conflict = ScheduleAssignment::hasScheduleConflict(
-            $request->faculty_id, $request->schedule_day, $request->start_time, $request->end_time,
+            $request->professor_id, $request->schedule_day, $request->start_time, $request->end_time,
             $request->academic_year, $request->semester
         );
 
@@ -149,7 +149,7 @@ class ScheduleAssignmentController extends Controller
         $scheduleAssignment->load('faculty');
 
         $loadSummary = ScheduleAssignment::getFacultyLoadSummary(
-            $scheduleAssignment->faculty_id, $scheduleAssignment->academic_year, $scheduleAssignment->semester
+            $scheduleAssignment->professor_id, $scheduleAssignment->academic_year, $scheduleAssignment->semester
         );
 
         return view('admin.schedule_assignment.show', compact('scheduleAssignment', 'loadSummary'));
@@ -173,7 +173,7 @@ class ScheduleAssignmentController extends Controller
         $sourceOptions = ScheduleAssignment::getSourceOptions();
 
         $loadSummary = ScheduleAssignment::getFacultyLoadSummary(
-            $scheduleAssignment->faculty_id, $scheduleAssignment->academic_year, $scheduleAssignment->semester
+            $scheduleAssignment->professor_id, $scheduleAssignment->academic_year, $scheduleAssignment->semester
         );
 
         return view('admin.schedule_assignment.edit', compact(
@@ -191,7 +191,7 @@ class ScheduleAssignmentController extends Controller
 
         // Duplicate check
         if (ScheduleAssignment::hasDuplicateAssignment(
-            $request->faculty_id, $request->subject_code, $request->section,
+            $request->professor_id, $request->subject_code, $request->section,
             $request->academic_year, $request->semester, $scheduleAssignment->id
         )) {
             return back()->withErrors(['duplicate' => 'This faculty member is already assigned to this subject and section for the selected academic period.'])->withInput();
@@ -199,7 +199,7 @@ class ScheduleAssignmentController extends Controller
 
         // Schedule conflict check
         $conflict = ScheduleAssignment::hasScheduleConflict(
-            $request->faculty_id, $request->schedule_day, $request->start_time, $request->end_time,
+            $request->professor_id, $request->schedule_day, $request->start_time, $request->end_time,
             $request->academic_year, $request->semester, $scheduleAssignment->id
         );
 
@@ -221,7 +221,7 @@ class ScheduleAssignmentController extends Controller
     {
         $currentYear = $request->get('academic_year', date('Y'));
         $currentSemester = $request->get('semester', $this->getCurrentSemester());
-        $facultyId = $request->get('faculty_id');
+        $professorId = $request->get('professor_id');
 
         // Get all assignments for the calendar view
         $filters = [
@@ -231,8 +231,8 @@ class ScheduleAssignmentController extends Controller
         ];
 
         // Add faculty filter if specified
-        if ($facultyId) {
-            $filters['faculty_id'] = $facultyId;
+        if ($professorId) {
+            $filters['professor_id'] = $professorId;
         }
 
         $assignments = $this->scheduleService->getCombinedScheduleData($filters);
@@ -273,7 +273,7 @@ class ScheduleAssignmentController extends Controller
 
         return view('admin.schedule_assignment.calendar', compact(
             'calendarData', 'timeSlots', 'days', 'faculties', 'academicYears', 
-            'semesters', 'currentYear', 'currentSemester', 'facultyId'
+            'semesters', 'currentYear', 'currentSemester', 'professorId'
         ));
     }
 
@@ -301,18 +301,18 @@ class ScheduleAssignmentController extends Controller
         // Group assignments by faculty for detailed reporting
         $facultyReports = [];
         foreach ($assignments as $assignment) {
-            $facultyId = $assignment->faculty_id;
-            if (!isset($facultyReports[$facultyId])) {
-                $facultyReports[$facultyId] = [
+            $professorId = $assignment->professor_id;
+            if (!isset($facultyReports[$professorId])) {
+                $facultyReports[$professorId] = [
                     'faculty' => $assignment->faculty,
                     'assignments' => [],
                     'total_units' => 0,
                     'total_hours' => 0
                 ];
             }
-            $facultyReports[$facultyId]['assignments'][] = $assignment;
-            $facultyReports[$facultyId]['total_units'] += $assignment->units ?? 0;
-            $facultyReports[$facultyId]['total_hours'] += $assignment->hours ?? 0;
+            $facultyReports[$professorId]['assignments'][] = $assignment;
+            $facultyReports[$professorId]['total_units'] += $assignment->units ?? 0;
+            $facultyReports[$professorId]['total_hours'] += $assignment->hours ?? 0;
         }
 
         // Filter faculties by department
@@ -343,8 +343,8 @@ class ScheduleAssignmentController extends Controller
             'semester' => $currentSemester
         ];
 
-        if ($request->get('faculty_id')) {
-            $filters['faculty_id'] = $request->get('faculty_id');
+        if ($request->get('professor_id')) {
+            $filters['professor_id'] = $request->get('professor_id');
         }
 
         $assignments = $this->scheduleService->getCombinedScheduleData($filters);

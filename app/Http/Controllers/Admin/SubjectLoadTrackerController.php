@@ -26,8 +26,8 @@ class SubjectLoadTrackerController extends Controller
         }
 
         // Filter by faculty
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
 
         // Filter by academic year
@@ -108,7 +108,7 @@ class SubjectLoadTrackerController extends Controller
 
         // Check for duplicate assignment
         if (SubjectLoadTracker::hasDuplicateAssignment(
-            $request->faculty_id,
+            $request->professor_id,
             $request->subject_code,
             $request->section,
             $request->academic_year,
@@ -121,7 +121,7 @@ class SubjectLoadTrackerController extends Controller
 
         // Check for schedule conflicts
         $conflictingLoad = SubjectLoadTracker::hasScheduleConflict(
-            $request->faculty_id,
+            $request->professor_id,
             $request->schedule_day,
             $request->start_time,
             $request->end_time,
@@ -157,7 +157,7 @@ class SubjectLoadTrackerController extends Controller
         $subjectLoad->load('faculty');
         
         // Get faculty's other loads for the same period
-        $otherLoads = SubjectLoadTracker::where('faculty_id', $subjectLoad->faculty_id)
+        $otherLoads = SubjectLoadTracker::where('professor_id', $subjectLoad->professor_id)
                                        ->where('academic_year', $subjectLoad->academic_year)
                                        ->where('semester', $subjectLoad->semester)
                                        ->where('id', '!=', $subjectLoad->id)
@@ -167,13 +167,13 @@ class SubjectLoadTrackerController extends Controller
                                        ->get();
 
         $totalUnits = SubjectLoadTracker::getFacultyTotalUnits(
-            $subjectLoad->faculty_id,
+            $subjectLoad->professor_id,
             $subjectLoad->academic_year,
             $subjectLoad->semester
         );
 
         $totalHours = SubjectLoadTracker::getFacultyTotalHours(
-            $subjectLoad->faculty_id,
+            $subjectLoad->professor_id,
             $subjectLoad->academic_year,
             $subjectLoad->semester
         );
@@ -212,7 +212,7 @@ class SubjectLoadTrackerController extends Controller
 
         // Check for duplicate assignment (excluding current record)
         if (SubjectLoadTracker::hasDuplicateAssignment(
-            $request->faculty_id,
+            $request->professor_id,
             $request->subject_code,
             $request->section,
             $request->academic_year,
@@ -226,7 +226,7 @@ class SubjectLoadTrackerController extends Controller
 
         // Check for schedule conflicts (excluding current record)
         $conflictingLoad = SubjectLoadTracker::hasScheduleConflict(
-            $request->faculty_id,
+            $request->professor_id,
             $request->schedule_day,
             $request->start_time,
             $request->end_time,
@@ -283,7 +283,7 @@ class SubjectLoadTrackerController extends Controller
         
         $stats = [
             'total_loads' => $statsQuery->count(),
-            'total_faculties' => $statsQuery->distinct('faculty_id')->count(),
+            'total_faculties' => $statsQuery->distinct('professor_id')->count(),
             'current_period_loads' => $currentPeriodQuery->count(),
             'total_units' => $statsQuery->sum('units'),
             'total_hours' => $statsQuery->sum('hours_per_week')
@@ -299,7 +299,7 @@ class SubjectLoadTrackerController extends Controller
         $recentLoads = $recentLoadsQuery->limit(10)->get();
 
         // Faculty with highest loads - filter by department
-        $facultyLoadsQuery = SubjectLoadTracker::select('faculty_id')
+        $facultyLoadsQuery = SubjectLoadTracker::select('professor_id')
                                          ->selectRaw('SUM(units) as total_units')
                                          ->selectRaw('SUM(hours_per_week) as total_hours')
                                          ->with('faculty')
@@ -310,7 +310,7 @@ class SubjectLoadTrackerController extends Controller
                 $q->where('department', auth()->user()->department);
             });
         }
-        $facultyLoads = $facultyLoadsQuery->groupBy('faculty_id')
+        $facultyLoads = $facultyLoadsQuery->groupBy('professor_id')
                                          ->orderBy('total_units', 'desc')
                                          ->limit(10)
                                          ->get();
@@ -367,8 +367,8 @@ class SubjectLoadTrackerController extends Controller
         $query = SubjectLoadTracker::with('faculty');
 
         // Apply same filters as index
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
         if ($request->filled('academic_year')) {
             $query->where('academic_year', $request->academic_year);
@@ -445,7 +445,7 @@ class SubjectLoadTrackerController extends Controller
 
         // Check duplicate assignment
         if (SubjectLoadTracker::hasDuplicateAssignment(
-            $request->faculty_id,
+            $request->professor_id,
             $request->subject_code,
             $request->section,
             $request->academic_year,
@@ -461,7 +461,7 @@ class SubjectLoadTrackerController extends Controller
         // Check schedule conflict
         if ($request->filled(['schedule_day', 'start_time', 'end_time'])) {
             $conflictingLoad = SubjectLoadTracker::hasScheduleConflict(
-                $request->faculty_id,
+                $request->professor_id,
                 $request->schedule_day,
                 $request->start_time,
                 $request->end_time,
@@ -491,23 +491,23 @@ class SubjectLoadTrackerController extends Controller
      */
     public function getFacultyLoad(Request $request)
     {
-        $facultyId = $request->faculty_id;
+        $professorId = $request->professor_id;
         $academicYear = $request->academic_year;
         $semester = $request->semester;
 
-        if (!$facultyId || !$academicYear || !$semester) {
+        if (!$professorId || !$academicYear || !$semester) {
             return response()->json(['error' => 'Missing required parameters'], 400);
         }
 
-        $totalUnits = SubjectLoadTracker::getFacultyTotalUnits($facultyId, $academicYear, $semester);
-        $totalHours = SubjectLoadTracker::getFacultyTotalHours($facultyId, $academicYear, $semester);
-        $subjectCount = SubjectLoadTracker::where('faculty_id', $facultyId)
+        $totalUnits = SubjectLoadTracker::getFacultyTotalUnits($professorId, $academicYear, $semester);
+        $totalHours = SubjectLoadTracker::getFacultyTotalHours($professorId, $academicYear, $semester);
+        $subjectCount = SubjectLoadTracker::where('professor_id', $professorId)
                                          ->where('academic_year', $academicYear)
                                          ->where('semester', $semester)
                                          ->where('status', SubjectLoadTracker::STATUS_ACTIVE)
                                          ->count();
 
-        $loads = SubjectLoadTracker::where('faculty_id', $facultyId)
+        $loads = SubjectLoadTracker::where('professor_id', $professorId)
                                   ->where('academic_year', $academicYear)
                                   ->where('semester', $semester)
                                   ->where('status', SubjectLoadTracker::STATUS_ACTIVE)

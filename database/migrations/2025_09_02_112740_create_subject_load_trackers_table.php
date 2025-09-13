@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('subject_load_trackers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
             $table->string('subject_code', 20);
             $table->string('subject_name');
             $table->string('section', 10);
@@ -31,13 +31,13 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes for performance
-            $table->index(['faculty_id', 'academic_year', 'semester']);
+            $table->index(['professor_id', 'academic_year', 'semester']);
             $table->index(['subject_code', 'section', 'academic_year', 'semester'], 'subject_load_trackers_idx');
             $table->index(['schedule_day', 'start_time', 'end_time']);
             $table->index('status');
 
             // Unique constraint to prevent duplicate assignments
-            $table->unique(['faculty_id', 'subject_code', 'section', 'academic_year', 'semester'], 'unique_subject_assignment');
+            $table->unique(['professor_id', 'subject_code', 'section', 'academic_year', 'semester'], 'unique_subject_assignment');
         });
     }
 

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('teaching_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
 
             $table->string('course_code');
             $table->string('course_title');
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             
-            $table->index(['faculty_id', 'academic_year', 'semester']);
+            $table->index(['professor_id', 'academic_year', 'semester']);
         });
     }
 

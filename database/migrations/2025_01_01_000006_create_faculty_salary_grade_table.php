@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('faculty_salary_grade', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
             $table->foreignId('salary_grade_id')->constrained('salary_grades')->onDelete('cascade');
             $table->date('effective_date');
             $table->date('end_date')->nullable();
@@ -18,8 +18,8 @@ return new class extends Migration
             $table->boolean('is_current')->default(true);
             $table->timestamps();
             
-            $table->unique(['faculty_id', 'salary_grade_id', 'effective_date'], 'faculty_salary_grade_unique');
-            $table->index(['faculty_id', 'is_current']);
+            $table->unique(['professor_id', 'salary_grade_id', 'effective_date'], 'faculty_salary_grade_unique');
+            $table->index(['professor_id', 'is_current']);
         });
     }
 

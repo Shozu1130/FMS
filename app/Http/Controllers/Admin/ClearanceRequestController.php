@@ -35,8 +35,8 @@ class ClearanceRequestController extends Controller
         }
 
         // Filter by faculty
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
 
         // Search by faculty name or reason
@@ -214,8 +214,8 @@ class ClearanceRequestController extends Controller
             $query->where('clearance_type', $request->clearance_type);
         }
 
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
 
         $requests = $query->orderBy('created_at', 'desc')->get();

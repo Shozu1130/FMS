@@ -11,7 +11,7 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'date',
         'time_in',
         'time_out',
@@ -45,7 +45,7 @@ class Attendance extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -133,9 +133,9 @@ class Attendance extends Model
     /**
      * Scope to get attendance for a specific faculty.
      */
-    public function scopeByFaculty($query, $facultyId)
+    public function scopeByFaculty($query, $professorId)
     {
-        return $query->where('faculty_id', $facultyId);
+        return $query->where('professor_id', $professorId);
     }
 
     /**

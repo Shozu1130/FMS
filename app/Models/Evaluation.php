@@ -11,7 +11,7 @@ class Evaluation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'teaching_history_id',
         'evaluation_period',
         'academic_year',
@@ -50,7 +50,7 @@ class Evaluation extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -196,7 +196,7 @@ class Evaluation extends Model
     public static function rules($id = null)
     {
         return [
-            'faculty_id' => 'required|exists:faculty,id',
+            'professor_id' => 'required|exists:faculties,id',
             'teaching_history_id' => 'nullable|exists:teaching_histories,id',
             'evaluation_period' => 'required|in:midterm,final,annual',
             'academic_year' => 'required|integer|min:2000|max:2100',

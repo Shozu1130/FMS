@@ -52,16 +52,17 @@ class LoginController extends Controller
     }
 
     public function logout(Request $request)
-    {
-        Auth::logout();
-        Auth::guard('faculty')->logout();
-        
-        // Clear attendance user flag if it exists
-        $request->session()->forget('attendance_user');
-        
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        
-        return redirect('/login');
-    }
+{
+    // Clear all session data first to prevent array conversion issues
+    $request->session()->flush();
+    
+    // Then logout from both guards
+    Auth::logout();
+    Auth::guard('faculty')->logout();
+    
+    // Regenerate session token for security
+    $request->session()->regenerateToken();
+    
+    return redirect()->route('login')->with('message', 'You have been logged out successfully.');
+}
 }

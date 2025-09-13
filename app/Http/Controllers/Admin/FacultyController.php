@@ -83,7 +83,7 @@ class FacultyController extends Controller
                          
     } catch (\Exception $e) {
         Log::error('Email sending failed', [
-            'faculty_id' => $faculty->id,
+            'professor_id' => $faculty->id,
             'email' => $faculty->email,
             'error' => $e->getMessage()
         ]);
@@ -98,6 +98,7 @@ class FacultyController extends Controller
     public function show(Faculty $faculty)
     {
         $professor = $faculty;
+        $professor->load('qualifications');
         return view('admin.faculty.show', compact('professor'));
     }
 
@@ -140,7 +141,7 @@ class FacultyController extends Controller
                 ->with('success', 'Professor moved to directory successfully.');
         } catch (\Throwable $e) {
             Log::error('Failed to delete professor', [
-                'faculty_id' => $faculty->id,
+                'professor_id' => $faculty->id,
                 'error' => $e->getMessage(),
             ]);
             return redirect()->route('admin.faculty.index')
@@ -160,7 +161,7 @@ class FacultyController extends Controller
                 ->with('success', 'Professor restored successfully.');
         } catch (\Throwable $e) {
             Log::error('Failed to restore professor', [
-                'faculty_id' => $id,
+                'professor_id' => $id,
                 'error' => $e->getMessage(),
             ]);
             return redirect()->route('admin.directory.index')
@@ -180,7 +181,7 @@ class FacultyController extends Controller
                 ->with('success', 'Professor permanently deleted successfully.');
         } catch (\Throwable $e) {
             Log::error('Failed to permanently delete professor', [
-                'faculty_id' => $id,
+                'professor_id' => $id,
                 'error' => $e->getMessage(),
             ]);
             return redirect()->route('admin.directory.index')

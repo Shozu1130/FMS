@@ -16,11 +16,11 @@ class AttendanceController extends Controller
         session()->put('attendance_user', true);
 
         $todayDate = now()->toDateString();
-        $todayAttendance = Attendance::where('faculty_id', $faculty->id)
+        $todayAttendance = Attendance::where('professor_id', $faculty->id)
             ->whereDate('date', $todayDate)
             ->first();
 
-        $recentAttendance = Attendance::where('faculty_id', $faculty->id)
+        $recentAttendance = Attendance::where('professor_id', $faculty->id)
             ->where('date', '>=', now()->subDays(30))
             ->orderBy('date', 'desc')
             ->get();
@@ -39,7 +39,7 @@ class AttendanceController extends Controller
         $faculty = Auth::guard('faculty')->user();
         $today = now()->toDateString();
 
-        $existingAttendance = Attendance::where('faculty_id', $faculty->id)
+        $existingAttendance = Attendance::where('professor_id', $faculty->id)
             ->whereDate('date', $today)
             ->first();
 
@@ -59,7 +59,7 @@ class AttendanceController extends Controller
             $photoPath = $this->savePhoto($request->time_in_photo_data, 'time_in', $faculty->id, $today);
 
             $attendance = $existingAttendance ?? new Attendance();
-            $attendance->faculty_id = $faculty->id;
+            $attendance->professor_id = $faculty->id;
             $attendance->date = $today;
             $attendance->time_in = $currentTime;
             $attendance->time_in_photo = $photoPath;
@@ -74,7 +74,7 @@ class AttendanceController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Time in error: ' . $e->getMessage(), [
-                'faculty_id' => $faculty->id,
+                'professor_id' => $faculty->id,
                 'date' => $today,
             ]);
 
@@ -94,7 +94,7 @@ class AttendanceController extends Controller
         $faculty = Auth::guard('faculty')->user();
         $today = now()->toDateString();
 
-        $attendance = Attendance::where('faculty_id', $faculty->id)
+        $attendance = Attendance::where('professor_id', $faculty->id)
             ->whereDate('date', $today)
             ->first();
 
@@ -134,7 +134,7 @@ class AttendanceController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Time out error: ' . $e->getMessage(), [
-                'faculty_id' => $faculty->id,
+                'professor_id' => $faculty->id,
                 'date' => $today,
             ]);
 
@@ -147,7 +147,7 @@ class AttendanceController extends Controller
     {
         $faculty = Auth::guard('faculty')->user();
         $attendance = Attendance::where('id', $id)
-            ->where('faculty_id', $faculty->id)
+            ->where('professor_id', $faculty->id)
             ->firstOrFail();
 
         return view('attendance.details', compact('attendance'));
@@ -182,7 +182,7 @@ class AttendanceController extends Controller
         $faculty = Auth::guard('faculty')->user();
         $currentMonth = now()->startOfMonth();
 
-        $monthlyAttendance = Attendance::where('faculty_id', $faculty->id)
+        $monthlyAttendance = Attendance::where('professor_id', $faculty->id)
             ->whereYear('date', $currentMonth->year)
             ->whereMonth('date', $currentMonth->month)
             ->get();

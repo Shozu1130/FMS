@@ -87,7 +87,7 @@
                             </button>
                         </form>
                         
-                        <a href="{{ route('admin.teaching_history.faculty', $teachingHistory->faculty_id) }}" class="btn btn-info">
+                        <a href="{{ route('admin.teaching_history.faculty', $teachingHistory->professor_id) }}" class="btn btn-info">
                             <i class="bi bi-person"></i> View Faculty's Teaching History
                         </a>
                         

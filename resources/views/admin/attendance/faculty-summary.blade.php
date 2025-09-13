@@ -160,7 +160,7 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{{ route('admin.attendance.index', ['faculty_id' => $facultySummary['faculty']->id]) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ route('admin.attendance.index', ['professor_id' => $facultySummary['faculty']->id]) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye"></i> View Records
                                     </a>
                                     <a href="{{ route('admin.salary-grades.index') }}" class="btn btn-sm btn-outline-info">

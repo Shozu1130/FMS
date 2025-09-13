@@ -22,7 +22,7 @@ class TeachingHistoryController extends Controller
         
         $teachingHistories = $query->orderBy('academic_year', 'desc')
             ->orderBy('semester')
-            ->orderBy('faculty_id')
+            ->orderBy('professor_id')
             ->paginate(20);
 
         return view('admin.teaching_history.index', compact('teachingHistories'));
@@ -103,7 +103,7 @@ class TeachingHistoryController extends Controller
             ->where('academic_year', $currentYear)
             ->where('semester', $currentSemester)
             ->where('is_active', true)
-            ->orderBy('faculty_id')
+            ->orderBy('professor_id')
             ->paginate(20);
 
         return view('admin.teaching_history.current', compact('teachingHistories', 'currentYear', 'currentSemester'));

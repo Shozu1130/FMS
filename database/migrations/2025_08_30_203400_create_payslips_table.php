@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payslips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
 
             $table->year('year');
             $table->tinyInteger('month');
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
             
-            $table->unique(['faculty_id', 'year', 'month']);
+            $table->unique(['professor_id', 'year', 'month']);
             $table->index(['year', 'month']);
             $table->index('status');
         });

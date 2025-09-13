@@ -167,7 +167,7 @@ class DashboardController extends Controller
         $assignments = $assignmentsQuery->get();
 
         foreach ($assignments as $assignment) {
-            $conflict = SubjectLoadTracker::where('faculty_id', $assignment->faculty_id)
+            $conflict = SubjectLoadTracker::where('professor_id', $assignment->professor_id)
                                          ->where('academic_year', $year)
                                          ->where('semester', $semester)
                                          ->where('schedule_day', $assignment->schedule_day)

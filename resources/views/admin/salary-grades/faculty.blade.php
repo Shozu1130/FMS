@@ -94,7 +94,7 @@
                                     <td>{{ $assignment->effective_date->format('M d, Y') }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('admin.payslips.calculations', ['faculty_id' => $assignment->faculty->id]) }}" class="btn btn-outline-info" title="View Pay Details">
+                                            <a href="{{ route('admin.payslips.calculations', ['professor_id' => $assignment->faculty->id]) }}" class="btn btn-outline-info" title="View Pay Details">
                                                 <i class="fas fa-calculator"></i>
                                             </a>
                                             <form method="POST" action="{{ route('admin.salary-grades.assign.remove', $assignment->id) }}" class="d-inline">

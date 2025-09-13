@@ -12,12 +12,7 @@
                     <a href="{{ route('admin.attendance.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Add Attendance Record
                     </a>
-                    <a href="{{ route('admin.attendance.export') }}" class="btn btn-success">
-                        <i class="bi bi-download"></i> Export CSV
-                    </a>
-                    <a href="{{ route('admin.attendance.faculty_summary') }}" class="btn btn-info">
-                        <i class="bi bi-bar-chart"></i> Faculty Summary
-                    </a>
+                   
                 </div>
 
             </div>
@@ -115,11 +110,11 @@
                     <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request('end_date') }}">
                 </div>
                 <div class="col-md-3">
-                    <label for="faculty_id" class="form-label">Faculty</label>
-                    <select class="form-control" id="faculty_id" name="faculty_id">
-                        <option value="">All Faculty</option>
+                    <label for="professor_id" class="form-label">Faculty</label>
+                    <select class="form-control" id="professor_id" name="professor_id">
+                        <option value="">All Professor</option>
                         @foreach($faculties as $faculty)
-                            <option value="{{ $faculty->id }}" {{ request('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                            <option value="{{ $faculty->id }}" {{ request('professor_id') == $faculty->id ? 'selected' : '' }}>
                                 {{ $faculty->name }} ({{ $faculty->professor_id }})
                             </option>
                         @endforeach
@@ -238,7 +233,7 @@
 @push('scripts')
 <script>
 // Auto-submit form when filters change
-document.getElementById('faculty_id').addEventListener('change', function() {
+document.getElementById('professor_id').addEventListener('change', function() {
     this.form.submit();
 });
 

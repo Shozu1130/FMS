@@ -121,6 +121,9 @@ Route::prefix('professor')->middleware(['auth:faculty'])->group(function () {
     Route::get('profile', [ProfessorProfileController::class, 'edit'])->name('professor.profile.edit');
     Route::put('profile', [ProfessorProfileController::class, 'update'])->name('professor.profile.update');
     Route::post('profile/change-password', [ProfessorProfileController::class, 'changePassword'])->name('professor.profile.change-password');
+    
+    // Qualifications
+    Route::resource('qualifications', \App\Http\Controllers\Professor\QualificationController::class)->only(['store', 'show', 'update', 'destroy']);
 
     // Leave requests
     Route::get('leave', [\App\Http\Controllers\Professor\LeaveRequestController::class, 'index'])->name('professor.leave.index');
@@ -148,6 +151,13 @@ Route::prefix('professor')->middleware(['auth:faculty'])->group(function () {
     Route::get('subject-loads', [\App\Http\Controllers\Professor\SubjectLoadController::class, 'index'])->name('professor.subject-loads.index');
     Route::get('subject-loads/schedule', [\App\Http\Controllers\Professor\SubjectLoadController::class, 'schedule'])->name('professor.subject-loads.schedule');
     Route::get('subject-loads/{subjectLoad}', [\App\Http\Controllers\Professor\SubjectLoadController::class, 'show'])->name('professor.subject-loads.show');
+    
+    // My Schedule (combined view from Subject Loads and Schedule Assignments)
+    Route::get('schedule', [\App\Http\Controllers\Professor\ScheduleController::class, 'index'])->name('professor.schedule.index');
+    Route::get('schedule/calendar', [\App\Http\Controllers\Professor\ScheduleController::class, 'calendar'])->name('professor.schedule.calendar');
+    Route::get('schedule/export-pdf', [\App\Http\Controllers\Professor\ScheduleController::class, 'exportPdf'])->name('professor.schedule.export-pdf');
+    Route::get('schedule/export-csv', [\App\Http\Controllers\Professor\ScheduleController::class, 'exportCsv'])->name('professor.schedule.export-csv');
+    Route::get('schedule/{type}/{id}', [\App\Http\Controllers\Professor\ScheduleController::class, 'show'])->name('professor.schedule.show');
 });
 
 // Attendance Monitoring Routes (requires faculty authentication and attendance login)

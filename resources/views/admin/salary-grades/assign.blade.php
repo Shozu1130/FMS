@@ -31,10 +31,10 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Select Faculty *</label>
-                                    <select name="faculty_id" class="form-control" required>
+                                    <select name="professor_id" class="form-control" required>
                                         <option value="">Choose Faculty Member</option>
                                         @foreach($faculties as $faculty)
-                                            <option value="{{ $faculty->id }}" {{ old('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                                            <option value="{{ $faculty->id }}" {{ old('professor_id') == $faculty->id ? 'selected' : '' }}>
                                                 {{ $faculty->name }} ({{ $faculty->professor_id }}) - {{ $faculty->employment_type }}
                                             </option>
                                         @endforeach

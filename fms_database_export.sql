@@ -32,7 +32,7 @@ USE `fms_database`;
 DROP TABLE IF EXISTS `attendances`;
 CREATE TABLE `attendances` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `date` date NOT NULL,
   `time_in` datetime DEFAULT NULL,
   `time_out` datetime DEFAULT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `attendances` (
 -- Dumping data for table `attendances`
 --
 
-INSERT INTO `attendances` (`id`, `faculty_id`, `date`, `time_in`, `time_out`, `time_in_photo`, `time_out_photo`, `time_in_location`, `time_out_location`, `total_hours`, `status`, `notes`, `created_at`, `updated_at`) VALUES
+INSERT INTO `attendances` (`id`, `professor_id`, `date`, `time_in`, `time_out`, `time_in_photo`, `time_out_photo`, `time_in_location`, `time_out_location`, `total_hours`, `status`, `notes`, `created_at`, `updated_at`) VALUES
 (1, 1, '2025-09-03', '2025-09-03 14:58:34', '2025-09-03 15:32:55', 'attendance_photos/1/2025-09-03/attendance_time_in_1_2025-09-03_1756882714.jpg', 'attendance_photos/1/2025-09-03/attendance_time_out_1_2025-09-03_1756884775.jpg', '14.626300, 121.039900', '14.626300, 121.039900', 0.57, 'half_day', NULL, '2025-09-03 06:58:35', '2025-09-03 07:32:55'),
 (3, 1, '2025-09-05', '2025-09-05 20:48:59', NULL, 'attendance_photos/1/2025-09-05/attendance_time_in_1_2025-09-05_1757076539.jpg', NULL, '14.626300, 121.039900', NULL, 0.00, 'late', NULL, '2025-09-05 12:49:00', '2025-09-05 12:49:00');
 
@@ -90,7 +90,7 @@ CREATE TABLE `cache_locks` (
 DROP TABLE IF EXISTS `clearances`;
 CREATE TABLE `clearances` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `clearance_type` varchar(255) NOT NULL,
   `issued_date` date NOT NULL,
   `expiration_date` date DEFAULT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE `clearances` (
 DROP TABLE IF EXISTS `clearance_requests`;
 CREATE TABLE `clearance_requests` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `clearance_type` varchar(255) NOT NULL,
   `reason` text NOT NULL,
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
@@ -125,7 +125,7 @@ CREATE TABLE `clearance_requests` (
 -- Dumping data for table `clearance_requests`
 --
 
-INSERT INTO `clearance_requests` (`id`, `faculty_id`, `clearance_type`, `reason`, `status`, `admin_remarks`, `requested_at`, `processed_at`, `processed_by`, `created_at`, `updated_at`) VALUES
+INSERT INTO `clearance_requests` (`id`, `professor_id`, `clearance_type`, `reason`, `status`, `admin_remarks`, `requested_at`, `processed_at`, `processed_by`, `created_at`, `updated_at`) VALUES
 (1, 1, 'grade_submission_confirmation', 'asdasasd', 'pending', NULL, '2025-09-03 15:03:32', NULL, NULL, '2025-09-03 07:03:32', '2025-09-03 07:03:32');
 
 -- --------------------------------------------------------
@@ -137,7 +137,7 @@ INSERT INTO `clearance_requests` (`id`, `faculty_id`, `clearance_type`, `reason`
 DROP TABLE IF EXISTS `evaluations`;
 CREATE TABLE `evaluations` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `teaching_history_id` int DEFAULT NULL,
   `evaluation_period` varchar(255) NOT NULL,
   `academic_year` int NOT NULL,
@@ -207,7 +207,7 @@ INSERT INTO `faculties` (`id`, `professor_id`, `name`, `email`, `password`, `pic
 DROP TABLE IF EXISTS `faculty_salary_grade`;
 CREATE TABLE `faculty_salary_grade` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `salary_grade_id` int NOT NULL,
   `effective_date` date NOT NULL,
   `end_date` date DEFAULT NULL,
@@ -221,7 +221,7 @@ CREATE TABLE `faculty_salary_grade` (
 -- Dumping data for table `faculty_salary_grade`
 --
 
-INSERT INTO `faculty_salary_grade` (`id`, `faculty_id`, `salary_grade_id`, `effective_date`, `end_date`, `notes`, `is_current`, `created_at`, `updated_at`) VALUES
+INSERT INTO `faculty_salary_grade` (`id`, `professor_id`, `salary_grade_id`, `effective_date`, `end_date`, `notes`, `is_current`, `created_at`, `updated_at`) VALUES
 (1, 1, 2, '2025-09-03', NULL, NULL, 1, '2025-09-03 07:31:57', '2025-09-03 07:31:57');
 
 -- --------------------------------------------------------
@@ -287,7 +287,7 @@ CREATE TABLE `job_batches` (
 DROP TABLE IF EXISTS `leave_requests`;
 CREATE TABLE `leave_requests` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `type` varchar(255) NOT NULL,
   `reason` text,
   `start_date` date NOT NULL,
@@ -302,7 +302,7 @@ CREATE TABLE `leave_requests` (
 -- Dumping data for table `leave_requests`
 --
 
-INSERT INTO `leave_requests` (`id`, `faculty_id`, `type`, `reason`, `start_date`, `end_date`, `status`, `created_at`, `updated_at`, `file_path`) VALUES
+INSERT INTO `leave_requests` (`id`, `professor_id`, `type`, `reason`, `start_date`, `end_date`, `status`, `created_at`, `updated_at`, `file_path`) VALUES
 (1, 1, 'sick', 'lagnat', '2025-09-04', '2025-09-06', 'pending', '2025-09-03 07:04:35', '2025-09-03 07:04:35', 'leave_attachments/C3KvCfgWLbHMxJmCHK9dETBvTJ4YjyNYhXPjBPAk.pdf');
 
 -- --------------------------------------------------------
@@ -382,7 +382,7 @@ CREATE TABLE `password_reset_tokens` (
 DROP TABLE IF EXISTS `payslips`;
 CREATE TABLE `payslips` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `year` int NOT NULL,
   `month` int NOT NULL,
   `employment_type` varchar(255) NOT NULL,
@@ -406,7 +406,7 @@ CREATE TABLE `payslips` (
 -- Dumping data for table `payslips`
 --
 
-INSERT INTO `payslips` (`id`, `faculty_id`, `year`, `month`, `employment_type`, `total_hours`, `base_salary`, `total_deductions`, `net_salary`, `present_days`, `absent_days`, `late_days`, `attendance_summary`, `status`, `generated_at`, `finalized_at`, `paid_at`, `created_at`, `updated_at`) VALUES
+INSERT INTO `payslips` (`id`, `professor_id`, `year`, `month`, `employment_type`, `total_hours`, `base_salary`, `total_deductions`, `net_salary`, `present_days`, `absent_days`, `late_days`, `attendance_summary`, `status`, `generated_at`, `finalized_at`, `paid_at`, `created_at`, `updated_at`) VALUES
 (1, 1, 2025, 9, 'Full-Time', 0.00, 500.00, 500.00, 0.00, 0, 0, 1, '{\"total_records\":1,\"present_days\":0,\"late_days\":1,\"absent_days\":0,\"total_hours\":0,\"average_hours_per_day\":0}', 'draft', '2025-09-03 15:32:12', NULL, NULL, '2025-09-03 07:32:12', '2025-09-03 07:32:12');
 
 -- --------------------------------------------------------
@@ -444,7 +444,7 @@ INSERT INTO `salary_grades` (`id`, `grade`, `step`, `allowance`, `created_at`, `
 DROP TABLE IF EXISTS `schedule_assignments`;
 CREATE TABLE `schedule_assignments` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `subject_code` varchar(255) NOT NULL,
   `subject_name` varchar(255) NOT NULL,
   `section` varchar(255) NOT NULL,
@@ -469,7 +469,7 @@ CREATE TABLE `schedule_assignments` (
 -- Dumping data for table `schedule_assignments`
 --
 
-INSERT INTO `schedule_assignments` (`id`, `faculty_id`, `subject_code`, `subject_name`, `section`, `year_level`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+INSERT INTO `schedule_assignments` (`id`, `professor_id`, `subject_code`, `subject_name`, `section`, `year_level`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 1, 'ITE102', 'IT Elective 2', 'BSIT 1101', '1st Year', 3, 3, 'monday', '15:00:00', '17:00:00', '207', 2025, '1st Semester', 'active', 'direct', NULL, '2025-09-03 00:07:27', '2025-09-03 00:15:05', '2025-09-03 00:15:05'),
 (2, 1, 'ITE101', 'IT Elective 1', 'BSIT 1101', '1st Year', 3, 3, 'monday', '15:00:00', '17:00:00', '207', 2025, '1st Semester', 'active', 'direct', NULL, '2025-09-03 00:21:24', '2025-09-03 00:21:24', NULL);
 
@@ -505,7 +505,7 @@ INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, 
 DROP TABLE IF EXISTS `subject_load_trackers`;
 CREATE TABLE `subject_load_trackers` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `subject_code` varchar(255) NOT NULL,
   `subject_name` varchar(255) NOT NULL,
   `section` varchar(255) NOT NULL,
@@ -530,7 +530,7 @@ CREATE TABLE `subject_load_trackers` (
 -- Dumping data for table `subject_load_trackers`
 --
 
-INSERT INTO `subject_load_trackers` (`id`, `faculty_id`, `subject_code`, `subject_name`, `section`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `year_level`, `notes`, `deleted_at`, `created_at`, `updated_at`) VALUES
+INSERT INTO `subject_load_trackers` (`id`, `professor_id`, `subject_code`, `subject_name`, `section`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `year_level`, `notes`, `deleted_at`, `created_at`, `updated_at`) VALUES
 (1, 1, 'CC102', 'Computer Programming 1', 'BSIT 1101', 3, 3, 'monday', '13:00:00', '15:00:00', '207', 2025, '1st Semester', 'active', 'subject_load_tracker', '1st Year', NULL, '2025-09-03 00:06:36', '2025-09-03 00:04:44', '2025-09-03 00:06:36'),
 (2, 1, 'ITE102', 'IT Elective 2', 'BSIT 1101', 3, 3, 'monday', '13:00:00', '15:00:00', '207', 2025, '1st Semester', 'active', 'subject_load_tracker', '1st Year', NULL, NULL, '2025-09-03 00:18:48', '2025-09-03 00:18:48');
 
@@ -543,7 +543,7 @@ INSERT INTO `subject_load_trackers` (`id`, `faculty_id`, `subject_code`, `subjec
 DROP TABLE IF EXISTS `teaching_histories`;
 CREATE TABLE `teaching_histories` (
   `id` int NOT NULL,
-  `faculty_id` int NOT NULL,
+  `professor_id` int NOT NULL,
   `course_code` varchar(255) NOT NULL,
   `course_title` varchar(255) NOT NULL,
   `semester` varchar(255) NOT NULL,
@@ -601,9 +601,9 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `re
 --
 ALTER TABLE `attendances`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `attendances_faculty_id_date_unique` (`faculty_id`,`date`),
+  ADD UNIQUE KEY `attendances_professor_id_date_unique` (`professor_id`,`date`),
   ADD KEY `attendances_date_index` (`date`),
-  ADD KEY `attendances_faculty_id_date_index` (`faculty_id`,`date`),
+  ADD KEY `attendances_professor_id_date_index` (`professor_id`,`date`),
   ADD KEY `attendances_status_index` (`status`);
 
 --
@@ -685,7 +685,7 @@ ALTER TABLE `job_batches`
 --
 ALTER TABLE `leave_requests`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `faculty_id` (`faculty_id`);
+  ADD KEY `faculty_id` (``);
 
 --
 -- Indexes for table `migrations`

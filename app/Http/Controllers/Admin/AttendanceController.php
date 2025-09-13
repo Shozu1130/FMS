@@ -39,8 +39,8 @@ class AttendanceController extends Controller
         }
 
         // Filter by faculty
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
 
         // Filter by status
@@ -49,7 +49,7 @@ class AttendanceController extends Controller
         }
 
         $attendances = $query->orderBy('date', 'desc')
-                            ->orderBy('faculty_id')
+                            ->orderBy('professor_id')
                             ->paginate(20);
 
         // Filter faculties by department
@@ -80,7 +80,7 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'faculty_id' => 'required|exists:faculty,id',
+            'professor_id' => 'required|exists:faculties,id',
             'date' => 'required|date',
             'time_in' => 'nullable|date_format:H:i',
             'time_out' => 'nullable|date_format:H:i',
@@ -89,7 +89,7 @@ class AttendanceController extends Controller
         ]);
 
         // Check if attendance record already exists for this faculty and date
-        $existingAttendance = Attendance::where('faculty_id', $request->faculty_id)
+        $existingAttendance = Attendance::where('professor_id', $request->professor_id)
             ->where('date', $request->date)
             ->first();
 
@@ -101,7 +101,7 @@ class AttendanceController extends Controller
 
         try {
             $attendance = new Attendance();
-            $attendance->faculty_id = $request->faculty_id;
+            $attendance->professor_id = $request->professor_id;
             $attendance->date = $request->date;
             $attendance->status = $request->status;
             $attendance->notes = $request->notes;
@@ -160,7 +160,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::findOrFail($id);
 
         $request->validate([
-            'faculty_id' => 'required|exists:faculty,id',
+            'professor_id' => 'required|exists:faculties,id',
             'date' => 'required|date',
             'time_in' => 'nullable|date_format:H:i',
             'time_out' => 'nullable|date_format:H:i',
@@ -169,7 +169,7 @@ class AttendanceController extends Controller
         ]);
 
         // Check if attendance record already exists for this faculty and date (excluding current record)
-        $existingAttendance = Attendance::where('faculty_id', $request->faculty_id)
+        $existingAttendance = Attendance::where('professor_id', $request->professor_id)
             ->where('date', $request->date)
             ->where('id', '!=', $id)
             ->first();
@@ -181,7 +181,7 @@ class AttendanceController extends Controller
         }
 
         try {
-            $attendance->faculty_id = $request->faculty_id;
+            $attendance->professor_id = $request->professor_id;
             $attendance->date = $request->date;
             $attendance->status = $request->status;
             $attendance->notes = $request->notes;
@@ -262,8 +262,8 @@ class AttendanceController extends Controller
                   ->whereMonth('date', now()->month);
         }
 
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
 
         $summary = $query->selectRaw('
@@ -299,8 +299,8 @@ class AttendanceController extends Controller
                   ->whereMonth('date', now()->month);
         }
 
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
 
         if ($request->filled('status')) {
@@ -308,7 +308,7 @@ class AttendanceController extends Controller
         }
 
         $attendances = $query->orderBy('date', 'desc')
-                            ->orderBy('faculty_id')
+                            ->orderBy('professor_id')
                             ->get();
 
         $filename = 'attendance_report_' . now()->format('Y-m-d_H-i-s') . '.csv';

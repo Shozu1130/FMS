@@ -1,5 +1,29 @@
 @extends('layouts.professor_admin')
 
+@push('head')
+<style>
+    .bg-purple { 
+        background-color: #5044e4; 
+    }
+    .btn-outline-purple {
+        color: #5044e4;
+        border-color: #5044e4;
+    }
+    .btn-outline-purple:hover {
+        background-color: #5044e4;
+        border-color: #5044e4;
+        color: white;
+    }
+    .border-left {
+        border-left: 3px solid !important;
+    }
+    .schedule-today {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+@endpush
+
 @section('content')
 <h1 class="mb-4">Professor Dashboard</h1>
 
@@ -43,6 +67,73 @@
     </div>
     
     <div class="col-md-8">
+        <!-- Schedule Overview Widget -->
+        @if(isset($scheduleOverview))
+        <div class="card mb-4">
+            <div class="card-header bg-purple text-white">
+                <h6 class="mb-0"><i class="bi bi-calendar-week"></i> My Schedule Overview</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>{{ $scheduleOverview['semester'] }} {{ $scheduleOverview['academic_year'] }}-{{ $scheduleOverview['academic_year'] + 1 }}</h6>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="border rounded p-2 mb-2">
+                                    <h5 class="text-primary mb-0">{{ $scheduleOverview['total_subjects'] }}</h5>
+                                    <small class="text-muted">Subjects</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border rounded p-2 mb-2">
+                                    <h5 class="text-success mb-0">{{ $scheduleOverview['total_units'] }}</h5>
+                                    <small class="text-muted">Units</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border rounded p-2 mb-2">
+                                    <h5 class="text-info mb-0">{{ $scheduleOverview['total_hours'] }}</h5>
+                                    <small class="text-muted">Hours/Week</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <span class="badge bg-{{ $scheduleOverview['workload_status']['class'] }}">
+                                {{ $scheduleOverview['workload_status']['label'] }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Today's Classes ({{ ucfirst(now()->format('l')) }})</h6>
+                        @if($todaySchedule->count() > 0)
+                            <div class="schedule-today">
+                                @foreach($todaySchedule->take(3) as $class)
+                                    <div class="border-left border-{{ $class->source_color }} pl-2 mb-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong class="small">{{ $class->subject_code }}</strong>
+                                                <div class="text-muted small">{{ $class->section }}</div>
+                                                <div class="text-muted small">{{ $class->time_range }}</div>
+                                            </div>
+                                            <span class="badge bg-{{ $class->source_color }} small">
+                                                {{ $class->source_name === 'Subject Load Tracker' ? 'SLT' : 'SA' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @if($todaySchedule->count() > 3)
+                                    <small class="text-muted">... and {{ $todaySchedule->count() - 3 }} more</small>
+                                @endif
+                            </div>
+                        @else
+                            <p class="text-muted small">No classes scheduled for today</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         {{-- Teaching History Notification --}}
         @php
             $currentYear = date('Y');

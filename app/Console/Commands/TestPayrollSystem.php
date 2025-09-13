@@ -121,7 +121,7 @@ class TestPayrollSystem extends Command
             }
             
             Attendance::create([
-                'faculty_id' => $faculty->id,
+                'professor_id' => $faculty->id,
                 'date' => $date->toDateString(),
                 'time_in' => $timeIn,
                 'time_out' => $timeOut,

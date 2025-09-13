@@ -11,7 +11,7 @@ class ClearanceRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'clearance_type',
         'reason',
         'status',
@@ -35,7 +35,7 @@ class ClearanceRequest extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -151,7 +151,7 @@ class ClearanceRequest extends Model
     public static function rules($id = null)
     {
         return [
-            'faculty_id' => 'required|exists:faculty,id',
+            'professor_id' => 'required|exists:faculties,id',
             'clearance_type' => 'required|string|in:' . implode(',', array_keys(self::getClearanceTypes())),
             'reason' => 'required|string|max:1000',
             'status' => 'nullable|string|in:' . self::STATUS_PENDING . ',' . self::STATUS_APPROVED . ',' . self::STATUS_REJECTED,

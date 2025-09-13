@@ -38,19 +38,19 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="faculty_id" class="form-label font-weight-bold text-dark">
+                                <label for="professor_id" class="form-label font-weight-bold text-dark">
                                     <i class="fas fa-user-tie text-primary mr-1"></i>
                                     Faculty Member <span class="text-danger">*</span>
                                 </label>
-                                <select name="faculty_id" id="faculty_id" class="form-select form-select-lg @error('faculty_id') is-invalid @enderror" required>
+                                <select name="professor_id" id="professor_id" class="form-select form-select-lg @error('professor_id') is-invalid @enderror" required>
                                     <option value="">Select Faculty Member</option>
                                     @foreach($faculties as $faculty)
-                                        <option value="{{ $faculty->id }}" {{ old('faculty_id', $scheduleAssignment->faculty_id) == $faculty->id ? 'selected' : '' }}>
+                                        <option value="{{ $faculty->id }}" {{ old('professor_id', $scheduleAssignment->professor_id) == $faculty->id ? 'selected' : '' }}>
                                             {{ $faculty->name }} ({{ $faculty->professor_id }})
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('faculty_id')
+                                @error('professor_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -343,7 +343,7 @@ $(document).ready(function() {
     
     // Function to check for conflicts
     function checkConflicts() {
-        const facultyId = $('#faculty_id').val();
+        const facultyId = $('#professor_id').val();
         const scheduleDay = $('#schedule_day').val();
         const startTime = $('#start_time').val();
         const endTime = $('#end_time').val();
@@ -355,7 +355,7 @@ $(document).ready(function() {
                 url: '{{ route("admin.schedule-assignment.check-conflict") }}',
                 method: 'GET',
                 data: {
-                    faculty_id: facultyId,
+                    professor_id: facultyId,
                     schedule_day: scheduleDay,
                     start_time: startTime,
                     end_time: endTime,
@@ -383,7 +383,7 @@ $(document).ready(function() {
     
     // Function to check for duplicates
     function checkDuplicates() {
-        const facultyId = $('#faculty_id').val();
+        const facultyId = $('#professor_id').val();
         const subjectCode = $('#subject_code').val();
         const section = $('#section').val();
         const academicYear = $('#academic_year').val();
@@ -394,7 +394,7 @@ $(document).ready(function() {
                 url: '{{ route("admin.schedule-assignment.check-duplicate") }}',
                 method: 'GET',
                 data: {
-                    faculty_id: facultyId,
+                    professor_id: facultyId,
                     subject_code: subjectCode,
                     section: section,
                     academic_year: academicYear,
@@ -421,7 +421,7 @@ $(document).ready(function() {
     
     // Function to load faculty summary
     function loadFacultySummary() {
-        const facultyId = $('#faculty_id').val();
+        const facultyId = $('#professor_id').val();
         const academicYear = $('#academic_year').val();
         const semester = $('#semester').val();
         
@@ -432,7 +432,7 @@ $(document).ready(function() {
                 url: '{{ route("admin.schedule-assignment.faculty-load-summary") }}',
                 method: 'GET',
                 data: {
-                    faculty_id: facultyId,
+                    professor_id: facultyId,
                     academic_year: academicYear,
                     semester: semester
                 },
@@ -483,7 +483,7 @@ $(document).ready(function() {
     }
     
     // Event handlers
-    $('#faculty_id, #academic_year, #semester').change(function() {
+    $('#professor_id, #academic_year, #semester').change(function() {
         loadFacultySummary();
         clearTimeout(conflictCheckTimeout);
         clearTimeout(duplicateCheckTimeout);
@@ -535,7 +535,7 @@ $(document).ready(function() {
         
         // Validate required fields
         let isValid = true;
-        const requiredFields = ['faculty_id', 'subject_code', 'subject_name', 'section', 'academic_year', 'semester'];
+        const requiredFields = ['professor_id', 'subject_code', 'subject_name', 'section', 'academic_year', 'semester'];
         
         requiredFields.forEach(function(field) {
             const input = $(`#${field}`);
@@ -563,7 +563,7 @@ $(document).ready(function() {
             url: '{{ route("admin.schedule-assignment.check-conflict") }}',
             method: 'GET',
             data: {
-                faculty_id: $('#faculty_id').val(),
+                professor_id: $('#professor_id').val(),
                 schedule_day: $('#schedule_day').val(),
                 start_time: $('#start_time').val(),
                 end_time: $('#end_time').val(),

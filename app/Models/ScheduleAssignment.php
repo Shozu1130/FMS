@@ -13,7 +13,7 @@ class ScheduleAssignment extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'subject_code',
         'subject_name',
         'section',
@@ -86,7 +86,7 @@ class ScheduleAssignment extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -125,12 +125,12 @@ class ScheduleAssignment extends Model
     /**
      * Check for schedule conflicts across both ScheduleAssignment and SubjectLoadTracker.
      */
-    public static function hasScheduleConflict($facultyId, $scheduleDay, $startTime, $endTime, $academicYear, $semester, $excludeId = null, $excludeTable = 'schedule_assignments')
+    public static function hasScheduleConflict($professorId, $scheduleDay, $startTime, $endTime, $academicYear, $semester, $excludeId = null, $excludeTable = 'schedule_assignments')
     {
         // Check conflicts in ScheduleAssignment table
         $scheduleConflict = null;
         if ($excludeTable !== 'schedule_assignments') {
-            $query = self::where('faculty_id', $facultyId)
+            $query = self::where('professor_id', $professorId)
                         ->where('schedule_day', $scheduleDay)
                         ->where('academic_year', $academicYear)
                         ->where('semester', $semester)
@@ -162,7 +162,7 @@ class ScheduleAssignment extends Model
         $subjectLoadConflict = null;
         if ($excludeTable !== 'subject_load_trackers') {
             $subjectLoadConflict = SubjectLoadTracker::hasScheduleConflict(
-                $facultyId, 
+                $professorId, 
                 $scheduleDay, 
                 $startTime, 
                 $endTime, 
@@ -179,12 +179,12 @@ class ScheduleAssignment extends Model
     /**
      * Check for duplicate subject assignment across both tables.
      */
-    public static function hasDuplicateAssignment($facultyId, $subjectCode, $section, $academicYear, $semester, $excludeId = null, $excludeTable = 'schedule_assignments')
+    public static function hasDuplicateAssignment($professorId, $subjectCode, $section, $academicYear, $semester, $excludeId = null, $excludeTable = 'schedule_assignments')
     {
         // Check duplicates in ScheduleAssignment table
         $scheduleDuplicate = false;
         if ($excludeTable !== 'schedule_assignments') {
-            $query = self::where('faculty_id', $facultyId)
+            $query = self::where('professor_id', $professorId)
                         ->where('subject_code', $subjectCode)
                         ->where('section', $section)
                         ->where('academic_year', $academicYear)
@@ -202,7 +202,7 @@ class ScheduleAssignment extends Model
         $subjectLoadDuplicate = false;
         if ($excludeTable !== 'subject_load_trackers') {
             $subjectLoadDuplicate = SubjectLoadTracker::hasDuplicateAssignment(
-                $facultyId,
+                $professorId,
                 $subjectCode,
                 $section,
                 $academicYear,
@@ -217,15 +217,15 @@ class ScheduleAssignment extends Model
     /**
      * Get faculty total units for a period from both tables.
      */
-    public static function getFacultyTotalUnits($facultyId, $academicYear, $semester)
+    public static function getFacultyTotalUnits($professorId, $academicYear, $semester)
     {
-        $scheduleUnits = self::where('faculty_id', $facultyId)
+        $scheduleUnits = self::where('professor_id', $professorId)
                             ->where('academic_year', $academicYear)
                             ->where('semester', $semester)
                             ->where('status', self::STATUS_ACTIVE)
                             ->sum('units');
 
-        $subjectLoadUnits = SubjectLoadTracker::getFacultyTotalUnits($facultyId, $academicYear, $semester);
+        $subjectLoadUnits = SubjectLoadTracker::getFacultyTotalUnits($professorId, $academicYear, $semester);
 
         return $scheduleUnits + $subjectLoadUnits;
     }
@@ -233,15 +233,15 @@ class ScheduleAssignment extends Model
     /**
      * Get faculty total hours for a period from both tables.
      */
-    public static function getFacultyTotalHours($facultyId, $academicYear, $semester)
+    public static function getFacultyTotalHours($professorId, $academicYear, $semester)
     {
-        $scheduleHours = self::where('faculty_id', $facultyId)
+        $scheduleHours = self::where('professor_id', $professorId)
                             ->where('academic_year', $academicYear)
                             ->where('semester', $semester)
                             ->where('status', self::STATUS_ACTIVE)
                             ->sum('hours_per_week');
 
-        $subjectLoadHours = SubjectLoadTracker::getFacultyTotalHours($facultyId, $academicYear, $semester);
+        $subjectLoadHours = SubjectLoadTracker::getFacultyTotalHours($professorId, $academicYear, $semester);
 
         return $scheduleHours + $subjectLoadHours;
     }
@@ -262,9 +262,9 @@ class ScheduleAssignment extends Model
                                              ->where('status', SubjectLoadTracker::STATUS_ACTIVE);
 
         // Apply filters to both queries
-        if (!empty($filters['faculty_id'])) {
-            $scheduleQuery->where('faculty_id', $filters['faculty_id']);
-            $subjectLoadQuery->where('faculty_id', $filters['faculty_id']);
+        if (!empty($filters['professor_id'])) {
+            $scheduleQuery->where('professor_id', $filters['professor_id']);
+            $subjectLoadQuery->where('professor_id', $filters['professor_id']);
         }
 
         if (!empty($filters['academic_year'])) {
@@ -337,9 +337,9 @@ class ScheduleAssignment extends Model
     /**
      * Scope for specific faculty.
      */
-    public function scopeForFaculty($query, $facultyId)
+    public function scopeForFaculty($query, $professorId)
     {
-        return $query->where('faculty_id', $facultyId);
+        return $query->where('professor_id', $professorId);
     }
 
     /**
@@ -395,7 +395,7 @@ class ScheduleAssignment extends Model
     public static function rules($id = null)
     {
         return [
-            'faculty_id' => 'required|exists:faculties,id',
+            'professor_id' => 'required|exists:faculties,id',
             'subject_code' => 'required|string|max:20',
             'subject_name' => 'required|string|max:255',
             'section' => 'required|string|max:10',
@@ -420,8 +420,8 @@ class ScheduleAssignment extends Model
     public static function validationMessages()
     {
         return [
-            'faculty_id.required' => 'Please select a faculty member.',
-            'faculty_id.exists' => 'Selected faculty member does not exist.',
+            'professor_id.required' => 'Please select a faculty member.',
+            'professor_id.exists' => 'Selected faculty member does not exist.',
             'subject_code.required' => 'Subject code is required.',
             'subject_name.required' => 'Subject name is required.',
             'section.required' => 'Section is required.',
@@ -458,20 +458,20 @@ class ScheduleAssignment extends Model
     /**
      * Get faculty load summary including both tables.
      */
-    public static function getFacultyLoadSummary($facultyId, $academicYear, $semester)
+    public static function getFacultyLoadSummary($professorId, $academicYear, $semester)
     {
-        $totalUnits = self::getFacultyTotalUnits($facultyId, $academicYear, $semester);
-        $totalHours = self::getFacultyTotalHours($facultyId, $academicYear, $semester);
+        $totalUnits = self::getFacultyTotalUnits($professorId, $academicYear, $semester);
+        $totalHours = self::getFacultyTotalHours($professorId, $academicYear, $semester);
         $workloadStatus = self::getWorkloadStatus($totalHours);
 
         // Get assignments from both tables
-        $scheduleAssignments = self::where('faculty_id', $facultyId)
+        $scheduleAssignments = self::where('professor_id', $professorId)
                                   ->where('academic_year', $academicYear)
                                   ->where('semester', $semester)
                                   ->where('status', self::STATUS_ACTIVE)
                                   ->get();
 
-        $subjectLoadAssignments = SubjectLoadTracker::where('faculty_id', $facultyId)
+        $subjectLoadAssignments = SubjectLoadTracker::where('professor_id', $professorId)
                                                    ->where('academic_year', $academicYear)
                                                    ->where('semester', $semester)
                                                    ->where('status', SubjectLoadTracker::STATUS_ACTIVE)
@@ -490,7 +490,7 @@ class ScheduleAssignment extends Model
     /**
      * Get calendar data for a specific period.
      */
-    public static function getCalendarData($academicYear, $semester, $facultyId = null)
+    public static function getCalendarData($academicYear, $semester, $professorId = null, $yearLevel = null)
     {
         $scheduleQuery = self::with('faculty')
                             ->where('academic_year', $academicYear)
@@ -502,9 +502,14 @@ class ScheduleAssignment extends Model
                                              ->where('semester', $semester)
                                              ->where('status', SubjectLoadTracker::STATUS_ACTIVE);
 
-        if ($facultyId) {
-            $scheduleQuery->where('faculty_id', $facultyId);
-            $subjectLoadQuery->where('faculty_id', $facultyId);
+        if ($professorId) {
+            $scheduleQuery->where('professor_id', $professorId);
+            $subjectLoadQuery->where('professor_id', $professorId);
+        }
+
+        if ($yearLevel) {
+            $scheduleQuery->where('year_level', $yearLevel);
+            $subjectLoadQuery->where('year_level', $yearLevel);
         }
 
         $scheduleData = $scheduleQuery->get();
@@ -589,14 +594,14 @@ class ScheduleAssignment extends Model
         $facultyWithSchedules = self::where('academic_year', $currentYear)
                                    ->where('semester', $currentSemester)
                                    ->where('status', 'active')
-                                   ->distinct('faculty_id')
-                                   ->count('faculty_id');
+                                   ->distinct('professor_id')
+                                   ->count('professor_id');
 
         $facultyWithSubjectLoads = SubjectLoadTracker::where('academic_year', $currentYear)
                                                     ->where('semester', $currentSemester)
                                                     ->where('status', 'active')
-                                                    ->distinct('faculty_id')
-                                                    ->count('faculty_id');
+                                                    ->distinct('professor_id')
+                                                    ->count('professor_id');
 
         $activeFaculty = max($facultyWithSchedules, $facultyWithSubjectLoads);
 
@@ -635,18 +640,18 @@ class ScheduleAssignment extends Model
         $scheduleAssignments = self::where('academic_year', $academicYear)
                                   ->where('semester', $semester)
                                   ->where('status', 'active')
-                                  ->pluck('faculty_id');
+                                  ->pluck('professor_id');
         
         $subjectLoadAssignments = SubjectLoadTracker::where('academic_year', $academicYear)
                                                    ->where('semester', $semester)
                                                    ->where('status', 'active')
-                                                   ->pluck('faculty_id');
+                                                   ->pluck('professor_id');
         
         $facultyIds = $scheduleAssignments->merge($subjectLoadAssignments)->unique();
 
-        foreach ($facultyIds as $facultyId) {
+        foreach ($facultyIds as $professorId) {
             $facultySchedules = self::getCombinedScheduleData([
-                'faculty_id' => $facultyId,
+                'professor_id' => $professorId,
                 'academic_year' => $academicYear,
                 'semester' => $semester,
                 'status' => 'active'
@@ -685,17 +690,17 @@ class ScheduleAssignment extends Model
         $scheduleAssignments = self::where('academic_year', $academicYear)
                                   ->where('semester', $semester)
                                   ->where('status', 'active')
-                                  ->pluck('faculty_id');
+                                  ->pluck('professor_id');
         
         $subjectLoadAssignments = SubjectLoadTracker::where('academic_year', $academicYear)
                                                    ->where('semester', $semester)
                                                    ->where('status', 'active')
-                                                   ->pluck('faculty_id');
+                                                   ->pluck('professor_id');
         
         $facultyIds = $scheduleAssignments->merge($subjectLoadAssignments)->unique();
 
-        foreach ($facultyIds as $facultyId) {
-            $totalHours = self::getFacultyTotalHours($facultyId, $academicYear, $semester);
+        foreach ($facultyIds as $professorId) {
+            $totalHours = self::getFacultyTotalHours($professorId, $academicYear, $semester);
             if ($totalHours > 40) {
                 $overloadedCount++;
             }

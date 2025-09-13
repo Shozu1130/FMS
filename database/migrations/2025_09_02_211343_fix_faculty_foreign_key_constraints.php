@@ -16,32 +16,32 @@ return new class extends Migration
         
         // Fix payslips table
         Schema::table('payslips', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculties')->onDelete('cascade');
         });
         
         // Fix clearances table
         Schema::table('clearances', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculties')->onDelete('cascade');
         });
         
         // Fix evaluations table
         Schema::table('evaluations', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculties')->onDelete('cascade');
         });
         
         // Fix teaching_histories table
         Schema::table('teaching_histories', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculties')->onDelete('cascade');
         });
         
         // Fix leave_requests table
         Schema::table('leave_requests', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculties')->onDelete('cascade');
         });
     }
 
@@ -54,28 +54,28 @@ return new class extends Migration
         // This is just for rollback purposes - we don't actually want to use these
         
         Schema::table('payslips', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculty')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculty')->onDelete('cascade');
         });
         
         Schema::table('clearances', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculty')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculty')->onDelete('cascade');
         });
         
         Schema::table('evaluations', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculty')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculty')->onDelete('cascade');
         });
         
         Schema::table('teaching_histories', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculty')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculty')->onDelete('cascade');
         });
         
         Schema::table('leave_requests', function (Blueprint $table) {
-            $table->dropForeign(['faculty_id']);
-            $table->foreign('faculty_id')->references('id')->on('faculty')->onDelete('cascade');
+            $table->dropForeign(['professor_id']);
+            $table->foreign('professor_id')->references('id')->on('faculty')->onDelete('cascade');
         });
     }
 };

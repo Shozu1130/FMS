@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('clearance_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained()->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
             $table->string('clearance_type');
             $table->text('reason');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('processed_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             
-            $table->index(['faculty_id', 'status']);
+            $table->index(['professor_id', 'status']);
             $table->index(['clearance_type', 'status']);
         });
     }

@@ -128,13 +128,13 @@ class PayslipController extends Controller
     public function generateSingle(Request $request)
     {
         $request->validate([
-            'faculty_id' => 'required|exists:faculty,id',
+            'professor_id' => 'required|exists:faculties,id',
             'year' => 'required|integer|min:2020|max:2030',
             'month' => 'required|integer|min:1|max:12'
         ]);
 
         // Check if admin can generate payslip for this faculty (department filtering)
-        $faculty = Faculty::find($request->faculty_id);
+        $faculty = Faculty::find($request->professor_id);
         if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
             if ($faculty->department !== auth()->user()->department) {
                 return redirect()->back()->with('error', 'Unauthorized: Cannot generate payslip for faculty from different department.');
@@ -142,7 +142,7 @@ class PayslipController extends Controller
         }
 
         try {
-            $payslip = Payslip::generateForFaculty($request->faculty_id, $request->year, $request->month);
+            $payslip = Payslip::generateForFaculty($request->professor_id, $request->year, $request->month);
             
             return redirect()->route('admin.payslips.show', $payslip->id)
                 ->with('success', "Payslip generated successfully for {$faculty->name}");

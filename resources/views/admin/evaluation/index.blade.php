@@ -83,7 +83,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Faculty</label>
-                            <select name="faculty_id" class="form-select" required>
+                            <select name="professor_id" class="form-select" required>
                                 <option value="">Select Faculty</option>
                                 @foreach($faculties ?? [] as $faculty)
                                     <option value="{{ $faculty->id }}">{{ $faculty->name }}</option>

@@ -10,7 +10,7 @@ class LeaveRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'type',
         'reason',
         'file_path',
@@ -35,7 +35,7 @@ class LeaveRequest extends Model
         ];
     }
 
-    public function faculty()
+    public function professor()
     {
         return $this->belongsTo(Faculty::class);
     }

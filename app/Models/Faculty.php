@@ -81,7 +81,7 @@ class Faculty extends Authenticatable
 
     public function teachingHistories()
     {
-        return $this->hasMany(TeachingHistory::class);
+        return $this->hasMany(TeachingHistory::class, 'professor_id');
     }
 
     public function clearances()
@@ -91,12 +91,12 @@ class Faculty extends Authenticatable
 
     public function evaluations()
     {
-        return $this->hasMany(Evaluation::class);
+        return $this->hasMany(Evaluation::class, 'professor_id');
     }
 
     public function salaryGrades()
     {
-        return $this->belongsToMany(SalaryGrade::class, 'faculty_salary_grade')
+        return $this->belongsToMany(SalaryGrade::class, 'faculty_salary_grade', 'professor_id', 'salary_grade_id')
                     ->withPivot(['effective_date', 'end_date', 'notes', 'is_current'])
                     ->withTimestamps();
     }
@@ -163,12 +163,12 @@ class Faculty extends Authenticatable
 
     public function attendances()
     {
-        return $this->hasMany(Attendance::class);
+        return $this->hasMany(Attendance::class, 'professor_id');
     }
 
     public function payslips()
     {
-        return $this->hasMany(Payslip::class);
+        return $this->hasMany(Payslip::class, 'professor_id');
     }
 
     public function user()
@@ -178,17 +178,22 @@ class Faculty extends Authenticatable
 
     public function clearanceRequests()
     {
-        return $this->hasMany(ClearanceRequest::class);
+        return $this->hasMany(ClearanceRequest::class, 'professor_id');
     }
 
     public function subjectLoads()
     {
-        return $this->hasMany(SubjectLoadTracker::class);
+        return $this->hasMany(SubjectLoadTracker::class, 'professor_id');
     }
 
     public function scheduleAssignments()
     {
-        return $this->hasMany(ScheduleAssignment::class);
+        return $this->hasMany(ScheduleAssignment::class, 'professor_id');
+    }
+
+    public function qualifications()
+    {
+        return $this->hasMany(ProfessorQualification::class, 'professor_id');
     }
 
     public function getCurrentMonthAttendance()

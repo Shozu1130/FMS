@@ -12,7 +12,7 @@ class LeaveRequestController extends Controller
     public function index()
     {
         $professor = Auth::guard('faculty')->user();
-        $requests = LeaveRequest::where('faculty_id', $professor->id)
+        $requests = LeaveRequest::where('professor_id', $professor->id)
             ->orderByDesc('created_at')
             ->get();
         return view('professor.leave.index', compact('requests'));
@@ -40,7 +40,7 @@ class LeaveRequestController extends Controller
             $validated['file_path'] = $path;
         }
 
-        $validated['faculty_id'] = $professor->id;
+        $validated['professor_id'] = $professor->id;
         $validated['status'] = LeaveRequest::STATUS_PENDING;
         LeaveRequest::create($validated);
 

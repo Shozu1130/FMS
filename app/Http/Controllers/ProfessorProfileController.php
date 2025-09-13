@@ -13,6 +13,7 @@ class ProfessorProfileController extends Controller
     public function edit()
     {
         $professor = Auth::guard('faculty')->user();
+        $professor->load('qualifications');
         return view('professor.profile', compact('professor'));
     }
 

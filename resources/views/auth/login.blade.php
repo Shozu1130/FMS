@@ -226,9 +226,7 @@
                 </form>
 
                 <div class="text-center mt-4">
-                    <a href="{{ route('attendance.login') }}" class="btn btn-outline-success btn-sm">
-                        <i class="bi bi-clock"></i> Faculty Attendance Login
-                    </a>
+
                 </div>
             </div>
         </div>

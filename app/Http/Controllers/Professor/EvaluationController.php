@@ -13,7 +13,7 @@ class EvaluationController extends Controller
     {
         $professor = Auth::guard('faculty')->user();
         
-        $evaluations = Evaluation::where('faculty_id', $professor->id)
+        $evaluations = Evaluation::where('professor_id', $professor->id)
             ->orderBy('created_at', 'desc')
             ->get();
 

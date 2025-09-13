@@ -21,10 +21,10 @@
                     <form method="GET" class="mb-4">
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <select name="faculty_id" class="form-select">
+                                <select name="professor_id" class="form-select">
                                     <option value="">All Faculty</option>
                                     @foreach($faculties as $faculty)
-                                        <option value="{{ $faculty->id }}" {{ request('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                                        <option value="{{ $faculty->id }}" {{ request('professor_id') == $faculty->id ? 'selected' : '' }}>
                                             {{ $faculty->name }} ({{ $faculty->professor_id }})
                                         </option>
                                     @endforeach

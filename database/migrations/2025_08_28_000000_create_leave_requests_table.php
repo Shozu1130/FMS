@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('faculty_id')->constrained('faculties')->cascadeOnDelete();
+            $table->foreignId('professor_id')->constrained('faculties')->cascadeOnDelete();
 
             $table->string('type');
             $table->text('reason')->nullable();

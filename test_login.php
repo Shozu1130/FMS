@@ -5,9 +5,9 @@ require_once 'vendor/autoload.php';
 $app = require_once 'bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
-// Test login credentials
-$email = 'master@bestlink.edu.ph';
-$password = 'master123';
+// Test login credentials for professor
+$email = 'professor@bestlink.edu.ph';
+$password = 'professor123';
 
 echo "Testing login credentials:\n";
 echo "Email: $email\n";

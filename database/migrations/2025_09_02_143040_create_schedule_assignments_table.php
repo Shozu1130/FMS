@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('schedule_assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('professor_id')->constrained('faculties')->onDelete('cascade');
             $table->string('subject_code', 20);
             $table->string('subject_name');
             $table->string('section', 10);
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Indexes for better performance
-            $table->index(['faculty_id', 'academic_year', 'semester']);
+            $table->index(['professor_id', 'academic_year', 'semester']);
             $table->index(['schedule_day', 'start_time', 'end_time']);
             $table->index(['subject_code', 'section']);
             $table->index('status');

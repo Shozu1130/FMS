@@ -4,7 +4,7 @@ START TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS `attendances` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `date` DATE NOT NULL,
   `time_in` DATETIME,
   `time_out` DATETIME,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `attendances` (
   `notes` TEXT,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `cache` (
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `cache_locks` (
 
 CREATE TABLE IF NOT EXISTS `clearance_requests` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `clearance_type` VARCHAR(255) NOT NULL,
   `reason` TEXT NOT NULL,
   `status` ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
@@ -46,13 +46,13 @@ CREATE TABLE IF NOT EXISTS `clearance_requests` (
   `processed_by` INT,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`processed_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `clearances` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `clearance_type` VARCHAR(255) NOT NULL,
   `issued_date` DATE NOT NULL,
   `expiration_date` DATE,
@@ -60,12 +60,12 @@ CREATE TABLE IF NOT EXISTS `clearances` (
   `remarks` TEXT,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `evaluations` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `teaching_history_id` INT,
   `evaluation_period` VARCHAR(255) NOT NULL,
   `academic_year` INT NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `evaluations` (
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   FOREIGN KEY (`teaching_history_id`) REFERENCES `teaching_histories`(`id`) ON DELETE SET NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `faculties` (
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `faculties` (
 
 CREATE TABLE IF NOT EXISTS `faculty_salary_grade` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `salary_grade_id` INT NOT NULL,
   `effective_date` DATE NOT NULL,
   `end_date` DATE,
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `faculty_salary_grade` (
   `is_current` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`salary_grade_id`) REFERENCES `salary_grades`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
 
 CREATE TABLE IF NOT EXISTS `leave_requests` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `type` VARCHAR(255) NOT NULL,
   `reason` TEXT,
   `start_date` DATE NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `leave_requests` (
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   `file_path` VARCHAR(255),
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `migrations` (
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
 
 CREATE TABLE IF NOT EXISTS `payslips` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `year` INT NOT NULL,
   `month` INT NOT NULL,
   `employment_type` VARCHAR(255) NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS `payslips` (
   `paid_at` DATETIME,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `salary_grades` (
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `salary_grades` (
 
 CREATE TABLE IF NOT EXISTS `schedule_assignments` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `subject_code` VARCHAR(255) NOT NULL,
   `subject_name` VARCHAR(255) NOT NULL,
   `section` VARCHAR(255) NOT NULL,
@@ -234,7 +234,7 @@ CREATE TABLE IF NOT EXISTS `schedule_assignments` (
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   `deleted_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `sessions` (
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 
 CREATE TABLE IF NOT EXISTS `subject_load_trackers` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `subject_code` VARCHAR(255) NOT NULL,
   `subject_name` VARCHAR(255) NOT NULL,
   `section` VARCHAR(255) NOT NULL,
@@ -268,12 +268,12 @@ CREATE TABLE IF NOT EXISTS `subject_load_trackers` (
   `deleted_at` TIMESTAMP NULL DEFAULT NULL,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `teaching_histories` (
   `id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `faculty_id` INT NOT NULL,
+  `professor_id` int NOT NULL,
   `course_code` VARCHAR(255) NOT NULL,
   `course_title` VARCHAR(255) NOT NULL,
   `semester` VARCHAR(255) NOT NULL,
@@ -289,7 +289,7 @@ CREATE TABLE IF NOT EXISTS `teaching_histories` (
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (`faculty_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`professor_id`) REFERENCES `faculties`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `users` (
@@ -315,16 +315,16 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `re
 INSERT INTO `salary_grades` (`id`, `grade`, `step`, `allowance`, `created_at`, `updated_at`, `full_time_base_salary`, `part_time_base_salary`) VALUES 
 (2, 1, 1, 0, '2025-09-03 15:31:40', '2025-09-03 15:31:40', 500, 300);
 
-INSERT INTO `faculty_salary_grade` (`id`, `faculty_id`, `salary_grade_id`, `effective_date`, `end_date`, `notes`, `is_current`, `created_at`, `updated_at`) VALUES 
+INSERT INTO `faculty_salary_grade` (`id`, `professor_id`, `salary_grade_id`, `effective_date`, `end_date`, `notes`, `is_current`, `created_at`, `updated_at`) VALUES 
 (1, 1, 2, '2025-09-03', NULL, NULL, 1, '2025-09-03 15:31:57', '2025-09-03 15:31:57');
 
-INSERT INTO `attendances` (`id`, `faculty_id`, `date`, `time_in`, `time_out`, `time_in_photo`, `time_out_photo`, `time_in_location`, `time_out_location`, `total_hours`, `status`, `notes`, `created_at`, `updated_at`) VALUES 
+INSERT INTO `attendances` (`id`, `professor_id`, `date`, `time_in`, `time_out`, `time_in_photo`, `time_out_photo`, `time_in_location`, `time_out_location`, `total_hours`, `status`, `notes`, `created_at`, `updated_at`) VALUES 
 (1, 1, '2025-09-03', '2025-09-03 14:58:34', '2025-09-03 15:32:55', 'attendance_photos/1/2025-09-03/attendance_time_in_1_2025-09-03_1756882714.jpg', 'attendance_photos/1/2025-09-03/attendance_time_out_1_2025-09-03_1756884775.jpg', '14.626300, 121.039900', '14.626300, 121.039900', 0.57, 'half_day', NULL, '2025-09-03 14:58:35', '2025-09-03 15:32:55');
 
-INSERT INTO `clearance_requests` (`id`, `faculty_id`, `clearance_type`, `reason`, `status`, `admin_remarks`, `requested_at`, `processed_at`, `processed_by`, `created_at`, `updated_at`) VALUES 
+INSERT INTO `clearance_requests` (`id`, `professor_id`, `clearance_type`, `reason`, `status`, `admin_remarks`, `requested_at`, `processed_at`, `processed_by`, `created_at`, `updated_at`) VALUES 
 (1, 1, 'grade_submission_confirmation', 'asdasasd', 'pending', NULL, '2025-09-03 15:03:32', NULL, NULL, '2025-09-03 15:03:32', '2025-09-03 15:03:32');
 
-INSERT INTO `leave_requests` (`id`, `faculty_id`, `type`, `reason`, `start_date`, `end_date`, `status`, `created_at`, `updated_at`, `file_path`) VALUES 
+INSERT INTO `leave_requests` (`id`, `professor_id`, `type`, `reason`, `start_date`, `end_date`, `status`, `created_at`, `updated_at`, `file_path`) VALUES 
 (1, 1, 'sick', 'lagnat', '2025-09-04', '2025-09-06', 'pending', '2025-09-03 15:04:35', '2025-09-03 15:04:35', 'leave_attachments/C3KvCfgWLbHMxJmCHK9dETBvTJ4YjyNYhXPjBPAk.pdf');
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES 
@@ -357,47 +357,47 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (27, '2025_09_02_203611_fix_evaluations_foreign_key_constraint', 1),
 (28, '2025_09_02_211343_fix_faculty_foreign_key_constraints', 1);
 
-INSERT INTO `payslips` (`id`, `faculty_id`, `year`, `month`, `employment_type`, `total_hours`, `base_salary`, `total_deductions`, `net_salary`, `present_days`, `absent_days`, `late_days`, `attendance_summary`, `status`, `generated_at`, `finalized_at`, `paid_at`, `created_at`, `updated_at`) VALUES 
+INSERT INTO `payslips` (`id`, `professor_id`, `year`, `month`, `employment_type`, `total_hours`, `base_salary`, `total_deductions`, `net_salary`, `present_days`, `absent_days`, `late_days`, `attendance_summary`, `status`, `generated_at`, `finalized_at`, `paid_at`, `created_at`, `updated_at`) VALUES 
 (1, 1, 2025, 9, 'Full-Time', 0, 500, 500, 0, 0, 0, 1, '{"total_records":1,"present_days":0,"late_days":1,"absent_days":0,"total_hours":0,"average_hours_per_day":0}', 'draft', '2025-09-03 15:32:12', NULL, NULL, '2025-09-03 15:32:12', '2025-09-03 15:32:12');
 
-INSERT INTO `schedule_assignments` (`id`, `faculty_id`, `subject_code`, `subject_name`, `section`, `year_level`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES 
+INSERT INTO `schedule_assignments` (`id`, `professor_id`, `subject_code`, `subject_name`, `section`, `year_level`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES 
 (1, 1, 'ITE102', 'IT Elective 2', 'BSIT 1101', '1st Year', 3, 3, 'monday', '15:00:00', '17:00:00', '207', 2025, '1st Semester', 'active', 'direct', NULL, '2025-09-03 08:07:27', '2025-09-03 08:15:05', '2025-09-03 08:15:05'),
 (2, 1, 'ITE101', 'IT Elective 1', 'BSIT 1101', '1st Year', 3, 3, 'monday', '15:00:00', '17:00:00', '207', 2025, '1st Semester', 'active', 'direct', NULL, '2025-09-03 08:21:24', '2025-09-03 08:21:24', NULL);
 
-INSERT INTO `subject_load_trackers` (`id`, `faculty_id`, `subject_code`, `subject_name`, `section`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `year_level`, `notes`, `deleted_at`, `created_at`, `updated_at`) VALUES 
+INSERT INTO `subject_load_trackers` (`id`, `professor_id`, `subject_code`, `subject_name`, `section`, `units`, `hours_per_week`, `schedule_day`, `start_time`, `end_time`, `room`, `academic_year`, `semester`, `status`, `source`, `year_level`, `notes`, `deleted_at`, `created_at`, `updated_at`) VALUES 
 (1, 1, 'CC102', 'Computer Programming 1', 'BSIT 1101', 3, 3, 'monday', '13:00:00', '15:00:00', '207', 2025, '1st Semester', 'active', 'subject_load_tracker', '1st Year', NULL, '2025-09-03 08:06:36', '2025-09-03 08:04:44', '2025-09-03 08:06:36'),
 (2, 1, 'ITE102', 'IT Elective 2', 'BSIT 1101', 3, 3, 'monday', '13:00:00', '15:00:00', '207', 2025, '1st Semester', 'active', 'subject_load_tracker', '1st Year', NULL, NULL, '2025-09-03 08:18:48', '2025-09-03 08:18:48');
 
 -- Create indexes
 CREATE INDEX `attendances_date_index` ON `attendances` (`date`);
-CREATE INDEX `attendances_faculty_id_date_index` ON `attendances` (`faculty_id`, `date`);
-CREATE UNIQUE INDEX `attendances_faculty_id_date_unique` ON `attendances` (`faculty_id`, `date`);
+CREATE INDEX `attendances_professor_id_date_index` ON `attendances` (`professor_id`, `date`);
+CREATE UNIQUE INDEX `attendances_professor_id_date_unique` ON `attendances` (`professor_id`, `date`);
 CREATE INDEX `attendances_status_index` ON `attendances` (`status`);
 CREATE INDEX `clearance_requests_clearance_type_status_index` ON `clearance_requests` (`clearance_type`, `status`);
-CREATE INDEX `clearance_requests_faculty_id_status_index` ON `clearance_requests` (`faculty_id`, `status`);
-CREATE INDEX `evaluations_faculty_id_academic_year_semester_index` ON `evaluations` (`faculty_id`, `academic_year`, `semester`);
-CREATE UNIQUE INDEX `eval_faculty_teaching_period_unique` ON `evaluations` (`faculty_id`, `teaching_history_id`, `evaluation_period`);
+CREATE INDEX `clearance_requests_professor_id_status_index` ON `clearance_requests` (`professor_id`, `status`);
+CREATE INDEX `evaluations_professor_id_academic_year_semester_index` ON `evaluations` (`professor_id`, `academic_year`, `semester`);
+CREATE UNIQUE INDEX `eval_faculty_teaching_period_unique` ON `evaluations` (`professor_id`, `teaching_history_id`, `evaluation_period`);
 CREATE UNIQUE INDEX `faculties_email_unique` ON `faculties` (`email`);
 CREATE UNIQUE INDEX `faculties_professor_id_unique` ON `faculties` (`professor_id`);
-CREATE INDEX `faculty_salary_grade_faculty_id_is_current_index` ON `faculty_salary_grade` (`faculty_id`, `is_current`);
-CREATE UNIQUE INDEX `faculty_salary_grade_unique` ON `faculty_salary_grade` (`faculty_id`, `salary_grade_id`, `effective_date`);
+CREATE INDEX `faculty_salary_grade_professor_id_is_current_index` ON `faculty_salary_grade` (`professor_id`, `is_current`);
+CREATE UNIQUE INDEX `faculty_salary_grade_unique` ON `faculty_salary_grade` (`professor_id`, `salary_grade_id`, `effective_date`);
 CREATE UNIQUE INDEX `failed_jobs_uuid_unique` ON `failed_jobs` (`uuid`);
 CREATE INDEX `jobs_queue_index` ON `jobs` (`queue`);
-CREATE UNIQUE INDEX `payslips_faculty_id_year_month_unique` ON `payslips` (`faculty_id`, `year`, `month`);
+CREATE UNIQUE INDEX `payslips_professor_id_year_month_unique` ON `payslips` (`professor_id`, `year`, `month`);
 CREATE INDEX `payslips_status_index` ON `payslips` (`status`);
 CREATE INDEX `payslips_year_month_index` ON `payslips` (`year`, `month`);
-CREATE INDEX `schedule_assignments_faculty_id_academic_year_semester_index` ON `schedule_assignments` (`faculty_id`, `academic_year`, `semester`);
+CREATE INDEX `schedule_assignments_professor_id_academic_year_semester_index` ON `schedule_assignments` (`professor_id`, `academic_year`, `semester`);
 CREATE INDEX `schedule_assignments_schedule_day_start_time_end_time_index` ON `schedule_assignments` (`schedule_day`, `start_time`, `end_time`);
 CREATE INDEX `schedule_assignments_status_index` ON `schedule_assignments` (`status`);
 CREATE INDEX `schedule_assignments_subject_code_section_index` ON `schedule_assignments` (`subject_code`, `section`);
 CREATE INDEX `sessions_last_activity_index` ON `sessions` (`last_activity`);
 CREATE INDEX `sessions_user_id_index` ON `sessions` (`user_id`);
-CREATE INDEX `subject_load_trackers_faculty_id_academic_year_semester_index` ON `subject_load_trackers` (`faculty_id`, `academic_year`, `semester`);
+CREATE INDEX `subject_load_trackers_professor_id_academic_year_semester_index` ON `subject_load_trackers` (`professor_id`, `academic_year`, `semester`);
 CREATE INDEX `subject_load_trackers_schedule_day_start_time_end_time_index` ON `subject_load_trackers` (`schedule_day`, `start_time`, `end_time`);
 CREATE INDEX `subject_load_trackers_status_index` ON `subject_load_trackers` (`status`);
 CREATE INDEX `subject_load_trackers_subject_section_year_sem_index` ON `subject_load_trackers` (`subject_code`, `section`, `academic_year`, `semester`);
-CREATE INDEX `teaching_histories_faculty_id_academic_year_semester_index` ON `teaching_histories` (`faculty_id`, `academic_year`, `semester`);
-CREATE UNIQUE INDEX `unique_subject_assignment` ON `subject_load_trackers` (`faculty_id`, `subject_code`, `section`, `academic_year`, `semester`);
+CREATE INDEX `teaching_histories_professor_id_academic_year_semester_index` ON `teaching_histories` (`professor_id`, `academic_year`, `semester`);
+CREATE UNIQUE INDEX `unique_subject_assignment` ON `subject_load_trackers` (`professor_id`, `subject_code`, `section`, `academic_year`, `semester`);
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
 
 SET FOREIGN_KEY_CHECKS = 1;

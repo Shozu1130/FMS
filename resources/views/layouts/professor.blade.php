@@ -10,8 +10,22 @@
         .btn-purple { background-color: #5044e4; color: white; }
         .btn-purple:hover { background-color: #3f38b7; color: white; }
         .bg-purple { background-color: #5044e4; }
-        .sidebar { background-color: #f8f9fa; min-height: calc(100vh - 56px); }
+        .sidebar { 
+            background-color: #f8f9fa; 
+            min-height: calc(100vh - 56px); 
+            overflow-y: auto;
+            max-height: calc(100vh - 56px);
+        }
         .sidebar .nav-link.active { font-weight: 600; color: #5044e4; }
+        .sidebar .nav-link { 
+            padding: 0.75rem 1rem; 
+            margin-bottom: 0.25rem;
+            border-radius: 0.375rem;
+        }
+        .sidebar .nav-link:hover { 
+            background-color: #e9ecef; 
+            color: #5044e4;
+        }
     </style>
     @stack('head')
     @yield('head')
@@ -55,13 +69,33 @@
                         </a>
                     </li>
                     <li class="nav-item">
-<a class="nav-link {{ request()->routeIs('professor.salary_grades.*') ? 'active' : '' }}" href="{{ route('professor.salary_grades.index') }}">
-                            <i class="bi bi-currency-dollar"></i> Salary Grades
+                        <a class="nav-link {{ request()->routeIs('professor.schedule.*') ? 'active' : '' }}" href="{{ route('professor.schedule.index') }}">
+                            <i class="bi bi-calendar-week"></i> My Schedule
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('professor.subject-loads.*') ? 'active' : '' }}" href="{{ route('professor.subject-loads.index') }}">
-                            <i class="bi bi-bookmarks"></i> My Subject Loads
+                        <a class="nav-link {{ request()->routeIs('professor.teaching_history.*') ? 'active' : '' }}" href="{{ route('professor.teaching_history.index') }}">
+                            <i class="bi bi-journal-text"></i> Teaching History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('professor.attendance.*') ? 'active' : '' }}" href="{{ route('professor.attendance.history') }}">
+                            <i class="bi bi-clock-history"></i> My Attendance History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('professor.pay.*') ? 'active' : '' }}" href="{{ route('professor.pay.index') }}">
+                            <i class="bi bi-currency-dollar"></i> My Pay
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('professor.clearance-requests.*') ? 'active' : '' }}" href="{{ route('professor.clearance-requests.index') }}">
+                            <i class="bi bi-file-earmark-check"></i> My Clearance Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('professor.evaluation.*') ? 'active' : '' }}" href="{{ route('professor.evaluation.index') }}">
+                            <i class="bi bi-star"></i> Evaluations
                         </a>
                     </li>
                 </ul>

@@ -438,7 +438,7 @@
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-card">
-            <h2 class="mb-4">Admin Dashboard</h2>
+            <h2 class="mb-4"></h2>
             @yield('content')
         </div>
     </div>

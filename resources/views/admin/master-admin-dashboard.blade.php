@@ -10,7 +10,7 @@
             <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
                 <i class="fas fa-user-shield text-danger mr-2"></i>
                 Master Admin Dashboard
-                <span class="badge badge-danger ml-2">Master Admin</span>
+                <span class="badge badge-danger ml-2" style="background-color: #dc3545 !important; color: white !important; font-weight: bold;">Master Admin</span>
             </h1>
             <p class="text-muted mb-0">
                 Administrative Account Management System
@@ -224,9 +224,9 @@
                                             </td>
                                             <td>
                                                 @if($admin->role === 'master_admin')
-                                                    <span class="badge badge-danger">Master Admin</span>
+                                                    <span class="badge badge-danger" style="background-color: #dc3545 !important; color: white !important; font-weight: bold;">Master Admin</span>
                                                 @else
-                                                    <span class="badge badge-primary">Department Admin</span>
+                                                    <span class="badge badge-primary" style="background-color: #007bff !important; color: white !important; font-weight: bold;">Department Admin</span>
                                                 @endif
                                             </td>
                                             <td>{{ $admin->created_at->diffForHumans() }}</td>

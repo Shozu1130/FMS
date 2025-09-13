@@ -7,10 +7,11 @@ $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 echo "Checking database tables:\n";
 
 try {
-    $tables = DB::select("SELECT name FROM sqlite_master WHERE type='table'");
+    $tables = DB::select("SHOW TABLES");
     echo "Tables found:\n";
     foreach ($tables as $table) {
-        echo "- " . $table->name . "\n";
+        $tableName = array_values((array)$table)[0];
+        echo "- " . $tableName . "\n";
     }
     
     echo "\nChecking faculty table specifically:\n";

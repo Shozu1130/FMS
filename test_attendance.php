@@ -9,7 +9,7 @@ echo "Testing attendance creation:\n";
 try {
     // Test creating an attendance record directly
     $attendance = new \App\Models\Attendance();
-    $attendance->faculty_id = 2;
+    $attendance->professor_id = 2;
     $attendance->date = '2025-09-02';
     $attendance->status = 'late';
     $attendance->time_in = '2025-09-02 19:53:12';

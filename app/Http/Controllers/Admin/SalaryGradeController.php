@@ -175,7 +175,7 @@ class SalaryGradeController extends Controller
         $salaryGrades = $salaryGradesQuery->get();
         
         $currentAssignmentsQuery = DB::table('faculty_salary_grade')
-            ->join('faculties', 'faculty_salary_grade.faculty_id', '=', 'faculties.id')
+            ->join('faculties', 'faculty_salary_grade.professor_id', '=', 'faculties.id')
             ->join('salary_grades', 'faculty_salary_grade.salary_grade_id', '=', 'salary_grades.id')
             ->where(function($query) {
                 $query->whereNull('faculty_salary_grade.end_date')
@@ -214,7 +214,7 @@ class SalaryGradeController extends Controller
     public function assignStore(Request $request)
     {
         $request->validate([
-            'faculty_id' => 'required|exists:faculties,id',
+            'professor_id' => 'required|exists:faculties,id',
             'salary_grade_id' => 'required|exists:salary_grades,id',
             'effective_date' => 'required|date',
             'notes' => 'nullable|string|max:500'
@@ -222,7 +222,7 @@ class SalaryGradeController extends Controller
 
         // Check if faculty already has an active assignment
         $existingAssignment = DB::table('faculty_salary_grade')
-            ->where('faculty_id', $request->faculty_id)
+            ->where('professor_id', $request->professor_id)
             ->where(function($query) {
                 $query->whereNull('end_date')
                       ->orWhere('end_date', '>', now());
@@ -242,7 +242,7 @@ class SalaryGradeController extends Controller
 
         // Create new assignment
         DB::table('faculty_salary_grade')->insert([
-            'faculty_id' => $request->faculty_id,
+            'professor_id' => $request->professor_id,
             'salary_grade_id' => $request->salary_grade_id,
             'effective_date' => $request->effective_date,
             'notes' => $request->notes,
@@ -251,7 +251,7 @@ class SalaryGradeController extends Controller
             'updated_at' => now()
         ]);
 
-        $faculty = Faculty::find($request->faculty_id);
+        $faculty = Faculty::find($request->professor_id);
         $salaryGrade = SalaryGrade::find($request->salary_grade_id);
 
         return redirect()->route('admin.salary-grades.assign')

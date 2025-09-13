@@ -13,7 +13,7 @@ class SubjectLoadTracker extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'subject_code',
         'subject_name',
         'section',
@@ -88,7 +88,7 @@ class SubjectLoadTracker extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -126,9 +126,9 @@ class SubjectLoadTracker extends Model
     /**
      * Check for duplicate subject assignment.
      */
-    public static function hasDuplicateAssignment($facultyId, $subjectCode, $section, $academicYear, $semester, $excludeId = null)
+    public static function hasDuplicateAssignment($professorId, $subjectCode, $section, $academicYear, $semester, $excludeId = null)
     {
-        $query = self::where('faculty_id', $facultyId)
+        $query = self::where('professor_id', $professorId)
                     ->where('subject_code', $subjectCode)
                     ->where('section', $section)
                     ->where('academic_year', $academicYear)
@@ -145,9 +145,9 @@ class SubjectLoadTracker extends Model
     /**
      * Check for schedule conflicts.
      */
-    public static function hasScheduleConflict($facultyId, $scheduleDay, $startTime, $endTime, $academicYear, $semester, $excludeId = null)
+    public static function hasScheduleConflict($professorId, $scheduleDay, $startTime, $endTime, $academicYear, $semester, $excludeId = null)
     {
-        $query = self::where('faculty_id', $facultyId)
+        $query = self::where('professor_id', $professorId)
                     ->where('schedule_day', $scheduleDay)
                     ->where('academic_year', $academicYear)
                     ->where('semester', $semester)
@@ -178,9 +178,9 @@ class SubjectLoadTracker extends Model
     /**
      * Get faculty total units for a period.
      */
-    public static function getFacultyTotalUnits($facultyId, $academicYear, $semester)
+    public static function getFacultyTotalUnits($professorId, $academicYear, $semester)
     {
-        return self::where('faculty_id', $facultyId)
+        return self::where('professor_id', $professorId)
                   ->where('academic_year', $academicYear)
                   ->where('semester', $semester)
                   ->where('status', self::STATUS_ACTIVE)
@@ -190,9 +190,9 @@ class SubjectLoadTracker extends Model
     /**
      * Get faculty total hours for a period.
      */
-    public static function getFacultyTotalHours($facultyId, $academicYear, $semester)
+    public static function getFacultyTotalHours($professorId, $academicYear, $semester)
     {
-        return self::where('faculty_id', $facultyId)
+        return self::where('professor_id', $professorId)
                   ->where('academic_year', $academicYear)
                   ->where('semester', $semester)
                   ->where('status', self::STATUS_ACTIVE)
@@ -219,9 +219,9 @@ class SubjectLoadTracker extends Model
     /**
      * Scope for specific faculty.
      */
-    public function scopeForFaculty($query, $facultyId)
+    public function scopeForFaculty($query, $professorId)
     {
-        return $query->where('faculty_id', $facultyId);
+        return $query->where('professor_id', $professorId);
     }
 
     /**
@@ -266,7 +266,7 @@ class SubjectLoadTracker extends Model
     public static function rules($id = null)
     {
         return [
-            'faculty_id' => 'required|exists:faculties,id',
+            'professor_id' => 'required|exists:faculties,id',
             'subject_code' => 'required|string|max:20',
             'subject_name' => 'required|string|max:255',
             'section' => 'required|string|max:10',
@@ -294,8 +294,8 @@ class SubjectLoadTracker extends Model
     public static function validationMessages()
     {
         return [
-            'faculty_id.required' => 'Please select a faculty member.',
-            'faculty_id.exists' => 'Selected faculty member does not exist.',
+            'professor_id.required' => 'Please select a faculty member.',
+            'professor_id.exists' => 'Selected faculty member does not exist.',
             'subject_code.required' => 'Subject code is required.',
             'subject_name.required' => 'Subject name is required.',
             'section.required' => 'Section is required.',

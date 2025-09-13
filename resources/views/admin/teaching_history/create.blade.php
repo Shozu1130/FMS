@@ -12,11 +12,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="faculty_id" class="form-label">Faculty Member *</label>
-                            <select class="form-select" id="faculty_id" name="faculty_id" required>
+                            <label for="professor_id" class="form-label">Faculty Member *</label>
+                            <select class="form-select" id="professor_id" name="professor_id" required>
                                 <option value="">Select Faculty</option>
                                 @foreach($faculties as $faculty)
-                                    <option value="{{ $faculty->id }}" {{ old('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                                    <option value="{{ $faculty->id }}" {{ old('professor_id') == $faculty->id ? 'selected' : '' }}>
                                         {{ $faculty->name }} ({{ $faculty->professor_id }})
                                     </option>
                                 @endforeach

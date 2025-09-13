@@ -20,7 +20,7 @@ class ScheduleSearchController extends Controller
         $academicYears = SubjectLoadTracker::distinct()->pluck('academic_year')->filter()->sort()->values();
         
         // Only show results if there's a search query or filter applied
-        $hasSearchCriteria = $request->filled(['search', 'faculty_id', 'academic_year', 'semester', 'status', 'schedule_day', 'year_level']);
+        $hasSearchCriteria = $request->filled(['search', 'professor_id', 'academic_year', 'semester', 'status', 'schedule_day', 'year_level']);
         
         $schedules = collect();
         $stats = [
@@ -50,8 +50,8 @@ class ScheduleSearchController extends Controller
                 });
             }
             
-            if ($request->filled('faculty_id')) {
-                $query->where('faculty_id', $request->faculty_id);
+            if ($request->filled('professor_id')) {
+                $query->where('professor_id', $request->professor_id);
             }
             
             if ($request->filled('academic_year')) {
@@ -79,7 +79,7 @@ class ScheduleSearchController extends Controller
             $allSchedules = $query->get();
             $stats = [
                 'total_assignments' => $allSchedules->count(),
-                'active_faculty' => $allSchedules->pluck('faculty_id')->unique()->count(),
+                'active_faculty' => $allSchedules->pluck('professor_id')->unique()->count(),
                 'total_units' => $allSchedules->sum('units'),
                 'total_hours' => $allSchedules->sum('hours_per_week'),
                 'schedule_conflicts' => $this->detectConflicts($allSchedules)
@@ -107,7 +107,7 @@ class ScheduleSearchController extends Controller
     private function detectConflicts($schedules)
     {
         $conflicts = [];
-        $grouped = $schedules->groupBy(['faculty_id', 'schedule_day']);
+        $grouped = $schedules->groupBy(['professor_id', 'schedule_day']);
         
         foreach ($grouped as $facultyId => $facultySchedules) {
             foreach ($facultySchedules as $day => $daySchedules) {
@@ -153,8 +153,8 @@ class ScheduleSearchController extends Controller
             });
         }
         
-        if ($request->filled('faculty_id')) {
-            $query->where('faculty_id', $request->faculty_id);
+        if ($request->filled('professor_id')) {
+            $query->where('professor_id', $request->professor_id);
         }
         
         if ($request->filled('academic_year')) {

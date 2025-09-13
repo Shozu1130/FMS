@@ -23,7 +23,7 @@ class EvaluationController extends Controller
         
         $evaluations = $query->orderBy('academic_year', 'desc')
             ->orderBy('semester')
-            ->orderBy('faculty_id')
+            ->orderBy('professor_id')
             ->paginate(20);
 
         // Filter faculties by department
@@ -168,7 +168,7 @@ class EvaluationController extends Controller
 
         $evaluationsQuery = Evaluation::with(['faculty', 'teachingHistory'])
             ->byPeriod($academicYear, $semester, $period)
-            ->orderBy('faculty_id');
+            ->orderBy('professor_id');
             
         // Filter by department
         if (!auth()->user()->isMasterAdmin() && auth()->user()->department) {
@@ -306,7 +306,7 @@ class EvaluationController extends Controller
         ]);
 
         Evaluation::create([
-            'faculty_id' => $faculty->id,
+            'professor_id' => $faculty->id,
             'evaluation_period' => $validated['evaluation_period'],
             'academic_year' => $validated['academic_year'],
             'semester' => $validated['semester'],
@@ -328,7 +328,7 @@ class EvaluationController extends Controller
     public function storeFromModal(Request $request)
     {
         $validated = $request->validate([
-            'faculty_id' => 'required|exists:faculties,id',
+            'professor_id' => 'required|exists:faculties,id',
             'academic_year' => 'required|string',
             'evaluation_period' => 'required|string',
             'teaching_effectiveness' => 'required|numeric|min:1|max:5',

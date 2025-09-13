@@ -13,7 +13,7 @@ class TeachingHistory extends Model
     protected $table = 'teaching_histories';
 
     protected $fillable = [
-        'faculty_id',
+        'professor_id',
         'course_code',
         'course_title',
         'semester',
@@ -50,7 +50,7 @@ class TeachingHistory extends Model
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'professor_id');
     }
 
     /**
@@ -162,7 +162,7 @@ class TeachingHistory extends Model
 
         // For updates, add unique validation for course_code to prevent duplicates
         if ($id) {
-            $rules['course_code'] = 'required|string|max:20|unique:teaching_histories,course_code,' . $id . ',id,faculty_id,' . auth('faculty')->id();
+            $rules['course_code'] = 'required|string|max:20|unique:teaching_histories,course_code,' . $id . ',id,professor_id,' . auth('faculty')->id();
         }
 
         return $rules;

@@ -257,6 +257,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('professor.schedule.*') ? 'active' : '' }}" href="{{ route('professor.schedule.index') }}">
+                            <i class="bi bi-calendar-week"></i> My Schedule
+                        </a>
+                    </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('professor.leave.*') ? 'active' : '' }}" href="{{ route('professor.leave.index') }}">
                     <i class="bi bi-calendar-check"></i> Leave Applications
                 </a>

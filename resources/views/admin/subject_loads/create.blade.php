@@ -15,16 +15,16 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="faculty_id" class="form-label">Faculty Member <span class="text-danger">*</span></label>
-                                    <select name="faculty_id" id="faculty_id" class="form-select @error('faculty_id') is-invalid @enderror" required>
+                                    <label for="professor_id" class="form-label">Faculty Member <span class="text-danger">*</span></label>
+                                    <select name="professor_id" id="professor_id" class="form-select @error('professor_id') is-invalid @enderror" required>
                                         <option value="">Select Faculty</option>
                                         @foreach($faculties as $faculty)
-                                            <option value="{{ $faculty->id }}" {{ old('faculty_id') == $faculty->id ? 'selected' : '' }}>
+                                            <option value="{{ $faculty->id }}" {{ old('professor_id') == $faculty->id ? 'selected' : '' }}>
                                                 {{ $faculty->name }} ({{ $faculty->professor_id }})
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('faculty_id')
+                                    @error('professor_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -255,7 +255,7 @@ document.getElementById('notes').addEventListener('input', function() {
 
 // Real-time conflict detection
 function checkConflicts() {
-    const facultyId = document.getElementById('faculty_id').value;
+    const facultyId = document.getElementById('professor_id').value;
     const subjectCode = document.getElementById('subject_code').value;
     const section = document.getElementById('section').value;
     const academicYear = document.getElementById('academic_year').value;
@@ -276,7 +276,7 @@ function checkConflicts() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            faculty_id: facultyId,
+            professor_id: facultyId,
             subject_code: subjectCode,
             section: section,
             academic_year: academicYear,
@@ -299,7 +299,7 @@ function checkConflicts() {
 
 // Load faculty summary
 function loadFacultySummary() {
-    const facultyId = document.getElementById('faculty_id').value;
+    const facultyId = document.getElementById('professor_id').value;
     const academicYear = document.getElementById('academic_year').value;
     const semester = document.getElementById('semester').value;
 
@@ -315,7 +315,7 @@ function loadFacultySummary() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            faculty_id: facultyId,
+            professor_id: facultyId,
             academic_year: academicYear,
             semester: semester
         })
@@ -373,7 +373,7 @@ function hideFacultyLoadSummary() {
 }
 
 // Event listeners
-document.getElementById('faculty_id').addEventListener('change', function() {
+document.getElementById('professor_id').addEventListener('change', function() {
     checkConflicts();
     loadFacultySummary();
 });
@@ -382,7 +382,7 @@ document.getElementById('faculty_id').addEventListener('change', function() {
     document.getElementById(id).addEventListener('change', checkConflicts);
 });
 
-['faculty_id', 'academic_year', 'semester'].forEach(id => {
+['professor_id', 'academic_year', 'semester'].forEach(id => {
     document.getElementById(id).addEventListener('change', loadFacultySummary);
 });
 
